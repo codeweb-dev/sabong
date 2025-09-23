@@ -17,12 +17,22 @@
 
             <flux:menu>
                 <flux:menu.radio.group>
-                    <flux:menu.item :href="route('dashboard')" icon="home" wire:navigate>{{ __('Home') }}
+                    <flux:menu.item :href="route('dashboard')" icon="home" wire:navigate>{{ __('HOME') }}
                     </flux:menu.item>
-                </flux:menu.radio.group>
 
-                <flux:menu.radio.group>
-                    <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}
+                    @if (auth()->user()->hasRole('admin'))
+                        {{-- <livewire:admin.dashboard /> --}}
+                    @elseif (auth()->user()->hasRole('user'))
+                        <flux:menu.item :href="route('dashboard')" icon="circle-stack" wire:navigate>{{ __('BET SUMMARY') }}
+                        </flux:menu.item>
+
+                        <flux:menu.item :href="route('dashboard')" icon="newspaper" wire:navigate>{{ __('TRANSACTION') }}
+                        </flux:menu.item>
+                    @elseif (auth()->user()->hasRole('declarator'))
+                        {{-- <livewire:declarator.dashboard /> --}}
+                    @endif
+
+                    <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('SETTINGS') }}
                     </flux:menu.item>
                 </flux:menu.radio.group>
 
@@ -31,7 +41,7 @@
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
                     <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
-                        {{ __('Log Out') }}
+                        {{ __('LOG OUT') }}
                     </flux:menu.item>
                 </form>
             </flux:menu>
