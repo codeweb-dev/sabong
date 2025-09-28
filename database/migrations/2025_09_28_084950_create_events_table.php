@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
+            $table->string('event_name');
+            $table->text('description')->nullable();
+            $table->integer('no_of_fights');
+            $table->decimal('revolving', 12, 2)->default(0);
+            $table->enum('status', ['upcoming', 'ongoing', 'finished'])->default('upcoming');
             $table->timestamps();
         });
     }
