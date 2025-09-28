@@ -10,8 +10,11 @@ use Livewire\Component;
 class Dashboard extends Component
 {
     public string $event_name = '';
+
     public string $description = '';
+
     public int $no_of_fights = 0;
+
     public string $revolving = '';
 
     public function save()
@@ -44,13 +47,24 @@ class Dashboard extends Component
 
     public function startEvent(Event $event)
     {
-        // Do here that if i start the event button then it will get the latest event and the status is ongoing it would see all the fights in the welcome page
+        $event->update(['status' => 'ongoing']);
+        $this->dispatch('event-started', eventId: $event->id);
+        Flux::modal("event-{$event->event_name}-start")->close();
+    }
+
+    public function endEvent(Event $event)
+    {
+        $event->update(['status' => 'finished']);
+        $this->dispatch('event-ended', eventId: $event->id);
+        Flux::modal("event-{$event->event_name}-end")->close();
     }
 
     public function render()
     {
         return view('livewire.admin.dashboard', [
-            'events' => Event::latest()->get(),
+            'events' => Event::whereIn('status', ['upcoming', 'ongoing'])
+                ->latest()
+                ->get(),
         ]);
     }
 }

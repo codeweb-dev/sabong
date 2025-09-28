@@ -33,9 +33,33 @@
             </flux:modal>
         </div>
 
-        <div class="flex items-center justify-between">
-            <flux:button class="uppercase">start event</flux:button>
-            <flux:button class="uppercase">end event</flux:button>
-        </div>
+        @if ($events->isNotEmpty())
+            <div class="flex items-center justify-between">
+                <flux:modal.trigger name="event-{{ $events->first()->event_name }}-start">
+                    <flux:button class="uppercase">start event</flux:button>
+                </flux:modal.trigger>
+
+                <flux:modal name="event-{{ $events->first()->event_name }}-start" class="min-w-[22rem]"
+                    wire:key="start-{{ $events->first()->id }}-modal">
+                    <div class="space-y-6">
+                        <div>
+                            <flux:heading size="lg">{{ $events->first()->event_name }}</flux:heading>
+                            <flux:text class="mt-2">
+                                <p>Do you want to start {{ $events->first()->event_name }} event?</p>
+                            </flux:text>
+                        </div>
+                        <div class="flex gap-2">
+                            <flux:spacer />
+                            <flux:modal.close>
+                                <flux:button variant="ghost">Cancel</flux:button>
+                            </flux:modal.close>
+                            <flux:button wire:click="startEvent({{ $events->first()->id }})">Start Event</flux:button>
+                        </div>
+                    </div>
+                </flux:modal>
+
+                <flux:button wire:click="endEvent({{ $events->first()->id }})">End Event</flux:button>
+            </div>
+        @endif
     </div>
 </div>
