@@ -9,6 +9,20 @@
     <flux:header container class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
         <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
+        @if (auth()->user()->hasRole('admin'))
+            <flux:navbar class="-mb-px max-lg:hidden">
+                <flux:navbar.item :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate
+                    class="uppercase">Home
+                </flux:navbar.item>
+                <flux:navbar.item :href="route('admin.users')" :current="request()->routeIs('admin.users')"
+                    wire:navigate class="uppercase">users</flux:navbar.item>
+                <flux:navbar.item :href="route('admin.transactions')" :current="request()->routeIs('admin.transactions')"
+                    wire:navigate class="uppercase">transaction</flux:navbar.item>
+                <flux:navbar.item :href="route('admin.betting')" :current="request()->routeIs('admin.betting')"
+                    wire:navigate class="uppercase">betting history</flux:navbar.item>
+            </flux:navbar>
+        @endif
+
         <flux:spacer />
 
         <!-- Desktop User Menu -->
@@ -23,10 +37,12 @@
                     @if (auth()->user()->hasRole('admin'))
                         {{-- <livewire:admin.dashboard /> --}}
                     @elseif (auth()->user()->hasRole('user'))
-                        <flux:menu.item :href="route('dashboard')" icon="circle-stack" wire:navigate>{{ __('BET SUMMARY') }}
+                        <flux:menu.item :href="route('dashboard')" icon="circle-stack" wire:navigate>
+                            {{ __('BET SUMMARY') }}
                         </flux:menu.item>
 
-                        <flux:menu.item :href="route('dashboard')" icon="newspaper" wire:navigate>{{ __('TRANSACTION') }}
+                        <flux:menu.item :href="route('dashboard')" icon="newspaper" wire:navigate>
+                            {{ __('TRANSACTION') }}
                         </flux:menu.item>
                     @elseif (auth()->user()->hasRole('declarator'))
                         {{-- <livewire:declarator.dashboard /> --}}
@@ -84,6 +100,8 @@
     {{ $slot }}
 
     @fluxScripts
+
+    <x-toaster-hub />
 </body>
 
 </html>

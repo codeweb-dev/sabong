@@ -1,5 +1,8 @@
 <?php
 
+use App\Livewire\Admin\Betting;
+use App\Livewire\Admin\Transactions;
+use App\Livewire\Admin\Users;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -19,15 +22,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/password', Password::class)->name('settings.password');
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 
-    Route::group(['middleware' => ['role:admin']], function () {
+    Route::group(['middleware' => ['role:declarator']], function () {
         //
     });
 
     Route::group(['middleware' => ['role:admin']], function () {
-        // Route::get('/admin-noon-report', AdminNoonReport::class)->name('admin-noon-report');
+        Route::get('/users', Users::class)->name('admin.users');
+        Route::get('/transactions', Transactions::class)->name('admin.transactions');
+        Route::get('/betting', Betting::class)->name('admin.betting');
     });
 
-    Route::group(['middleware' => ['role:admin']], function () {
+    Route::group(['middleware' => ['role:user']], function () {
         //
     });
 });
