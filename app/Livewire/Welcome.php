@@ -11,9 +11,7 @@ use Livewire\Component;
 class Welcome extends Component
 {
     public $isSmallScreen = false;
-
     public $currentEvent = null;
-
     public $fights = [];
 
     public function mount($smallScreen = false)
@@ -22,17 +20,18 @@ class Welcome extends Component
         $this->loadOngoingEvent();
     }
 
-    #[On('event-started')]
-    public function loadEvent($eventId)
+    // 👇 Listen to Reverb broadcast from the "events" channel
+    #[On('echo:events,.event.started')]
+    public function handleEventStarted($data)
     {
-        $this->currentEvent = Event::with('fights')->find($eventId);
+        $this->currentEvent = Event::with('fights')->find($data['eventId']);
         $this->fights = $this->currentEvent?->fights ?? [];
     }
 
-    #[On('event-ended')]
-    public function clearEvent($eventId)
+    #[On('echo:events,.event.ended')]
+    public function handleEventEnded($data)
     {
-        if ($this->currentEvent && $this->currentEvent->id === $eventId) {
+        if ($this->currentEvent && $this->currentEvent->id === $data['eventId']) {
             $this->currentEvent = null;
             $this->fights = [];
         }
@@ -40,7 +39,11 @@ class Welcome extends Component
 
     private function loadOngoingEvent()
     {
-        $this->currentEvent = Event::where('status', 'ongoing')->latest()->with('fights')->first();
+        $this->currentEvent = Event::where('status', 'ongoing')
+            ->latest()
+            ->with('fights')
+            ->first();
+
         $this->fights = $this->currentEvent?->fights ?? [];
     }
 

@@ -1,5 +1,5 @@
 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-    <livewire:admin.components.events :events="$events" />
+    <livewire:admin.components.events />
 
     <div class="flex flex-col gap-2 w-full lg:w-1/2">
         <div class="w-full h-100 overflow-hidden border border-zinc-700 rounded-lg bg-zinc-900">

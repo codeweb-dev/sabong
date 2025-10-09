@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Admin;
 
+use App\Events\EventEnded;
+use App\Events\EventStarted;
 use App\Models\Event;
 use App\Models\Fight;
 use Flux\Flux;
@@ -48,14 +50,16 @@ class Dashboard extends Component
     public function startEvent(Event $event)
     {
         $event->update(['status' => 'ongoing']);
-        $this->dispatch('event-started', eventId: $event->id);
+        broadcast(new EventStarted($event));
+        $this->dispatch('$refresh');
         Flux::modal("event-{$event->event_name}-start")->close();
     }
 
     public function endEvent(Event $event)
     {
         $event->update(['status' => 'finished']);
-        $this->dispatch('event-ended', eventId: $event->id);
+        broadcast(new EventEnded($event));
+        $this->dispatch('$refresh');
         Flux::modal("event-{$event->event_name}-end")->close();
     }
 

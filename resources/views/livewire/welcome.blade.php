@@ -4,12 +4,6 @@
         <div class="flex flex-col md:flex-row h-screen {{ $isSmallScreen ? 'bg-zinc-900' : '' }}">
             <aside
                 class="w-full md:w-78 flex flex-row md:flex-col gap-3 md:gap-6 px-4 md:px-6 py-4 md:py-8 border-b md:border-b-0 md:border-e border-zinc-200 dark:border-zinc-700 overflow-y-auto scrollbar-hide">
-                <div
-                    class="flex-1 md:p-12 py-8 px-12 bg-green-400 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl relative">
-                    <p>0</p>
-
-                </div>
-
                 @foreach ($fights as $fight)
                     <div
                         class="flex-1 md:p-12 py-8 px-12 bg-green-400 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl relative">
