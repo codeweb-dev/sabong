@@ -51,12 +51,38 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                    <td colspan="6" class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400">
-                        No fight history yet
-                    </td>
-                </tr>
+                @if ($events && $fights->isNotEmpty())
+                    @foreach ($fights as $fight)
+                        <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->fight_number }}</td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->meron ?? '' }}</td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->wala ?? '' }}</td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->result ?? '' }}
+                            </td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->payout ?? '' }}
+                            </td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">
+                                <span
+                                    class="@switch($fight->status)
+                                @case('pending') text-yellow-400 @break
+                                @case('ongoing') text-blue-400 @break
+                                @case('finished') text-green-400 @break
+                                @default text-gray-400
+                            @endswitch">
+                                    {{ ucfirst($fight->status) }}
+                                </span>
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                        <td colspan="6" class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400">
+                            No fight history yet
+                        </td>
+                    </tr>
+                @endif
             </tbody>
         </x-table>
     </div>
+
 </div>

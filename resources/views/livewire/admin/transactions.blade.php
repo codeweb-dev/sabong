@@ -5,15 +5,15 @@
                 <div class="space-y-1">
                     <p class="flex justify-between">
                         <span>revolving:</span>
-                        <span>100,000</span>
+                        <span>{{ $event->revolving ?? '' }}</span>
                     </p>
                     <p class="flex justify-between">
                         <span>total transfer:</span>
-                        <span>50,000</span>
+                        <span></span>
                     </p>
                     <p class="flex justify-between">
                         <span>total received:</span>
-                        <span>50,000</span>
+                        <span></span>
                     </p>
                 </div>
                 <div class="flex items-center justify-between gap-3">

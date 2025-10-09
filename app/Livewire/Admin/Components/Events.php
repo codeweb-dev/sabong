@@ -10,6 +10,8 @@ class Events extends Component
 {
     public $events;
 
+    public $fights = [];
+
     public function mount()
     {
         $this->loadEvents();
@@ -17,9 +19,18 @@ class Events extends Component
 
     public function loadEvents()
     {
-        $this->events = Event::whereIn('status', ['upcoming', 'ongoing'])
+        $this->events = Event::with('fights')
+            ->whereIn('status', ['upcoming', 'ongoing'])
             ->latest()
             ->get();
+
+        // Get the first ongoing event (if any)
+        $ongoingEvent = $this->events->firstWhere('status', 'ongoing');
+
+        // If there’s an ongoing event, grab its fights
+        $this->fights = $ongoingEvent
+            ? $ongoingEvent->fights->sortBy('fight_number')->values()
+            : collect(); // empty collection if no ongoing event
     }
 
     #[On('echo:events,.event.started')]
