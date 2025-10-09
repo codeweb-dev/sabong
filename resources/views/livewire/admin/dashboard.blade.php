@@ -58,7 +58,7 @@
                     </div>
                 </flux:modal>
 
-                <flux:button wire:click="endEvent({{ $events->first()->id }})">End Event</flux:button>
+                <flux:button wire:click="endEvent({{ $events->first()->id }})" class="uppercase">End Event</flux:button>
             </div>
         @endif
     </div>
