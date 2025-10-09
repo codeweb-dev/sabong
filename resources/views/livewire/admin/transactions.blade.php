@@ -17,7 +17,46 @@
                     </p>
                 </div>
                 <div class="flex items-center justify-between gap-3">
-                    <flux:button class="flex-1 uppercase">transfer</flux:button>
+                    <flux:modal.trigger name="transfer">
+                        <flux:button class="flex-1 uppercase">transfer</flux:button>
+                    </flux:modal.trigger>
+
+                    <flux:modal name="transfer" class="md:w-96">
+                        <form wire:submit.prevent="createTransaction">
+                            <div class="space-y-6">
+                                <div>
+                                    <flux:heading size="lg">Transfer Funds</flux:heading>
+                                    <flux:text class="mt-2">
+                                        Send an amount to another teller. Please double-check all details before
+                                        confirming
+                                        the transfer.
+                                    </flux:text>
+                                </div>
+
+                                <flux:input label="Amount" placeholder="Enter amount" wire:model.defer="amount" />
+
+                                <flux:field>
+                                    <flux:label>Receiver</flux:label>
+                                    <flux:select class="pt-2" placeholder="Choose teller..."
+                                        wire:model.defer="receiver_id">
+                                        @foreach ($users as $user)
+                                            <flux:select.option value="{{ $user->id }}">
+                                                {{ $user->username }}
+                                            </flux:select.option>
+                                        @endforeach
+                                    </flux:select>
+                                </flux:field>
+
+                                <flux:input label="Note" placeholder="Enter note" wire:model.defer="note" />
+
+                                <div class="flex">
+                                    <flux:spacer />
+                                    <flux:button type="submit" variant="primary">Save changes</flux:button>
+                                </div>
+                            </div>
+                        </form>
+                    </flux:modal>
+
                     <flux:button class="flex-1 uppercase">received</flux:button>
                 </div>
             </div>
@@ -28,7 +67,7 @@
                         <thead
                             class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
                             <tr>
-                                <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">teller name</th>
+                                <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">sender</th>
                                 <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">amount</th>
                                 <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">receiver</th>
                                 <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">note</th>
@@ -37,14 +76,35 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                            </tr>
+                            @forelse ($transactions as $transaction)
+                                <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                        {{ $transaction->sender->username ?? '' }}
+                                    </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                        {{ number_format($transaction->amount, 2) }}
+                                    </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                        {{ $transaction->receiver->username ?? '' }}
+                                    </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                        {{ $transaction->note ?? '' }}
+                                    </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                        {{ ucfirst($transaction->status) }}
+                                    </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                        {{ $transaction->created_at->format('M d, Y h:i A') }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6"
+                                        class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400">
+                                        No transactions yet.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </x-table>
                 </div>

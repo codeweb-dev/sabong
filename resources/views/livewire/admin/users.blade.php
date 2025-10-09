@@ -70,26 +70,11 @@
                 <td class="px-3 py-4">{{ $user->created_at->format('M d, h:i A') }}</td>
                 <td class="px-3 py-4">
                     @unless (auth()->id() === $user->id)
-                        <flux:dropdown wire:key="dropdown-{{ $user->id }}">
-                            <flux:button icon:trailing="ellipsis-horizontal" size="xs" variant="ghost" />
-
-                            <flux:menu>
-                                <flux:menu.radio.group>
-                                    <flux:modal.trigger name="view-user-{{ $user->id }}">
-                                        <flux:menu.item icon="eye">
-                                            View
-                                        </flux:menu.item>
-                                    </flux:modal.trigger>
-
-                                    <flux:modal.trigger name="delete-user-{{ $user->id }}">
-                                        <flux:menu.item icon="trash" variant="danger">
-                                            Delete
-                                        </flux:menu.item>
-                                    </flux:modal.trigger>
-                                </flux:menu.radio.group>
-                            </flux:menu>
-                        </flux:dropdown>
-
+                        <flux:modal.trigger name="delete-user-{{ $user->id }}">
+                            <flux:button icon="trash" variant="danger" size="xs">
+                                Delete
+                            </flux:button>
+                        </flux:modal.trigger>
 
                         <flux:modal name="delete-user-{{ $user->id }}" class="min-w-[22rem]"
                             wire:key="delete-modal-{{ $user->id }}">
@@ -97,7 +82,7 @@
                                 <div>
                                     <flux:heading size="lg">Delete User?</flux:heading>
                                     <flux:text class="mt-2">
-                                        Are you sure you want to delete <strong>{{ $user->name }}</strong>?,
+                                        Are you sure you want to delete <strong>{{ $user->username }}</strong>?,
                                         This user will be permanently deleted.
                                     </flux:text>
                                 </div>
@@ -108,45 +93,8 @@
                                         <flux:button variant="ghost">Cancel</flux:button>
                                     </flux:modal.close>
                                     <flux:button type="button" variant="danger" wire:click="delete({{ $user->id }})">
-                                        Delete
+                                        Delete Permanently
                                     </flux:button>
-                                </div>
-                            </div>
-                        </flux:modal>
-
-                        <flux:modal name="view-user-{{ $user->id }}" class="min-w-[24rem] md:w-[32rem]"
-                            wire:key="view-modal-{{ $user->id }}">
-                            <div class="space-y-6">
-                                <div>
-                                    <flux:heading size="lg">User Details</flux:heading>
-                                    <flux:text class="mt-2">Here are the details for
-                                        <strong>{{ $user->name }}</strong>.
-                                    </flux:text>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <flux:label>Username</flux:label>
-                                        <p class="text-sm font-medium">{{ $user->username }}</p>
-                                    </div>
-
-                                    <div>
-                                        <flux:label>Role</flux:label>
-                                        <flux:badge size="sm" icon="check-badge">{{ $user->roles->first()?->name }}
-                                        </flux:badge>
-                                    </div>
-
-                                    <div>
-                                        <flux:label>Created At</flux:label>
-                                        <p class="text-sm text-gray-400">{{ $user->created_at->format('M d, Y h:i A') }}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div class="flex justify-end">
-                                    <flux:modal.close>
-                                        <flux:button variant="primary">Close</flux:button>
-                                    </flux:modal.close>
                                 </div>
                             </div>
                         </flux:modal>

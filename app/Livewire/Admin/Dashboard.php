@@ -44,6 +44,7 @@ class Dashboard extends Component
         }
 
         $this->reset();
+        $this->dispatch('refresh-event');
         Flux::modal('create-event')->close();
     }
 

@@ -17,6 +17,7 @@ class Events extends Component
         $this->loadEvents();
     }
 
+    #[On('refresh-event')]
     public function loadEvents()
     {
         $this->events = Event::with('fights')
@@ -24,13 +25,10 @@ class Events extends Component
             ->latest()
             ->get();
 
-        // Get the first ongoing event (if any)
         $ongoingEvent = $this->events->firstWhere('status', 'ongoing');
-
-        // If there’s an ongoing event, grab its fights
         $this->fights = $ongoingEvent
             ? $ongoingEvent->fights->sortBy('fight_number')->values()
-            : collect(); // empty collection if no ongoing event
+            : collect();
     }
 
     #[On('echo:events,.event.started')]

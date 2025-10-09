@@ -22,6 +22,7 @@ class User extends Authenticatable
     protected $fillable = [
         'username',
         'password',
+        'cash',
     ];
 
     /**
@@ -56,5 +57,10 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }
