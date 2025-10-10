@@ -13,6 +13,7 @@ class Welcome extends Component
     public $isSmallScreen = false;
     public $currentEvent = null;
     public $fights = [];
+    public $activeFight = null;
 
     public function mount($smallScreen = false)
     {
@@ -25,6 +26,7 @@ class Welcome extends Component
     {
         $this->currentEvent = Event::with('fights')->find($data['eventId']);
         $this->fights = $this->currentEvent?->fights ?? [];
+        $this->activeFight = $this->getActiveFight();
     }
 
     #[On('echo:events,.event.ended')]
@@ -33,6 +35,24 @@ class Welcome extends Component
         if ($this->currentEvent && $this->currentEvent->id === $data['eventId']) {
             $this->currentEvent = null;
             $this->fights = [];
+            $this->activeFight = null;
+        }
+    }
+
+    #[On('echo:events,.fight.started')]
+    public function handleFightUpdated($data)
+    {
+        if ($this->currentEvent && $this->currentEvent->id === $data['eventId']) {
+            $this->fights = Event::with('fights')->find($data['eventId'])->fights;
+            $this->activeFight = collect($this->fights)
+                ->first(function ($fight) {
+                    return in_array($fight->status, ['start', 'open', 'close']);
+                });
+
+            if ($this->activeFight) {
+                $this->activeFight->fighter_a = $data['fighterA'];
+                $this->activeFight->fighter_b = $data['fighterB'];
+            }
         }
     }
 
@@ -44,6 +64,17 @@ class Welcome extends Component
             ->first();
 
         $this->fights = $this->currentEvent?->fights ?? [];
+        $this->activeFight = $this->getActiveFight();
+    }
+
+    private function getActiveFight()
+    {
+        if (! $this->currentEvent) return null;
+
+        return $this->currentEvent->fights()
+            ->whereIn('status', ['pending', 'start', 'open', 'close'])
+            ->orderBy('fight_number')
+            ->first();
     }
 
     public function render()

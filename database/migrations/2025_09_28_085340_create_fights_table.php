@@ -15,9 +15,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->integer('fight_number');
+            $table->decimal('meron_bet', 12, 2)->default(0);
+            $table->decimal('wala_bet', 12, 2)->default(0);
+            $table->boolean('meron')->default(true);
+            $table->boolean('wala')->default(true);
             $table->string('fighter_a')->nullable();
             $table->string('fighter_b')->nullable();
-            $table->enum('status', ['pending', 'ongoing', 'completed'])->default('pending');
+            $table->enum('status', ['pending', 'start', 'open', 'close', 'done'])->default('pending');
+            $table->string('winner')->nullable();
             $table->timestamps();
         });
     }

@@ -21,14 +21,17 @@
                         <p
                             class="text-2xl md:text-5xl text-center font-bold py-5 border-b border-zinc-200 dark:border-zinc-700">
                             FIGHT#</p>
-                        <p class="text-2xl md:text-5xl text-center font-bold py-5">No event ongoing</p>
+                        <p class="text-2xl md:text-5xl text-center font-bold py-5">
+                            {{ $activeFight?->fight_number ?? '-' }}</p>
                     </div>
 
                     <div class="flex flex-col flex-1 border border-zinc-200 dark:border-zinc-700">
                         <p
                             class="text-2xl md:text-5xl text-center font-bold py-5 border-b border-zinc-200 dark:border-zinc-700">
                             BETTING IS</p>
-                        <p class="text-2xl md:text-5xl text-center font-bold py-5">No event ongoing</p>
+                        <p class="text-2xl md:text-5xl text-center font-bold py-5 uppercase">
+                            {{ $activeFight?->status }}
+                        </p>
                     </div>
                 </div>
 
@@ -43,11 +46,15 @@
                             <p class="text-center text-xl md:text-3xl mt-2">PAYOUT : 0</p>
                         </div>
                         <div class="p-4 md:p-6 flex-1">
-                            <p class="text-center text-4xl md:text-5xl font-bold text-green-400">No event ongoing</p>
+                            <p class="text-center text-4xl md:text-5xl font-bold uppercase">
+                                {{ $activeFight?->meron ? 'open' : 'locked' }}
+                            </p>
                         </div>
                         <div
                             class="p-6 md:p-10 flex-1 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl bg-white">
-                            <p class="text-center font-bold uppercase">No event ongoing</p>
+                            <p class="text-center font-bold uppercase">
+                                {{ $activeFight?->fighter_a ?? 'Fighter A' }}
+                            </p>
                         </div>
                     </div>
 
@@ -64,14 +71,16 @@
                             <p class="text-center text-5xl md:text-7xl font-bold">0</p>
                             <p class="text-center text-xl md:text-3xl mt-2">PAYOUT : 0</p>
                         </div>
-
                         <div class="p-4 md:p-6 flex-1">
-                            <p class="text-center text-4xl md:text-5xl font-bold text-red-400">No event ongoing</p>
+                            <p class="text-center text-4xl md:text-5xl font-bold uppercase">
+                                {{ $activeFight?->wala ? 'open' : 'locked' }}
+                            </p>
                         </div>
-
                         <div
                             class="p-6 md:p-10 flex-1 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl bg-white">
-                            <p class="text-center font-bold uppercase">No event ongoing</p>
+                            <p class="text-center font-bold uppercase">
+                                {{ $activeFight?->fighter_b ?? 'Fighter B' }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -89,14 +98,14 @@
                         <p
                             class="text-2xl md:text-5xl text-center font-bold py-5 border-b border-zinc-200 dark:border-zinc-700">
                             FIGHT#</p>
-                        <p class="text-2xl md:text-5xl text-center font-bold py-5">No event ongoing</p>
+                        <p class="text-2xl md:text-5xl text-center font-bold py-5">-</p>
                     </div>
 
                     <div class="flex flex-col flex-1 border border-zinc-200 dark:border-zinc-700">
                         <p
                             class="text-2xl md:text-5xl text-center font-bold py-5 border-b border-zinc-200 dark:border-zinc-700">
                             BETTING IS</p>
-                        <p class="text-2xl md:text-5xl text-center font-bold py-5">No event ongoing</p>
+                        <p class="text-2xl md:text-5xl text-center font-bold py-5">-</p>
                     </div>
                 </div>
 
@@ -111,11 +120,11 @@
                             <p class="text-center text-xl md:text-3xl mt-2">PAYOUT : 0</p>
                         </div>
                         <div class="p-4 md:p-6 flex-1">
-                            <p class="text-center text-4xl md:text-5xl font-bold text-green-400">No event ongoing</p>
+                            <p class="text-center text-4xl md:text-5xl font-bold">-</p>
                         </div>
                         <div
                             class="p-6 md:p-10 flex-1 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl bg-white">
-                            <p class="text-center font-bold uppercase">No event ongoing</p>
+                            <p class="text-center font-bold uppercase">-</p>
                         </div>
                     </div>
 
@@ -134,12 +143,12 @@
                         </div>
 
                         <div class="p-4 md:p-6 flex-1">
-                            <p class="text-center text-4xl md:text-5xl font-bold text-red-400">No event ongoing</p>
+                            <p class="text-center text-4xl md:text-5xl font-bold">-</p>
                         </div>
 
                         <div
                             class="p-6 md:p-10 flex-1 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl bg-white">
-                            <p class="text-center font-bold uppercase">No event ongoing</p>
+                            <p class="text-center font-bold uppercase">-</p>
                         </div>
                     </div>
                 </div>
