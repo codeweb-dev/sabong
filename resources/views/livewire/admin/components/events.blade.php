@@ -14,7 +14,7 @@
                 @forelse($events as $event)
                     <tr class="hover:bg-white/5 bg-black/5 transition-all">
                         <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                            {{ $event->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
+                            {{ $event->created_at->timezone('Asia/Manila')->format('M d, Y') }}
                         </td>
                         <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                             {{ $event->event_name }}

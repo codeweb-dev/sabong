@@ -100,7 +100,7 @@
                             @empty
                                 <tr>
                                     <td colspan="6"
-                                        class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400">
+                                        class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400 uppercase">
                                         No transactions yet.
                                     </td>
                                 </tr>

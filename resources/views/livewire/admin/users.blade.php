@@ -1,6 +1,6 @@
 <div class="mx-auto max-w-6xl">
     <div class="mb-6 flex flex-col md:flex-row gap-6 md:gap-0 items-center justify-between w-full">
-        <h1 class="text-3xl font-bold">
+        <h1 class="text-3xl font-bold uppercase">
             Users
         </h1>
 
@@ -10,16 +10,15 @@
             </div>
 
             <flux:modal.trigger name="add-user">
-                <flux:button icon:trailing="plus">Add User</flux:button>
+                <flux:button icon:trailing="plus" class="uppercase">Add User</flux:button>
             </flux:modal.trigger>
 
             <flux:modal name="add-user" class="md:w-96">
                 <form wire:submit="save">
                     <div class="space-y-6">
                         <div>
-                            <flux:heading size="lg">Add New User</flux:heading>
-                            <flux:text class="mt-2">Fill out the form below to create a new user listing in your
-                                store.
+                            <flux:heading size="lg" class="uppercase">Add New User</flux:heading>
+                            <flux:text class="mt-2 uppercase">Fill out the form below to create a new user listing.
                             </flux:text>
                         </div>
 
@@ -42,7 +41,7 @@
                         <div class="flex">
                             <flux:spacer />
 
-                            <flux:button type="submit" variant="primary">Save User</flux:button>
+                            <flux:button type="submit" variant="primary" class="uppercase">Create User</flux:button>
                         </div>
                     </div>
                 </form>
@@ -52,10 +51,10 @@
     <x-table>
         <thead class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
             <tr>
-                <th class="px-3 py-3">Username</th>
-                <th class="px-3 py-3">Role</th>
-                <th class="px-3 py-3">Date</th>
-                <th class="px-3 py-3"></th>
+                <th class="px-3 py-3 uppercase">Username</th>
+                <th class="px-3 py-3 uppercase">Role</th>
+                <th class="px-3 py-3 uppercase">Date</th>
+                <th class="px-3 py-3 uppercase">Action</th>
             </tr>
         </thead>
 

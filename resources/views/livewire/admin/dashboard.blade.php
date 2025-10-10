@@ -16,14 +16,15 @@
                     <div class="space-y-6">
                         <div>
                             <flux:heading size="lg" class="uppercase">Create Event</flux:heading>
-                            <flux:text class="mt-2 uppercase">Please provide accurate details to ensure the event information is
+                            <flux:text class="mt-2 uppercase">Please provide accurate details to ensure the event
+                                information is
                                 correct.
                             </flux:text>
                         </div>
-                        <flux:input label="Event Name" wire:model='event_name' class="uppercase" />
-                        <flux:textarea label="Description" wire:model='description' class="uppercase" />
-                        <flux:input label="No. Of Fights" type="number" wire:model='no_of_fights' class="uppercase" />
-                        <flux:input label="Revolving" wire:model='revolving' class="uppercase" />
+                        <flux:input label="Event Name" wire:model='event_name' />
+                        <flux:textarea label="Description" wire:model='description' />
+                        <flux:input label="No. Of Fights" type="number" wire:model='no_of_fights' />
+                        <flux:input label="Revolving" wire:model='revolving' />
                         <div class="flex">
                             <flux:spacer />
                             <flux:button type="submit" variant="primary" class="uppercase">Create Event</flux:button>
@@ -39,27 +40,52 @@
                     <flux:button class="uppercase">start event</flux:button>
                 </flux:modal.trigger>
 
-                <flux:modal name="event-{{ $events->first()->event_name }}-start" class="min-w-[22rem]"
-                    wire:key="start-{{ $events->first()->id }}-modal">
-                    <div class="space-y-6">
-                        <div>
-                            <flux:heading size="lg">{{ $events->first()->event_name }}</flux:heading>
-                            <flux:text class="mt-2">
-                                <p>Do you want to start {{ $events->first()->event_name }} event?</p>
-                            </flux:text>
-                        </div>
-                        <div class="flex gap-2">
-                            <flux:spacer />
-                            <flux:modal.close>
-                                <flux:button variant="ghost">Cancel</flux:button>
-                            </flux:modal.close>
-                            <flux:button wire:click="startEvent({{ $events->first()->id }})">Start Event</flux:button>
-                        </div>
-                    </div>
-                </flux:modal>
-
-                <flux:button wire:click="endEvent({{ $events->first()->id }})" class="uppercase">End Event</flux:button>
+                <flux:modal.trigger name="event-{{ $events->first()->event_name }}-end">
+                    <flux:button class="uppercase">end event</flux:button>
+                </flux:modal.trigger>
             </div>
+
+            <flux:modal name="event-{{ $events->first()->event_name }}-start" class="min-w-[22rem]"
+                wire:key="start-{{ $events->first()->id }}-modal">
+                <div class="space-y-6">
+                    <div>
+                        <flux:heading size="lg" class="uppercase">{{ $events->first()->event_name }}
+                        </flux:heading>
+                        <flux:text class="mt-2 uppercase">
+                            <p>Do you want to start {{ $events->first()->event_name }} event?</p>
+                        </flux:text>
+                    </div>
+                    <div class="flex gap-2">
+                        <flux:spacer />
+                        <flux:modal.close>
+                            <flux:button variant="ghost" class="uppercase">Cancel</flux:button>
+                        </flux:modal.close>
+                        <flux:button class="uppercase" wire:click="startEvent({{ $events->first()->id }})">Start
+                            Event</flux:button>
+                    </div>
+                </div>
+            </flux:modal>
+
+            <flux:modal name="event-{{ $events->first()->event_name }}-end" class="min-w-[22rem]"
+                wire:key="end-{{ $events->first()->id }}-modal">
+                <div class="space-y-6">
+                    <div>
+                        <flux:heading size="lg" class="uppercase">{{ $events->first()->event_name }}</flux:heading>
+                        <flux:text class="mt-2 uppercase">
+                            <p>Do you want to end {{ $events->first()->event_name }} event?</p>
+                        </flux:text>
+                    </div>
+                    <div class="flex gap-2">
+                        <flux:spacer />
+                        <flux:modal.close>
+                            <flux:button variant="ghost" class="uppercase">Cancel</flux:button>
+                        </flux:modal.close>
+
+                        <flux:button class="uppercase" wire:click="endEvent({{ $events->first()->id }})"
+                            class="uppercase">End Event</flux:button>
+                    </div>
+                </div>
+            </flux:modal>
         @endif
     </div>
 </div>

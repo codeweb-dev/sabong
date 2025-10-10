@@ -8,15 +8,13 @@ use App\Models\Event;
 use App\Models\Fight;
 use Flux\Flux;
 use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class Dashboard extends Component
 {
     public string $event_name = '';
-
     public string $description = '';
-
     public int $no_of_fights = 0;
-
     public string $revolving = '';
 
     public function save()
@@ -50,6 +48,13 @@ class Dashboard extends Component
 
     public function startEvent(Event $event)
     {
+        $ongoing = Event::where('status', 'ongoing')->first();
+        if ($ongoing) {
+            Flux::modal("event-{$event->event_name}-start")->close();
+            Toaster::error("Cannot start a new event. '{$ongoing->event_name}' is still ongoing.");
+            return;
+        }
+
         $event->update(['status' => 'ongoing']);
         broadcast(new EventStarted($event));
         $this->dispatch('$refresh');
