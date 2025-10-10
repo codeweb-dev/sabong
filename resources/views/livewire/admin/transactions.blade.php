@@ -5,11 +5,11 @@
                 <div class="space-y-1">
                     <p class="flex justify-between">
                         <span>revolving:</span>
-                        <span>{{ $event->revolving ?? '' }}</span>
+                        <span>{{ $event ? number_format($event->revolving, 2) : '0.00' }}</span>
                     </p>
                     <p class="flex justify-between">
                         <span>total transfer:</span>
-                        <span></span>
+                        <span>{{ $event ? number_format($event->total_transfer, 2) : '0.00' }}</span>
                     </p>
                     <p class="flex justify-between">
                         <span>total received:</span>
@@ -76,7 +76,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($transactions as $transaction)
+                            @forelse (($transactions ?? []) as $transaction)
                                 <tr class="hover:bg-white/5 bg-black/5 transition-all">
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                                         {{ $transaction->sender->username ?? '' }}
@@ -94,7 +94,7 @@
                                         {{ ucfirst($transaction->status) }}
                                     </td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                        {{ $transaction->created_at->format('M d, Y h:i A') }}
+                                        {{ $transaction->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
                                     </td>
                                 </tr>
                             @empty
@@ -107,6 +107,10 @@
                             @endforelse
                         </tbody>
                     </x-table>
+                </div>
+
+                <div class="mt-1">
+                    {{ $transactions ? $transactions->links() : '' }}
                 </div>
             </div>
         </div>
