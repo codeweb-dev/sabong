@@ -28,7 +28,7 @@
                     </tr>
                 @empty
                     <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                        <td colspan="4" class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400">
+                        <td colspan="4" class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400 uppercase">
                             No events found
                         </td>
                     </tr>
@@ -68,7 +68,7 @@
                     @endforeach
                 @else
                     <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                        <td colspan="6" class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400">
+                        <td colspan="6" class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400 uppercase">
                             No fight history yet
                         </td>
                     </tr>

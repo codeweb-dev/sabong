@@ -15,18 +15,18 @@
                 <form wire:submit.prevent="save">
                     <div class="space-y-6">
                         <div>
-                            <flux:heading size="lg">Create Event</flux:heading>
-                            <flux:text class="mt-2">Please provide accurate details to ensure the event information is
+                            <flux:heading size="lg" class="uppercase">Create Event</flux:heading>
+                            <flux:text class="mt-2 uppercase">Please provide accurate details to ensure the event information is
                                 correct.
                             </flux:text>
                         </div>
-                        <flux:input label="Event Name" wire:model='event_name' />
-                        <flux:textarea label="Description" wire:model='description' />
-                        <flux:input label="No. Of Fights" type="number" wire:model='no_of_fights' />
-                        <flux:input label="Revolving" wire:model='revolving' />
+                        <flux:input label="Event Name" wire:model='event_name' class="uppercase" />
+                        <flux:textarea label="Description" wire:model='description' class="uppercase" />
+                        <flux:input label="No. Of Fights" type="number" wire:model='no_of_fights' class="uppercase" />
+                        <flux:input label="Revolving" wire:model='revolving' class="uppercase" />
                         <div class="flex">
                             <flux:spacer />
-                            <flux:button type="submit" variant="primary">Create Event</flux:button>
+                            <flux:button type="submit" variant="primary" class="uppercase">Create Event</flux:button>
                         </div>
                     </div>
                 </form>
