@@ -62,15 +62,7 @@
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->payout ?? '' }}
                             </td>
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">
-                                <span
-                                    class="@switch($fight->status)
-                                @case('pending') text-yellow-400 @break
-                                @case('ongoing') text-blue-400 @break
-                                @case('finished') text-green-400 @break
-                                @default text-gray-400
-                            @endswitch">
-                                    {{ ucfirst($fight->status) }}
-                                </span>
+                                {{ ucfirst($fight->status) }}
                             </td>
                         </tr>
                     @endforeach

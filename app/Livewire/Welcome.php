@@ -20,7 +20,6 @@ class Welcome extends Component
         $this->loadOngoingEvent();
     }
 
-    // 👇 Listen to Reverb broadcast from the "events" channel
     #[On('echo:events,.event.started')]
     public function handleEventStarted($data)
     {

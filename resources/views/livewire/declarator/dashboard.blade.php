@@ -2,11 +2,11 @@
     <div class="flex flex-col gap-6 w-full lg:w-1/2">
         <div class="flex items-center justify-between uppercase">
             <div>
-                <p>Event: </p>
-                <p>Description: </p>
+                <p>Event: {{ $currentEvent?->event_name ?? '' }}</p>
+                <p>Description: {{ $currentEvent?->description ?? '' }}</p>
             </div>
 
-            <p>Date: </p>
+            <p>Date: {{ $currentEvent?->created_at?->timezone('Asia/Manila')->format('M d, Y') ?? '' }}</p>
         </div>
 
         <div class="flex items-center gap-6 uppercase">
@@ -30,11 +30,15 @@
 
         <div class="flex items-center border border-zinc-200 dark:border-zinc-700 uppercase">
             <div class="border-r border-zinc-200 dark:border-zinc-700 py-5 flex-1">
-                <p class="font-bold text-center">fight # : 03</p>
+                <p class="font-bold text-center">
+                    fight # : {{ $fights[0]->fight_number ?? 'N/A' }}
+                </p>
             </div>
 
             <div class="py-5 flex-1">
-                <p class="font-bold text-center">betting : open</p>
+                <p class="font-bold text-center">
+                    betting : open
+                </p>
             </div>
         </div>
 
@@ -52,14 +56,24 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                    </tr>
+                    @forelse ($fights as $fight)
+                        <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">{{ $fight->fight_number }}</td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">{{ $fight->meron ?? 0 }}</td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">{{ $fight->wala ?? 0 }}</td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">{{ $fight->result ?? '-' }}
+                            </td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">{{ $fight->payout ?? 0 }}</td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">{{ ucfirst($fight->status) }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400">
+                                No fights yet.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </x-table>
         </div>
