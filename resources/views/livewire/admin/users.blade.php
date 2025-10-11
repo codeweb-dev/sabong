@@ -62,11 +62,11 @@
             <tr class="hover:bg-white/5 bg-black/5 transition-all" wire:key="user-row-{{ $user->id }}">
                 <td class="px-3 py-4">{{ $user->username }}</td>
                 <td class="px-3 py-4 space-x-1">
-                    <flux:badge size="sm" icon="check-badge">
+                    <flux:badge size="sm" icon="check-badge" class="uppercase">
                         {{ $user->roles->first()?->name ?? 'No role assigned' }}
                     </flux:badge>
                 </td>
-                <td class="px-3 py-4">{{ $user->created_at->format('M d, h:i A') }}</td>
+                <td class="px-3 py-4">{{ $user->created_at->timezone('Asia/Manila')->format('M d, h:i A') }}</td>
                 <td class="px-3 py-4">
                     @unless (auth()->id() === $user->id)
                         <flux:modal.trigger name="delete-user-{{ $user->id }}">

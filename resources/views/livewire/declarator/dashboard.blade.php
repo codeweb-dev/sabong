@@ -39,13 +39,13 @@
         <div class="flex items-center border border-zinc-200 dark:border-zinc-700 uppercase">
             <div class="border-r border-zinc-200 dark:border-zinc-700 py-5 flex-1">
                 <p class="font-bold text-center">
-                    fight # : {{ $activeFight?->fight_number ?? '-' }}
+                    fight # : {{ $activeFight?->status === 'start' ? $activeFight?->fight_number : '-' }}
                 </p>
             </div>
 
             <div class="py-5 flex-1">
                 <p class="font-bold text-center">
-                    betting : {{ $activeFight?->status }}
+                    betting : {{ $activeFight?->status === 'start' || $activeFight?->status === 'pending' ? '-' : $activeFight?->status ?? '' }}
                 </p>
             </div>
         </div>
@@ -99,34 +99,45 @@
         </div>
 
         <div class="flex flex-col items-center justify-center gap-3">
-            <flux:button wire:click="startFight" class="uppercase">start fight</flux:button>
-            <flux:button class="uppercase" wire:click="openBet">open bet</flux:button>
+            <flux:button wire:click="startFight"
+                :disabled="$activeFight?->status === 'start' || $activeFight?->status === 'open' || $activeFight?->status === 'close'"
+                class="uppercase">
+                start fight
+            </flux:button>
+
+            <flux:button :disabled="$activeFight?->status !== 'start'" class="uppercase" wire:click="openBet">
+                open bet
+            </flux:button>
         </div>
 
         <div class="flex items-center justify-between">
             @if ($activeFight?->meron)
-                <flux:button wire:click="lockSide('meron')" class="uppercase">
+                <flux:button :disabled="$activeFight?->status !== 'open'" wire:click="lockSide('meron')"
+                    class="uppercase">
                     Meron Lock
                 </flux:button>
             @else
-                <flux:button wire:click="unlockSide('meron')" class="uppercase" variant="danger">
+                <flux:button wire:click="unlockSide('meron')" :disabled="$activeFight?->status === 'close'"
+                    class="uppercase" variant="danger">
                     Meron Open
                 </flux:button>
             @endif
 
             @if ($activeFight?->wala)
-                <flux:button wire:click="lockSide('wala')" class="uppercase">
+                <flux:button :disabled="$activeFight?->status !== 'open'" wire:click="lockSide('wala')"
+                    class="uppercase">
                     Wala Lock
                 </flux:button>
             @else
-                <flux:button wire:click="unlockSide('wala')" class="uppercase" variant="danger">
+                <flux:button wire:click="unlockSide('wala')" :disabled="$activeFight?->status === 'close'"
+                    class="uppercase" variant="danger">
                     Wala Open
                 </flux:button>
             @endif
         </div>
 
         <div class="flex flex-col items-center justify-center gap-3">
-            <flux:button class="uppercase" wire:click="closeBet">
+            <flux:button class="uppercase" wire:click="closeBet" :disabled="$activeFight?->status !== 'open'">
                 close bet
             </flux:button>
         </div>
@@ -148,7 +159,8 @@
         </div>
 
         <div class="flex flex-col items-center justify-center gap-3">
-            <flux:button class="uppercase" wire:click="endFight">end fight</flux:button>
+            <flux:button class="uppercase" wire:click="endFight" :disabled="$activeFight?->status !== 'close'">end
+                fight</flux:button>
         </div>
 
         <div class="flex items-center justify-between">
@@ -156,7 +168,8 @@
                 <p class="text-center uppercase mb-1">meron (fighter a)</p>
                 <flux:input.group>
                     <flux:input wire:model.defer="fighterAName" placeholder="Enter name" />
-                    <flux:button wire:click="addFighterName('a')" class="uppercase">add name</flux:button>
+                    <flux:button wire:click="addFighterName('a')" class="uppercase"
+                        :disabled="$activeFight?->status !== 'start'">add name</flux:button>
                 </flux:input.group>
             </div>
 
@@ -164,7 +177,8 @@
                 <p class="text-center uppercase mb-1">wala (fighter b)</p>
                 <flux:input.group>
                     <flux:input wire:model.defer="fighterBName" placeholder="Enter name" />
-                    <flux:button wire:click="addFighterName('b')" class="uppercase">add name</flux:button>
+                    <flux:button wire:click="addFighterName('b')" class="uppercase"
+                        :disabled="$activeFight?->status !== 'start'">add name</flux:button>
                 </flux:input.group>
             </div>
         </div>

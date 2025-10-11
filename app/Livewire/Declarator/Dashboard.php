@@ -80,7 +80,6 @@ class Dashboard extends Component
         $this->activeFight->update(['status' => 'open']);
         $this->fights = $this->currentEvent->fresh()->fights;
         broadcast(new FightUpdated($this->activeFight));
-        Toaster::success('Betting is now open for this fight.');
     }
 
     public function startFight()
@@ -119,7 +118,6 @@ class Dashboard extends Component
         $this->fights = $this->currentEvent->fresh()->fights;
         $this->loadFighterNames();
         broadcast(new FightUpdated($this->activeFight));
-        Toaster::success('Fighter name added successfully.');
     }
 
     private function loadFighterNames()
@@ -148,7 +146,6 @@ class Dashboard extends Component
         $this->activeFight->update([$side => false]);
         $this->fights = $this->currentEvent->fresh()->fights;
         broadcast(new FightUpdated($this->activeFight));
-        Toaster::success(strtoupper($side) . ' side locked.');
     }
 
     public function unlockSide($side)
@@ -171,7 +168,6 @@ class Dashboard extends Component
         $this->activeFight->update([$side => true]);
         $this->fights = $this->currentEvent->fresh()->fights;
         broadcast(new FightUpdated($this->activeFight));
-        Toaster::success(strtoupper($side) . ' side unlocked.');
     }
 
     public function closeBet()
@@ -194,7 +190,6 @@ class Dashboard extends Component
 
         $this->fights = $this->currentEvent->fresh()->fights;
         broadcast(new FightUpdated($this->activeFight));
-        Toaster::success('Betting is now closed for this fight.');
     }
 
     public function setWinner($winner)
@@ -220,8 +215,6 @@ class Dashboard extends Component
 
         $this->fights = $this->currentEvent->fresh()->fights;
         broadcast(new FightUpdated($this->activeFight));
-
-        Toaster::success(ucfirst($winner) . ' declared as winner!');
     }
 
     public function endFight()

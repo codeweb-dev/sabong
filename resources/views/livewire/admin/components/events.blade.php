@@ -16,13 +16,13 @@
                         <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                             {{ $event->created_at->timezone('Asia/Manila')->format('M d, Y') }}
                         </td>
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center uppercase">
                             {{ $event->event_name }}
                         </td>
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center uppercase">
                             {{ $event->description ?? '-' }}
                         </td>
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center uppercase">
                             {{ ucfirst($event->status) }}
                         </td>
                     </tr>
@@ -55,13 +55,13 @@
                     @foreach ($fights as $fight)
                         <tr class="hover:bg-white/5 bg-black/5 transition-all">
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->fight_number }}</td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->meron_bet ?? '' }}</td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->wala_bet ?? '' }}</td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->result ?? '' }}
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->meron_bet ?? 0 }}</td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->wala_bet ?? 0 }}</td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center uppercase">{{ $fight->winner ?? '-' }}
                             </td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->payout ?? '' }}
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->payout ?? 0 }}
                             </td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center uppercase">
                                 {{ ucfirst($fight->status) }}
                             </td>
                         </tr>

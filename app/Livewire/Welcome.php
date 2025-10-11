@@ -72,7 +72,7 @@ class Welcome extends Component
         if (! $this->currentEvent) return null;
 
         return $this->currentEvent->fights()
-            ->whereIn('status', ['pending', 'start', 'open', 'close'])
+            ->whereIn('status', ['start', 'open', 'close'])
             ->orderBy('fight_number')
             ->first();
     }

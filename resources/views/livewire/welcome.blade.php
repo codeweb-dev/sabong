@@ -28,9 +28,10 @@
                     <div class="flex flex-col flex-1 border border-zinc-200 dark:border-zinc-700">
                         <p
                             class="text-2xl md:text-5xl text-center font-bold py-5 border-b border-zinc-200 dark:border-zinc-700">
-                            BETTING IS</p>
+                            BETTING IS
+                        </p>
                         <p class="text-2xl md:text-5xl text-center font-bold py-5 uppercase">
-                            {{ $activeFight?->status }}
+                            {{ $activeFight?->status === 'start' ? '-' : $activeFight?->status ?? '-' }}
                         </p>
                     </div>
                 </div>
@@ -47,13 +48,13 @@
                         </div>
                         <div class="p-4 md:p-6 flex-1">
                             <p class="text-center text-4xl md:text-5xl font-bold uppercase">
-                                {{ $activeFight?->meron ? 'open' : 'locked' }}
+                                {{ $activeFight ? ($activeFight->status === 'start' ? '-' : ($activeFight->meron ? 'open' : 'locked')) : '-' }}
                             </p>
                         </div>
                         <div
                             class="p-6 md:p-10 flex-1 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl bg-white">
                             <p class="text-center font-bold uppercase">
-                                {{ $activeFight?->fighter_a ?? 'Fighter A' }}
+                                {{ $activeFight?->fighter_a ?? 'Fighter Meron' }}
                             </p>
                         </div>
                     </div>
@@ -73,13 +74,13 @@
                         </div>
                         <div class="p-4 md:p-6 flex-1">
                             <p class="text-center text-4xl md:text-5xl font-bold uppercase">
-                                {{ $activeFight?->wala ? 'open' : 'locked' }}
+                                {{ $activeFight ? ($activeFight->status === 'start' ? '-' : ($activeFight->wala ? 'open' : 'locked')) : '-' }}
                             </p>
                         </div>
                         <div
                             class="p-6 md:p-10 flex-1 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl bg-white">
                             <p class="text-center font-bold uppercase">
-                                {{ $activeFight?->fighter_b ?? 'Fighter B' }}
+                                {{ $activeFight?->fighter_b ?? 'Fighter Wala' }}
                             </p>
                         </div>
                     </div>
