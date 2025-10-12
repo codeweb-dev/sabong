@@ -1,22 +1,23 @@
 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
     <div class="flex flex-col gap-6 w-full lg:w-1/2">
         <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold uppercase text-center">
-            cash onhand : 100,000
+            cash on hand : {{ number_format($cashOnHand, 2) }}
         </h2>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 px-4 sm:px-8 md:px-12 lg:px-20">
-            <flux:button icon="plus" class="text-sm sm:text-base">100</flux:button>
-            <flux:button icon="plus" class="text-sm sm:text-base">200</flux:button>
-            <flux:button icon="plus" class="text-sm sm:text-base">500</flux:button>
-            <flux:button icon="plus" class="text-sm sm:text-base">1,100</flux:button>
-            <flux:button icon="plus" class="text-sm sm:text-base">5,000</flux:button>
-            <flux:button icon="plus" class="text-sm sm:text-base">10,000</flux:button>
+            <flux:button wire:click="addAmount(100)" icon="plus" class="text-sm sm:text-base">100</flux:button>
+            <flux:button wire:click="addAmount(200)" icon="plus" class="text-sm sm:text-base">200</flux:button>
+            <flux:button wire:click="addAmount(500)" icon="plus" class="text-sm sm:text-base">500</flux:button>
+            <flux:button wire:click="addAmount(1000)" icon="plus" class="text-sm sm:text-base">1,000</flux:button>
+            <flux:button wire:click="addAmount(5000)" icon="plus" class="text-sm sm:text-base">5,000</flux:button>
+            <flux:button wire:click="addAmount(10000)" icon="plus" class="text-sm sm:text-base">10,000</flux:button>
         </div>
 
         <div>
             <flux:input.group>
-                <flux:input placeholder="Enter Here" class="text-sm sm:text-base" />
-                <flux:button icon="x-mark" class="uppercase text-sm sm:text-base">clear</flux:button>
+                <flux:input wire:model="amount" type="number" placeholder="Enter Here" class="text-sm sm:text-base" />
+                <flux:button wire:click="clearAmount" icon="x-mark" class="uppercase text-sm sm:text-base">clear
+                </flux:button>
             </flux:input.group>
         </div>
 
@@ -75,8 +76,7 @@
     </div>
 
     <div class="flex flex-col gap-4 lg:gap-6 w-full lg:w-1/2">
-        <div
-            class="w-full h-100 overflow-hidden border border-zinc-700 rounded-lg bg-zinc-900">
+        <div class="w-full h-100 overflow-hidden border border-zinc-700 rounded-lg bg-zinc-900">
             <livewire:welcome :small-screen="true" />
         </div>
 

@@ -41,7 +41,7 @@
                             {{ __('BET SUMMARY') }}
                         </flux:menu.item>
 
-                        <flux:menu.item :href="route('dashboard')" icon="newspaper" wire:navigate>
+                        <flux:menu.item :href="route('user.transactions')" icon="newspaper" wire:navigate>
                             {{ __('TRANSACTION') }}
                         </flux:menu.item>
                     @elseif (auth()->user()->hasRole('declarator'))

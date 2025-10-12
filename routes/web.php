@@ -6,6 +6,7 @@ use App\Livewire\Admin\Users;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
+use App\Livewire\User\Transaction;
 use App\Livewire\Welcome;
 use Illuminate\Support\Facades\Route;
 
@@ -27,13 +28,13 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::group(['middleware' => ['role:admin']], function () {
-        Route::get('/users', Users::class)->name('admin.users');
-        Route::get('/transactions', Transactions::class)->name('admin.transactions');
-        Route::get('/betting', Betting::class)->name('admin.betting');
+        Route::get('/admin/users', Users::class)->name('admin.users');
+        Route::get('/admin/transactions', Transactions::class)->name('admin.transactions');
+        Route::get('/admin/betting', Betting::class)->name('admin.betting');
     });
 
     Route::group(['middleware' => ['role:user']], function () {
-        //
+        Route::get('/user/transactions', Transaction::class)->name('user.transactions');
     });
 });
 
