@@ -6,11 +6,12 @@
                 class="w-full md:w-78 flex flex-row md:flex-col gap-3 md:gap-6 px-4 md:px-6 py-4 md:py-8 border-b md:border-b-0 md:border-e border-zinc-200 dark:border-zinc-700 overflow-y-auto scrollbar-hide">
                 @foreach ($fights as $fight)
                     <div
-                        class="flex-1 md:p-12 py-8 px-12 bg-green-400 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl relative">
+                        class="flex-1 md:p-12 py-8 px-12 odd:bg-green-400 even:bg-red-400 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl relative transition-all duration-300">
                         <p>{{ $fight->fight_number }}</p>
 
                         <flux:badge variant="solid" color="red" class="absolute top-2 right-2">
-                            {{ $fight->status }}</flux:badge>
+                            {{ $fight->status }}
+                        </flux:badge>
                     </div>
                 @endforeach
             </aside>
@@ -43,7 +44,9 @@
                             <p class="text-center font-bold">MERON</p>
                         </div>
                         <div class="p-4 md:p-6 flex-1">
-                            <p class="text-center text-5xl md:text-7xl font-bold">0</p>
+                            <p class="text-center text-5xl md:text-7xl font-bold">
+                                {{ number_format($totalMeronBet, 2) }}
+                            </p>
                             <p class="text-center text-xl md:text-3xl mt-2">PAYOUT : 0</p>
                         </div>
                         <div class="p-4 md:p-6 flex-1">
@@ -69,7 +72,9 @@
                             <p class="text-center font-bold">WALA</p>
                         </div>
                         <div class="p-4 md:p-6 flex-1">
-                            <p class="text-center text-5xl md:text-7xl font-bold">0</p>
+                            <p class="text-center text-5xl md:text-7xl font-bold">
+                                {{ number_format($totalWalaBet, 2) }}
+                            </p>
                             <p class="text-center text-xl md:text-3xl mt-2">PAYOUT : 0</p>
                         </div>
                         <div class="p-4 md:p-6 flex-1">

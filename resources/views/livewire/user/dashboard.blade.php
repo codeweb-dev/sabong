@@ -22,8 +22,10 @@
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-            <flux:button class="uppercase text-sm sm:text-base md:text-lg">meron</flux:button>
-            <flux:button class="uppercase text-sm sm:text-base md:text-lg">wala</flux:button>
+            <flux:button wire:click="placeBet('meron')" class="text-sm sm:text-base w-full uppercase">meron
+            </flux:button>
+            <flux:button wire:click="placeBet('wala')" class="text-sm sm:text-base w-full uppercase">wala
+            </flux:button>
         </div>
 
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-18">

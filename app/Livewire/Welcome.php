@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Bet;
 use App\Models\Event;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -14,11 +15,14 @@ class Welcome extends Component
     public $currentEvent = null;
     public $fights = [];
     public $activeFight = null;
+    public $totalMeronBet = 0;
+    public $totalWalaBet = 0;
 
     public function mount($smallScreen = false)
     {
         $this->isSmallScreen = $smallScreen;
         $this->loadOngoingEvent();
+        $this->loadBetTotals();
     }
 
     #[On('echo:events,.event.started')]
@@ -45,14 +49,22 @@ class Welcome extends Component
         if ($this->currentEvent && $this->currentEvent->id === $data['eventId']) {
             $this->fights = Event::with('fights')->find($data['eventId'])->fights;
             $this->activeFight = collect($this->fights)
-                ->first(function ($fight) {
-                    return in_array($fight->status, ['start', 'open', 'close']);
-                });
+                ->first(fn($fight) => in_array($fight->status, ['start', 'open', 'close']));
 
             if ($this->activeFight) {
                 $this->activeFight->fighter_a = $data['fighterA'];
                 $this->activeFight->fighter_b = $data['fighterB'];
+                $this->loadBetTotals();
             }
+        }
+    }
+
+    #[On('echo:events,.bet.placed')]
+    public function handleBetPlaced($data)
+    {
+        if ($this->activeFight && $this->activeFight->id === $data['fightId']) {
+            $this->totalMeronBet = $data['totalMeronBet'];
+            $this->totalWalaBet = $data['totalWalaBet'];
         }
     }
 
@@ -65,16 +77,36 @@ class Welcome extends Component
 
         $this->fights = $this->currentEvent?->fights ?? [];
         $this->activeFight = $this->getActiveFight();
+        $this->loadBetTotals();
     }
 
     private function getActiveFight()
     {
-        if (! $this->currentEvent) return null;
+        if (! $this->currentEvent) {
+            return null;
+        }
 
         return $this->currentEvent->fights()
             ->whereIn('status', ['start', 'open', 'close'])
             ->orderBy('fight_number')
             ->first();
+    }
+
+    private function loadBetTotals()
+    {
+        if (!$this->activeFight) {
+            $this->totalMeronBet = 0;
+            $this->totalWalaBet = 0;
+            return;
+        }
+
+        $this->totalMeronBet = Bet::where('fight_id', $this->activeFight->id)
+            ->where('side', 'meron')
+            ->sum('amount');
+
+        $this->totalWalaBet = Bet::where('fight_id', $this->activeFight->id)
+            ->where('side', 'wala')
+            ->sum('amount');
     }
 
     public function render()
