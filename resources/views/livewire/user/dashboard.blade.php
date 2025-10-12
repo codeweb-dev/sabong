@@ -22,11 +22,62 @@
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-            <flux:button wire:click="placeBet('meron')" class="text-sm sm:text-base w-full uppercase">meron
-            </flux:button>
-            <flux:button wire:click="placeBet('wala')" class="text-sm sm:text-base w-full uppercase">wala
-            </flux:button>
+            <flux:modal.trigger name="meron-confirmation-modal">
+                <flux:button class="text-sm sm:text-base w-full uppercase">Meron</flux:button>
+            </flux:modal.trigger>
+
+            <flux:modal.trigger name="wala-confirmation-modal">
+                <flux:button class="text-sm sm:text-base w-full uppercase">Wala</flux:button>
+            </flux:modal.trigger>
         </div>
+
+        <flux:modal name="meron-confirmation-modal" class="md:w-96">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg" class="text-sm sm:text-base uppercase">Confirm Bet</flux:heading>
+                    <flux:text class="mt-2 uppercase">
+                        You are about to place a bet on <strong class="uppercase text-red-400">Meron</strong>.<br>
+                        Are you sure you want to continue?
+                    </flux:text>
+                </div>
+
+                <div class="flex gap-2">
+                    <flux:spacer />
+
+                    <flux:modal.close>
+                        <flux:button variant="ghost" class="text-sm sm:text-base uppercase">Cancel</flux:button>
+                    </flux:modal.close>
+
+                    <flux:button wire:click="placeBet('meron')" class="text-sm sm:text-base uppercase">
+                        Confirm
+                    </flux:button>
+                </div>
+            </div>
+        </flux:modal>
+
+        <flux:modal name="wala-confirmation-modal" class="md:w-96">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg" class="text-sm sm:text-base uppercase">Confirm Bet</flux:heading>
+                    <flux:text class="mt-2 uppercase">
+                        You are about to place a bet on <strong class="uppercase text-green-400">Wala</strong>.<br>
+                        Are you sure you want to continue?
+                    </flux:text>
+                </div>
+
+                <div class="flex gap-2">
+                    <flux:spacer />
+
+                    <flux:modal.close>
+                        <flux:button variant="ghost" class="text-sm sm:text-base uppercase">Cancel</flux:button>
+                    </flux:modal.close>
+
+                    <flux:button wire:click="placeBet('wala')" class="text-sm sm:text-base uppercase">
+                        Confirm
+                    </flux:button>
+                </div>
+            </div>
+        </flux:modal>
 
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-18">
             <div class="flex flex-col gap-2">
@@ -34,10 +85,18 @@
                 <div class="flex flex-col sm:flex-row sm:items-center gap-2">
                     <p class="text-lg sm:text-xl uppercase">fight#</p>
                     <div class="flex items-center gap-2">
-                        <flux:select placeholder="Choose fight" class="min-w-0">
-                            <flux:select.option>1</flux:select.option>
+                        <flux:select wire:model="fight_id" placeholder="Choose fight" class="min-w-0">
+                            @foreach ($fights as $fight)
+                                <flux:select.option value="{{ $fight->id }}">
+                                    Fight #{{ $fight->fight_number }} — {{ ucfirst($fight->status) }}
+                                </flux:select.option>
+                            @endforeach
                         </flux:select>
-                        <flux:button class="uppercase text-sm sm:text-base" icon="arrow-path">refresh</flux:button>
+
+                        <flux:button wire:click="refreshFights" class="uppercase text-sm sm:text-base"
+                            icon="arrow-path">
+                            Refresh
+                        </flux:button>
                     </div>
                 </div>
             </div>
@@ -65,14 +124,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm hidden sm:table-cell">empty</td>
-                    </tr>
+                    @forelse ($bets as $bet)
+                        <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                {{ $bet->fight?->fight_number ?? '-' }}
+                            </td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center uppercase">
+                                {{ $bet->side }}
+                            </td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                {{ number_format($bet->amount, 2) }}
+                            </td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                {{ str_pad($bet->id, 6, '0', STR_PAD_LEFT) }}
+                            </td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center hidden sm:table-cell">
+                                {{ $bet->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                            <td colspan="5" class="px-2 sm:px-3 py-4 text-center text-xs sm:text-sm">No bets placed
+                                yet</td>
+                        </tr>
+                    @endforelse
                 </tbody>
+
             </x-table>
         </div>
     </div>

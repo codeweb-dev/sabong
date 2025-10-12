@@ -14,11 +14,16 @@ class Dashboard extends Component
     public $cashOnHand;
     public $amount = 0;
     public $activeFight = null;
+    public $bets = [];
+    public $fights = [];
+    public $fight_id;
 
     public function mount()
     {
         $this->cashOnHand = Auth::user()->cash ?? 0;
+        $this->fights = Fight::latest()->get();
         $this->loadActiveFight();
+        $this->loadUserBets();
     }
 
     private function loadActiveFight()
@@ -29,6 +34,29 @@ class Dashboard extends Component
             ->where('status', 'open')
             ->latest()
             ->first();
+    }
+
+    public function updatedFightId()
+    {
+        $this->loadUserBets();
+    }
+
+    private function loadUserBets()
+    {
+        $query = Bet::with('fight')
+            ->where('user_id', Auth::id())
+            ->latest();
+
+        if ($this->fight_id) {
+            $query->where('fight_id', $this->fight_id);
+        }
+
+        $this->bets = $query->take(10)->get();
+    }
+
+    public function refreshFights()
+    {
+        $this->fights = Fight::latest()->get();
     }
 
     public function addAmount($value)
@@ -100,6 +128,7 @@ class Dashboard extends Component
         // Reset amount and update balance
         $this->amount = 0;
         $this->cashOnHand = $user->fresh()->cash;
+        $this->loadUserBets();
 
         Toaster::success('Bet placed successfully!');
     }
