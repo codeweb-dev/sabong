@@ -3,6 +3,7 @@
 namespace App\Livewire\Declarator;
 
 use App\Events\FightUpdated;
+use App\Models\Bet;
 use App\Models\Event;
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -204,6 +205,11 @@ class Dashboard extends Component
             return;
         }
 
+        if ($this->activeFight->winner !== null) {
+            Toaster::error('Winner already declared for this fight.');
+            return;
+        }
+
         if ($this->activeFight->status !== 'close') {
             Toaster::error('Fight must be closed before declaring a winner.');
             return;
@@ -212,6 +218,21 @@ class Dashboard extends Component
         $this->activeFight->update([
             'winner' => $winner,
         ]);
+
+        if (in_array($winner, ['draw', 'cancel'])) {
+            $bets = Bet::where('fight_id', $this->activeFight->id)->get();
+
+            foreach ($bets as $bet) {
+                $user = $bet->user;
+                if ($user) {
+                    $user->increment('cash', $bet->amount);
+                }
+            }
+
+            Toaster::info('All bets refunded due to ' . strtoupper($winner) . '.');
+        } else {
+            Toaster::success(strtoupper($winner) . ' declared as winner!');
+        }
 
         $this->fights = $this->currentEvent->fresh()->fights;
         broadcast(new FightUpdated($this->activeFight));
