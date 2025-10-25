@@ -75,3 +75,9 @@ select:focus[data-flux-control] {
 .scrollbar-hide::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
 }
+
+.barcode {
+    font-family: 'Libre Barcode 39 Text', cursive;
+    font-size: 36px;
+    line-height: 1;
+}

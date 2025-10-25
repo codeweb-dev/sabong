@@ -25,12 +25,37 @@ class Dashboard extends Component
     public $cancelBetInput;
     public $reprintTicketNo;
 
+    public $previewTicketNo;
+    public $previewBet;
+
     public function mount()
     {
         $this->cashOnHand = Auth::user()->cash ?? 0;
         $this->fights = Fight::latest()->get();
         $this->loadActiveFight();
         $this->loadUserBets();
+    }
+
+    public function loadPreview()
+    {
+        if (empty($this->previewTicketNo)) {
+            $this->previewBet = null;
+            Toaster::error('Please enter a ticket number.');
+            return;
+        }
+
+        $this->previewBet = Bet::with(['fight.event', 'user'])
+            ->where('ticket_no', $this->previewTicketNo)
+            ->first();
+
+        if (!$this->previewBet) {
+            $this->previewBet = null;
+            Toaster::error('No ticket found with that number.');
+            return;
+        }
+
+        $this->previewTicketNo = null;
+        Toaster::success('Ticket loaded successfully!');
     }
 
     public function reprintTicket()
@@ -141,6 +166,8 @@ class Dashboard extends Component
         $this->cancelBetInput = null;
 
         Toaster::success('Bet canceled, refunded, and totals updated!');
+        $this->previewBet = null;
+        $this->previewTicketNo = null;
     }
 
     private function loadActiveFight()

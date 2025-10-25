@@ -36,7 +36,8 @@
                 <div>
                     <flux:heading size="lg" class="text-sm sm:text-base uppercase">Confirm Bet</flux:heading>
                     <flux:text class="mt-2 uppercase">
-                        You are about to place a bet ₱{{ $amount }} on <strong class="uppercase text-red-400">Meron</strong>. Are you sure you want to continue?
+                        You are about to place a bet ₱{{ $amount }} on <strong
+                            class="uppercase text-red-400">Meron</strong>. Are you sure you want to continue?
                     </flux:text>
                 </div>
 
@@ -168,16 +169,51 @@
 
         <div class="flex flex-col gap-2 items-center justify-center">
             <p class="text-lg sm:text-xl uppercase">ticket #</p>
-            <div class="w-full max-w-sm sm:max-w-md lg:max-w-2xl mx-auto">
-                <flux:input class="w-full text-sm sm:text-base" />
+
+            <div class="flex items-center gap-2 w-full max-w-sm sm:max-w-md lg:max-w-2xl mx-auto">
+                <flux:input wire:model="previewTicketNo" class="w-full text-sm sm:text-base"
+                    placeholder="Enter Ticket No" />
+                <flux:button wire:click="loadPreview" class="uppercase text-sm sm:text-base">Preview</flux:button>
             </div>
         </div>
 
-        <div class="flex flex-col gap-2 items-center justify-center text-center">
+        <div class="flex flex-col gap-4 items-center justify-center text-center">
             <p class="text-lg sm:text-xl uppercase">Preview Print</p>
-            <p class="text-sm sm:text-base lg:text-xl uppercase text-gray-400">
-                No receipt yet (need receipt)
-            </p>
+
+            @if ($previewBet)
+                <div
+                    class="bg-white text-black p-4 rounded-lg shadow-md w-full max-w-sm sm:max-w-md lg:max-w-lg font-mono text-left border border-gray-300">
+                    <div class="text-center mb-2">
+                        <p class="text-xl font-bold uppercase">{{ strtoupper($previewBet->side) }}</p>
+                        <hr class="border-gray-400 my-2">
+                    </div>
+
+                    <p><strong>Event Name:</strong> {{ $previewBet->fight->event->event_name ?? 'N/A' }}</p>
+                    <p><strong>Description:</strong> {{ $previewBet->fight->event->description ?? 'N/A' }}</p>
+                    <hr class="border-gray-300 my-2">
+
+                    <p><strong>Inputed By:</strong> {{ $previewBet->user->username }}</p>
+                    <p><strong>Ticket No:</strong> {{ $previewBet->ticket_no }}</p>
+                    <p><strong>Fight No:</strong> {{ $previewBet->fight->fight_number }}</p>
+                    <p><strong>Amount:</strong> {{ number_format($previewBet->amount, 2) }}</p>
+                    <hr class="border-gray-300 my-2">
+
+                    <p class="text-center text-xs text-gray-700">
+                        {{ $previewBet->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
+                    </p>
+
+                    <div class="flex justify-center mt-3">
+                        <p class="barcode">*{{ $previewBet->ticket_no }}*</p>
+                    </div>
+                    <p class="text-center">{{ $previewBet->ticket_no }}</p>
+
+                    <p class="text-center text-sm mt-3 uppercase font-semibold">Thank you for betting!</p>
+                </div>
+            @else
+                <p class="text-sm sm:text-base lg:text-xl uppercase text-gray-400">
+                    No receipt yet (enter a ticket number and click preview)
+                </p>
+            @endif
         </div>
     </div>
 </div>
