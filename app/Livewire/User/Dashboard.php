@@ -9,6 +9,9 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
 use Flux\Flux;
+use Mike42\Escpos\Printer;
+use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
+use Carbon\Carbon;
 
 class Dashboard extends Component
 {
@@ -20,6 +23,7 @@ class Dashboard extends Component
     public $fight_id;
 
     public $cancelBetInput;
+    public $reprintTicketNo;
 
     public function mount()
     {
@@ -27,6 +31,72 @@ class Dashboard extends Component
         $this->fights = Fight::latest()->get();
         $this->loadActiveFight();
         $this->loadUserBets();
+    }
+
+    public function reprintTicket()
+    {
+        if (empty($this->reprintTicketNo)) {
+            Toaster::error('Please enter a ticket number to reprint.');
+            return;
+        }
+
+        $bet = Bet::with(['fight.event', 'user'])
+            ->where('ticket_no', $this->reprintTicketNo)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$bet) {
+            Toaster::error('No bet found with that ticket number.');
+            return;
+        }
+
+        $user = Auth::user();
+
+        try {
+            $connector = new WindowsPrintConnector("POS-80");
+            $printer = new Printer($connector);
+
+            // === HEADER: SIDE (Meron/Wala) ===
+            $printer->setJustification(Printer::JUSTIFY_CENTER);
+            $printer->setTextSize(2, 2);
+            $printer->text(strtoupper($bet->side) . "\n\n");
+
+            // === DIVIDER ===
+            $printer->setTextSize(2, 1);
+            $printer->text("-----------------------\n");
+
+            // === DETAILS ===
+            $printer->setJustification(Printer::JUSTIFY_LEFT);
+            $printer->text("Event Name:   " . ($bet->fight->event->event_name ?? 'N/A') . "\n");
+            $printer->text("Description:  " . ($bet->fight->event->description ?? 'N/A') . "\n");
+            $printer->text("-----------------------\n");
+            $printer->text("Inputed By:   " . $user->username . "\n");
+            $printer->text("Ticket No:    " . $bet->ticket_no . "\n");
+            $printer->text("Fight No:     " . $bet->fight->fight_number . "\n");
+            $printer->text("Amount:       " . number_format($bet->amount, 2) . "\n");
+            $printer->text("-----------------------\n");
+
+            // === DATE ===
+            $printer->setJustification(Printer::JUSTIFY_CENTER);
+            $printer->text(Carbon::now()->timezone('Asia/Manila')->format('M d, Y h:i A') . "\n\n");
+
+            // === BARCODE ===
+            $printer->barcode($bet->ticket_no, Printer::BARCODE_CODE39);
+            $printer->text($bet->ticket_no . "\n\n");
+
+            // === FOOTER ===
+            $printer->text("** REPRINTED COPY **\n");
+            $printer->text("Thank you for betting!\n");
+            $printer->feed(3);
+
+            $printer->cut();
+            $printer->close();
+
+            Toaster::success('Ticket reprinted successfully!');
+            $this->reprintTicketNo = '';
+        } catch (\Exception $e) {
+            Toaster::error("Reprint failed: " . $e->getMessage());
+        }
     }
 
     public function cancelBet()
@@ -130,7 +200,6 @@ class Dashboard extends Component
             return;
         }
 
-        // 🛑 Check if the side is locked
         if (!$this->activeFight->$side) {
             Toaster::error(ucfirst($side) . ' side is locked. You cannot bet here.');
             return;
@@ -151,34 +220,74 @@ class Dashboard extends Component
             return;
         }
 
-        // Deduct from user cash
         $user->decrement('cash', $this->amount);
 
-        // Add bet to fight totals
         if ($side === 'meron') {
             $this->activeFight->increment('meron_bet', $this->amount);
         } else {
             $this->activeFight->increment('wala_bet', $this->amount);
         }
 
-        // Save bet record
-        Bet::create([
+        $bet = Bet::create([
             'user_id' => $user->id,
             'fight_id' => $this->activeFight->id,
             'side' => $side,
             'amount' => $this->amount,
         ]);
 
-        // 🔊 Broadcast new totals
         broadcast(new BetPlaced($this->activeFight->fresh()));
 
-        // Reset amount and update balance
         $this->amount = 0;
         $this->cashOnHand = $user->fresh()->cash;
         $this->loadUserBets();
 
+        // 🖨️ Try printing ticket
+        try {
+            $connector = new WindowsPrintConnector("POS-80");
+            $printer = new Printer($connector);
+
+            // === HEADER: SIDE (Meron/Wala) ===
+            $printer->setJustification(Printer::JUSTIFY_CENTER);
+            $printer->setTextSize(2, 2);
+            $printer->text(strtoupper($bet->side) . "\n\n");
+
+            // === DIVIDER ===
+            $printer->setTextSize(2, 1);
+            $printer->text("-----------------------\n");
+
+            // === DETAILS ===
+            $printer->setJustification(Printer::JUSTIFY_LEFT);
+            $printer->text("Event Name:   " . ($bet->fight->event->event_name ?? 'N/A') . "\n");
+            $printer->text("Description:  " . ($bet->fight->event->description ?? 'N/A') . "\n");
+            $printer->text("-----------------------\n");
+            $printer->text("Inputed By:   " . $user->username . "\n");
+            $printer->text("Ticket No:    " . $bet->ticket_no . "\n");
+            $printer->text("Fight No:     " . $bet->fight->fight_number . "\n");
+            $printer->text("Amount:       " . number_format($bet->amount, 2) . "\n");
+            $printer->text("-----------------------\n");
+
+            // === DATE ===
+            $printer->setJustification(Printer::JUSTIFY_CENTER);
+            $printer->text(Carbon::now()->timezone('Asia/Manila')->format('M d, Y h:i A') . "\n\n");
+
+            // === BARCODE ===
+            $printer->barcode($bet->ticket_no, Printer::BARCODE_CODE39);
+            $printer->text($bet->ticket_no . "\n\n");
+
+            // === FOOTER ===
+            $printer->text("Thank you for betting!\n");
+            $printer->feed(3);
+
+            $printer->cut();
+            $printer->close();
+        } catch (\Exception $e) {
+            Toaster::error("Print failed: " . $e->getMessage());
+        }
+
         Toaster::success('Bet placed successfully!');
-        $side === 'meron' ? Flux::modal('meron-confirmation-modal')->close() : Flux::modal('wala-confirmation-modal')->close();
+        $side === 'meron'
+            ? Flux::modal('meron-confirmation-modal')->close()
+            : Flux::modal('wala-confirmation-modal')->close();
     }
 
     public function render()

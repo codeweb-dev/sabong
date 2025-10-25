@@ -102,9 +102,10 @@
 
             <div class="flex items-center justify-center lg:justify-end">
                 <div class="grid grid-cols-2 gap-2 w-full sm:w-auto">
-                    <flux:button class="uppercase text-sm">reprint</flux:button>
+                    <flux:button wire:click="reprintTicket" class="uppercase text-sm">reprint</flux:button>
                     <flux:button wire:click="cancelBet" class="uppercase text-sm">cancel</flux:button>
-                    <flux:input class="text-sm" placeholder="Input 1" />
+
+                    <flux:input wire:model="reprintTicketNo" class="text-sm" placeholder="Ticket No" />
                     <flux:input wire:model="cancelBetInput" class="text-sm" placeholder="Ticket ID" />
                 </div>
             </div>

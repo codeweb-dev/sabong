@@ -32,7 +32,7 @@ class Bet extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            $model->ticket_no = 'TKT-' . now()->format('Ymd') . '-' . strtoupper(Str::random(5));
+            $model->ticket_no = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
         });
     }
 }
