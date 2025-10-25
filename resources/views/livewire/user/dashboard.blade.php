@@ -36,8 +36,7 @@
                 <div>
                     <flux:heading size="lg" class="text-sm sm:text-base uppercase">Confirm Bet</flux:heading>
                     <flux:text class="mt-2 uppercase">
-                        You are about to place a bet on <strong class="uppercase text-red-400">Meron</strong>.<br>
-                        Are you sure you want to continue?
+                        You are about to place a bet ₱{{ $amount }} on <strong class="uppercase text-red-400">Meron</strong>. Are you sure you want to continue?
                     </flux:text>
                 </div>
 

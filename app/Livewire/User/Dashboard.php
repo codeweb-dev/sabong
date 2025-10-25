@@ -178,7 +178,7 @@ class Dashboard extends Component
         $this->loadUserBets();
 
         Toaster::success('Bet placed successfully!');
-        Flux::modal('meron-confirmation-modal')->close();
+        $side === 'meron' ? Flux::modal('meron-confirmation-modal')->close() : Flux::modal('wala-confirmation-modal')->close();
     }
 
     public function render()
