@@ -39,7 +39,7 @@
         <div class="flex items-center border border-zinc-200 dark:border-zinc-700 uppercase">
             <div class="border-r border-zinc-200 dark:border-zinc-700 py-5 flex-1">
                 <p class="font-bold text-center">
-                    fight # : {{ $activeFight?->status === 'start' ? $activeFight?->fight_number : '-' }}
+                    fight # : {{ $activeFight?->fight_number }}
                 </p>
             </div>
 

@@ -8,6 +8,7 @@ use App\Models\Fight;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
+use Flux\Flux;
 
 class Dashboard extends Component
 {
@@ -18,12 +19,58 @@ class Dashboard extends Component
     public $fights = [];
     public $fight_id;
 
+    public $cancelBetInput;
+
     public function mount()
     {
         $this->cashOnHand = Auth::user()->cash ?? 0;
         $this->fights = Fight::latest()->get();
         $this->loadActiveFight();
         $this->loadUserBets();
+    }
+
+    public function cancelBet()
+    {
+        if (empty($this->cancelBetInput)) {
+            Toaster::error('Please enter a ticket ID to cancel.');
+            return;
+        }
+
+        $bet = Bet::where('id', $this->cancelBetInput)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$bet) {
+            Toaster::error('No bet found with that ticket ID.');
+            return;
+        }
+
+        if ($bet->fight && $bet->fight->status !== 'open') {
+            Toaster::error('Cannot cancel this bet. The fight is already closed.');
+            return;
+        }
+
+        $user = Auth::user();
+
+        $user->increment('cash', $bet->amount);
+
+        if ($bet->side === 'meron') {
+            $bet->fight?->decrement('meron_bet', $bet->amount);
+        } elseif ($bet->side === 'wala') {
+            $bet->fight?->decrement('wala_bet', $bet->amount);
+        }
+
+        $bet->delete();
+
+        if ($bet->fight) {
+            broadcast(new BetPlaced($bet->fight->fresh()));
+        }
+
+        $this->cashOnHand = $user->fresh()->cash;
+        $this->loadUserBets();
+        $this->cancelBetInput = null;
+
+        Toaster::success('Bet canceled, refunded, and totals updated!');
     }
 
     private function loadActiveFight()
@@ -131,6 +178,7 @@ class Dashboard extends Component
         $this->loadUserBets();
 
         Toaster::success('Bet placed successfully!');
+        Flux::modal('meron-confirmation-modal')->close();
     }
 
     public function render()
