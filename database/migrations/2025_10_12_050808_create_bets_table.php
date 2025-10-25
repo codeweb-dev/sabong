@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('bets', function (Blueprint $table) {
             $table->id();
+            $table->string('ticket_no')->unique();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('fight_id')->constrained('fights')->onDelete('cascade');
             $table->enum('side', ['meron', 'wala']);

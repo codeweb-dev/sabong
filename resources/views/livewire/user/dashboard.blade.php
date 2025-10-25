@@ -136,7 +136,7 @@
                                 {{ number_format($bet->amount, 2) }}
                             </td>
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                {{ str_pad($bet->id, 6, '0', STR_PAD_LEFT) }}
+                                {{ $bet->ticket_no }}
                             </td>
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center hidden sm:table-cell">
                                 {{ $bet->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}

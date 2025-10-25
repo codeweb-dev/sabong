@@ -37,8 +37,8 @@
 
                                 <flux:field>
                                     <flux:label>Receiver</flux:label>
-                                    <flux:select class="pt-2" placeholder="Choose teller..."
-                                        wire:model.defer="receiver_id">
+                                    <flux:select class="pt-2" wire:model.defer="receiver_id">
+                                        <flux:select.option>Choose teller...</flux:select.option>
                                         @foreach ($users as $user)
                                             <flux:select.option value="{{ $user->id }}">
                                                 {{ $user->username }}

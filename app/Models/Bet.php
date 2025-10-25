@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Bet extends Model
 {
@@ -24,5 +25,14 @@ class Bet extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->ticket_no = 'TKT-' . now()->format('Ymd') . '-' . strtoupper(Str::random(5));
+        });
     }
 }

@@ -36,7 +36,7 @@ class Dashboard extends Component
             return;
         }
 
-        $bet = Bet::where('id', $this->cancelBetInput)
+        $bet = Bet::where('ticket_no', $this->cancelBetInput)
             ->where('user_id', Auth::id())
             ->first();
 
