@@ -1,0 +1,79 @@
+ADMIN SIDE:
+Event status:
+Done
+Ongoing
+
+status betting history:
+paid
+unpaid
+refund
+teller name: make drop down
+
+betting history table optional add lock button if lock then cannot payout will show a contact admin
+
+users:
+add edit function
+
+transaction:
+add scroll, top pending query
+add modal received, whole table with received button
+
+USER SIDE:
+Remove bet summary
+automatic every 5 fights will remove in history
+
+Transaction: add transfer button to admin
+
+user dashboard
+remove event name & description
+
+make the payout input for ticket and then the submit will be button
+automatic payout will show a confirm validation for ticket
+
+in user page instead of locked make it disabled red button
+add status for every fight
+
+DECLATOR SIDE:
+
+validation first for end fight to pick one wins, meron, draw, cancel
+add button for creating new fight
+
+
+WELCOME DASHBOARD
+
+will stack up for every fight
+
+
+themes color
+red = meron, wala = blue, draw = green, cancel = gray, pending (not yet starting) = white
+
+FORMULA:
+TOTAL MERON BET = ALL TELLER WILL CALCULATE ALL THE MERON BET
+TOTAL WALA BET = ALL TELLER WILL CALCULATE ALL THE WALAL BET
+TOTAL BET = MERON + WALA = TOTAL
+GROSS INCOME = TOTAL x COMMISION BASED OF THE SYSTEM
+
+EVERY FIGHTS ALL TELLER WILL SUM THE WALA & MERON
+
+TOTAL BET = MERON + WALA
+POOLING = TOTAL BET - COMMISION
+
+ODDS:
+WALA ODDS = POOLING / WALA
+MERON ODDS = POOLING / MERON
+
+FOR DISPLAY
+
+DISPLAY = WALA ODDs x 100
+DISPLAY = MERON ODDs x 100
+
+FOR CONVERT
+
+DISPLAY_REAL_ADS = WALA ODDs / 100
+DISPLAY_REAL_ADS = MERON ODDs / 100
+
+
+MAKE PASSWORD PLAIN
+
+
+
