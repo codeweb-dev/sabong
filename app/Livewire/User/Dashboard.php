@@ -41,6 +41,7 @@ class Dashboard extends Component
         if (empty($this->previewTicketNo)) {
             $this->previewBet = null;
             Toaster::error('Please enter a ticket number.');
+            Flux::modal('preview-modal')->close();
             return;
         }
 
@@ -51,6 +52,7 @@ class Dashboard extends Component
         if (!$this->previewBet) {
             $this->previewBet = null;
             Toaster::error('No ticket found with that number.');
+            Flux::modal('preview-modal')->close();
             return;
         }
 
@@ -195,7 +197,7 @@ class Dashboard extends Component
             $query->where('fight_id', $this->fight_id);
         }
 
-        $this->bets = $query->take(10)->get();
+        $this->bets = $query->take(5)->get();
     }
 
     public function refreshFights()
