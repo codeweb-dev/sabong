@@ -1,5 +1,40 @@
 <div class="max-w-6xl mx-auto">
-    <h1 class="text-2xl font-bold mb-3">Transactions</h1>
+    <div class="flex items-center justify-between mb-3">
+        <h1 class="text-2xl font-bold mb-3">Transactions</h1>
+        <flux:modal.trigger name="transfer">
+            <flux:button class="uppercase">transfer</flux:button>
+        </flux:modal.trigger>
+    </div>
+
+    <flux:modal name="transfer" class="md:w-96">
+        <form wire:submit.prevent="createTransaction">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">Transfer Funds</flux:heading>
+                    <flux:text class="mt-2">
+                        Send an amount to another teller. Please double-check all details before
+                        confirming
+                        the transfer.
+                    </flux:text>
+                </div>
+
+                <flux:input label="Amount" placeholder="Enter amount" wire:model.defer="amount" />
+
+                <flux:field>
+                    <flux:label>Receiver (Admin)</flux:label>
+                    <flux:input value="{{ $admin->username ?? 'Admin not found' }}" disabled />
+                </flux:field>
+
+                <flux:input label="Note" placeholder="Enter note" wire:model.defer="note" />
+
+                <div class="flex">
+                    <flux:spacer />
+                    <flux:button type="submit" variant="primary">Send</flux:button>
+                </div>
+            </div>
+        </form>
+    </flux:modal>
+
     <x-table class="min-w-full">
         <thead class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
             <tr>

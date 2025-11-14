@@ -56,7 +56,7 @@
 
                             <div class="flex">
                                 <flux:spacer />
-                                <flux:button type="submit" variant="primary">Save changes</flux:button>
+                                <flux:button type="submit" variant="primary">Send</flux:button>
                             </div>
                         </div>
                     </form>
@@ -64,49 +64,53 @@
 
                 <flux:modal name="received" class="!max-w-7xl w-full">
                     <div class="space-y-6">
-                        <x-table class="w-full">
-                            <thead
-                                class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
-                                <tr>
-                                    <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">sender
-                                    </th>
-                                    <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">amount
-                                    </th>
-                                    <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">note</th>
-                                    <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">status
-                                    </th>
-                                    <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($transactions as $transaction)
-                                    <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                            {{ $transaction->sender->username ?? '' }}
-                                        </td>
-                                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                            {{ number_format($transaction->amount, 2) }}
-                                        </td>
-                                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                            {{ $transaction->note ?? '' }}
-                                        </td>
-                                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                            {{ ucfirst($transaction->status) }}
-                                        </td>
-                                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                            {{ $transaction->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
-                                        </td>
-                                    </tr>
-                                @empty
+                        <div class="pt-8">
+                            <x-table class="min-w-full">
+                                <thead>
                                     <tr>
-                                        <td colspan="6"
-                                            class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400 uppercase">
-                                            No transactions yet.
-                                        </td>
+                                        <th class="px-2 py-3 text-center text-xs sm:text-sm">Sender</th>
+                                        <th class="px-2 py-3 text-center text-xs sm:text-sm">Amount</th>
+                                        <th class="px-2 py-3 text-center text-xs sm:text-sm">Note</th>
+                                        <th class="px-2 py-3 text-center text-xs sm:text-sm">Status</th>
+                                        <th class="px-2 py-3 text-center text-xs sm:text-sm">Date</th>
+                                        <th class="px-2 py-3 text-center text-xs sm:text-sm">Action</th>
                                     </tr>
-                                @endforelse
-                            </tbody>
-                        </x-table>
+                                </thead>
+                                <tbody>
+                                    @forelse ($userToAdminTransactions as $transaction)
+                                        <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                                            <td class="px-2 py-4 text-center">{{ $transaction->sender->username }}</td>
+                                            <td class="px-2 py-4 text-center">
+                                                {{ number_format($transaction->amount, 2) }}
+                                            </td>
+                                            <td class="px-2 py-4 text-center">{{ $transaction->note }}</td>
+                                            <td class="px-2 py-4 text-center">{{ ucfirst($transaction->status) }}</td>
+                                            <td class="px-2 py-4 text-center">
+                                                {{ $transaction->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
+                                            </td>
+                                            <td class="px-2 py-4 text-center">
+                                                @if ($transaction->status === 'pending')
+                                                    <flux:button wire:click="receiveTransaction({{ $transaction->id }})"
+                                                        size="sm">
+                                                        Receive
+                                                    </flux:button>
+                                                @else
+                                                    <flux:button disabled size="sm">
+                                                        Received
+                                                    </flux:button>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center text-gray-400 uppercase">No
+                                                transactions
+                                                yet.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </x-table>
+                        </div>
                     </div>
                 </flux:modal>
             </div>
@@ -115,45 +119,33 @@
                 <div class="overflow-x-auto">
                     <div class="max-h-[180px] overflow-y-auto">
                         <x-table class="min-w-full">
-                            <thead
-                                class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
+                            <thead>
                                 <tr>
-                                    <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">sender</th>
-                                    <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">amount</th>
-                                    <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">receiver</th>
-                                    <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">note</th>
-                                    <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">status</th>
-                                    <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">date</th>
+                                    <th class="px-2 py-3 text-center text-xs sm:text-sm">Sender</th>
+                                    <th class="px-2 py-3 text-center text-xs sm:text-sm">Amount</th>
+                                    <th class="px-2 py-3 text-center text-xs sm:text-sm">Receiver</th>
+                                    <th class="px-2 py-3 text-center text-xs sm:text-sm">Note</th>
+                                    <th class="px-2 py-3 text-center text-xs sm:text-sm">Status</th>
+                                    <th class="px-2 py-3 text-center text-xs sm:text-sm">Date</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($transactions as $transaction)
+                                @forelse ($adminToUserTransactions as $transaction)
                                     <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                            {{ $transaction->sender->username ?? '' }}
+                                        <td class="px-2 py-4 text-center">{{ $transaction->sender->username }}</td>
+                                        <td class="px-2 py-4 text-center">{{ number_format($transaction->amount, 2) }}
                                         </td>
-                                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                            {{ number_format($transaction->amount, 2) }}
-                                        </td>
-                                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                            {{ $transaction->receiver->username ?? '' }}
-                                        </td>
-                                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                            {{ $transaction->note ?? '' }}
-                                        </td>
-                                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                            {{ ucfirst($transaction->status) }}
-                                        </td>
-                                        <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                        <td class="px-2 py-4 text-center">{{ $transaction->receiver->username }}</td>
+                                        <td class="px-2 py-4 text-center">{{ $transaction->note }}</td>
+                                        <td class="px-2 py-4 text-center">{{ ucfirst($transaction->status) }}</td>
+                                        <td class="px-2 py-4 text-center">
                                             {{ $transaction->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6"
-                                            class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400 uppercase">
-                                            No transactions yet.
-                                        </td>
+                                        <td colspan="6" class="text-center text-gray-400 uppercase">No transactions
+                                            yet.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

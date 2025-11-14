@@ -18,12 +18,37 @@ class Transactions extends Component
     public $receiver_id;
     public $note;
 
+    public $userToAdminTransactions;
+    public $adminToUserTransactions;
+
     public $totalTransfer = 0;
 
     public function mount()
     {
         $this->event = Event::where('status', 'ongoing')->latest()->first();
         $this->users = User::role('user')->orderBy('username')->get();
+
+        $this->loadTransactions();
+    }
+
+    public function loadTransactions()
+    {
+        if ($this->event) {
+            $this->userToAdminTransactions = Transaction::with('sender', 'receiver')
+                ->where('event_id', $this->event->id)
+                ->where('receiver_id', Auth::id())
+                ->latest()
+                ->get();
+
+            $this->adminToUserTransactions = Transaction::with('sender', 'receiver')
+                ->where('event_id', $this->event->id)
+                ->where('sender_id', Auth::id())
+                ->latest()
+                ->get();
+        } else {
+            $this->userToAdminTransactions = collect();
+            $this->adminToUserTransactions = collect();
+        }
     }
 
     public function createTransaction()
@@ -68,11 +93,35 @@ class Transactions extends Component
         $this->totalTransfer = $this->event ? $this->event->total_transfer : 0;
     }
 
+    public function receiveTransaction($id)
+    {
+        $transaction = Transaction::where('id', $id)
+            ->where('receiver_id', Auth::id())
+            ->where('status', 'pending')
+            ->first();
+
+        if (! $transaction) {
+            Toaster::error('Invalid or already received transaction.');
+            return;
+        }
+
+        $transaction->update(['status' => 'success']);
+
+        if ($this->event) {
+            $this->event->increment('revolving', $transaction->amount);
+            $this->event = $this->event->fresh();
+        }
+
+        $this->loadTransactions();
+        Toaster::success('Transaction successfully received.');
+    }
+
     public function render()
     {
         $transactions = $this->event
-            ? Transaction::with(['receiver', 'sender'])
+            ? Transaction::with(['sender', 'receiver'])
             ->where('event_id', $this->event->id)
+            ->where('receiver_id', Auth::id()) // only admin transactions
             ->latest()
             ->get()
             : collect();
