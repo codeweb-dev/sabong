@@ -6,33 +6,24 @@ use App\Models\Event;
 use App\Models\Transaction;
 use App\Models\User;
 use Flux\Flux;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
-use Livewire\WithPagination;
 
 class Transactions extends Component
 {
-    use WithPagination;
-
     public $event;
     public $users = [];
     public $amount;
     public $receiver_id;
     public $note;
 
-    public $totalTransfer = 0; // note dito ba is once na status is success lahat ng total transfer makikita o pending lang din?
+    public $totalTransfer = 0;
 
     public function mount()
     {
         $this->event = Event::where('status', 'ongoing')->latest()->first();
         $this->users = User::role('user')->orderBy('username')->get();
-    }
-
-    public function updating()
-    {
-        $this->resetPage();
     }
 
     public function createTransaction()
@@ -79,14 +70,12 @@ class Transactions extends Component
 
     public function render()
     {
-        if ($this->event) {
-        $transactions = Transaction::with(['receiver', 'sender'])
-                ->where('event_id', $this->event->id)
-                ->latest()
-                ->paginate(2);
-        } else {
-            $transactions = new LengthAwarePaginator([], 0, 2);
-        }
+        $transactions = $this->event
+            ? Transaction::with(['receiver', 'sender'])
+            ->where('event_id', $this->event->id)
+            ->latest()
+            ->get()
+            : collect();
 
         return view('livewire.admin.transactions', [
             'transactions' => $transactions,
