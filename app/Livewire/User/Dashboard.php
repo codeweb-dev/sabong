@@ -275,35 +275,26 @@ class Dashboard extends Component
             $connector = new WindowsPrintConnector("POS-80");
             $printer = new Printer($connector);
 
-            // === HEADER: SIDE (Meron/Wala) ===
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setTextSize(2, 2);
             $printer->text(strtoupper($bet->side) . "\n\n");
 
-            // === DIVIDER ===
             $printer->setTextSize(2, 1);
             $printer->text("-----------------------\n");
 
-            // === DETAILS ===
             $printer->setJustification(Printer::JUSTIFY_LEFT);
-            $printer->text("Event Name:   " . ($bet->fight->event->event_name ?? 'N/A') . "\n");
-            $printer->text("Description:  " . ($bet->fight->event->description ?? 'N/A') . "\n");
-            $printer->text("-----------------------\n");
             $printer->text("Inputed By:   " . $user->username . "\n");
             $printer->text("Ticket No:    " . $bet->ticket_no . "\n");
             $printer->text("Fight No:     " . $bet->fight->fight_number . "\n");
             $printer->text("Amount:       " . number_format($bet->amount, 2) . "\n");
             $printer->text("-----------------------\n");
 
-            // === DATE ===
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->text(Carbon::now()->timezone('Asia/Manila')->format('M d, Y h:i A') . "\n\n");
 
-            // === BARCODE ===
             $printer->barcode($bet->ticket_no, Printer::BARCODE_CODE39);
             $printer->text($bet->ticket_no . "\n\n");
 
-            // === FOOTER ===
             $printer->text("Thank you for betting!\n");
             $printer->feed(3);
 

@@ -190,12 +190,6 @@
                                 <hr class="border-gray-400 my-2">
                             </div>
 
-                            <p><strong>Event Name:</strong> {{ $previewBet->fight->event->event_name ?? 'N/A' }}
-                            </p>
-                            <p><strong>Description:</strong> {{ $previewBet->fight->event->description ?? 'N/A' }}
-                            </p>
-                            <hr class="border-gray-300 my-2">
-
                             <p><strong>Inputed By:</strong> {{ $previewBet->user->username }}</p>
                             <p><strong>Ticket No:</strong> {{ $previewBet->ticket_no }}</p>
                             <p><strong>Fight No:</strong> {{ $previewBet->fight->fight_number }}</p>
