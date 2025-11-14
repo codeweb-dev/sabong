@@ -75,6 +75,50 @@
                             </flux:button>
                         </flux:modal.trigger>
 
+                        <flux:modal.trigger name="edit-user-{{ $user->id }}" wire:click="edit({{ $user->id }})">
+                            <flux:button icon="pencil" variant="primary" size="xs">
+                                Edit
+                            </flux:button>
+                        </flux:modal.trigger>
+
+                        <flux:modal name="edit-user-{{ $user->id }}" class="md:w-96"
+                            wire:key="edit-modal-{{ $user->id }}">
+                            <form wire:submit="update">
+                                <div class="space-y-6">
+                                    <div>
+                                        <flux:heading size="lg" class="uppercase">Edit User</flux:heading>
+                                        <flux:text class="mt-2 uppercase">
+                                            Update the user's information below.
+                                        </flux:text>
+                                    </div>
+
+                                    <flux:input label="Username" placeholder="Enter username" clearable
+                                        wire:model.blur="edit_username" required />
+
+                                    <flux:select wire:model.defer="edit_role" placeholder="Choose role..." label="Role">
+                                        @foreach ($roles as $role)
+                                            <flux:select.option value="{{ $role->name }}">
+                                                {{ $role->name }}
+                                            </flux:select.option>
+                                        @endforeach
+                                    </flux:select>
+
+                                    <flux:input label="Password (leave blank to keep current)" type="password"
+                                        placeholder="Enter new password" viewable wire:model.blur="edit_password" />
+
+                                    <flux:input label="Confirm Password" type="password" placeholder="Confirm new password"
+                                        viewable wire:model.blur="edit_password_confirmation" />
+
+                                    <div class="flex">
+                                        <flux:spacer />
+                                        <flux:button type="submit" variant="primary" class="uppercase">
+                                            Update User
+                                        </flux:button>
+                                    </div>
+                                </div>
+                            </form>
+                        </flux:modal>
+
                         <flux:modal name="delete-user-{{ $user->id }}" class="min-w-[22rem]"
                             wire:key="delete-modal-{{ $user->id }}">
                             <div class="space-y-6">
