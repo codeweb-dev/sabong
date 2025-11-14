@@ -15,7 +15,6 @@ class Welcome extends Component
     public $currentEvent = null;
     public $fights = [];
     public $activeFight = null;
-    public $completedFights = [];
     public $totalMeronBet = 0;
     public $totalWalaBet = 0;
 
@@ -24,7 +23,6 @@ class Welcome extends Component
         $this->isSmallScreen = $smallScreen;
         $this->loadOngoingEvent();
         $this->loadBetTotals();
-        $this->prepareFightsData();
     }
 
     #[On('echo:events,.event.started')]
@@ -33,7 +31,6 @@ class Welcome extends Component
         $this->currentEvent = Event::with('fights')->find($data['eventId']);
         $this->fights = $this->currentEvent?->fights ?? [];
         $this->activeFight = $this->getActiveFight();
-        $this->prepareFightsData();
     }
 
     #[On('echo:events,.event.ended')]
@@ -43,7 +40,31 @@ class Welcome extends Component
             $this->currentEvent = null;
             $this->fights = [];
             $this->activeFight = null;
-            $this->completedFights = [];
+        }
+    }
+
+    #[On('echo:events,.fight.started')]
+    public function handleFightUpdated($data)
+    {
+        if ($this->currentEvent && $this->currentEvent->id === $data['eventId']) {
+            $this->fights = Event::with('fights')->find($data['eventId'])->fights;
+            $this->activeFight = collect($this->fights)
+                ->first(fn($fight) => in_array($fight->status, ['start', 'open', 'close']));
+
+            if ($this->activeFight) {
+                $this->activeFight->fighter_a = $data['fighterA'];
+                $this->activeFight->fighter_b = $data['fighterB'];
+                $this->loadBetTotals();
+            }
+        }
+    }
+
+    #[On('echo:events,.bet.placed')]
+    public function handleBetPlaced($data)
+    {
+        if ($this->activeFight && $this->activeFight->id === $data['fightId']) {
+            $this->totalMeronBet = $data['totalMeronBet'];
+            $this->totalWalaBet = $data['totalWalaBet'];
         }
     }
 
@@ -56,13 +77,14 @@ class Welcome extends Component
 
         $this->fights = $this->currentEvent?->fights ?? [];
         $this->activeFight = $this->getActiveFight();
-        $this->prepareFightsData();
         $this->loadBetTotals();
     }
 
     private function getActiveFight()
     {
-        if (! $this->currentEvent) return null;
+        if (! $this->currentEvent) {
+            return null;
+        }
 
         return $this->currentEvent->fights()
             ->whereIn('status', ['start', 'open', 'close'])
@@ -85,39 +107,6 @@ class Welcome extends Component
         $this->totalWalaBet = Bet::where('fight_id', $this->activeFight->id)
             ->where('side', 'wala')
             ->sum('amount');
-    }
-
-    private function prepareFightsData()
-    {
-        $activeStatuses = ['start', 'open', 'close'];
-        $this->activeFight = collect($this->fights)
-            ->first(fn($f) => in_array($f->status, $activeStatuses))
-            ?: collect($this->fights)->firstWhere('status', 'pending');
-
-        $this->completedFights = collect($this->fights)
-            ->where('id', '!=', optional($this->activeFight)->id)
-            ->whereNotIn('status', ['pending', 'start', 'open', 'close'])
-            ->reverse()
-            ->take(3)
-            ->map(function($fight) {
-                $fight->bgColor = match($fight->winner) {
-                    'meron' => 'bg-red-400 text-white',
-                    'wala' => 'bg-blue-400 text-white',
-                    'draw' => 'bg-green-400 text-black',
-                    'cancel' => 'bg-gray-400 text-black',
-                    default => 'bg-white text-black',
-                };
-
-                $fight->badgeColor = match($fight->winner) {
-                    'meron' => 'red',
-                    'wala' => 'blue',
-                    'draw' => 'green',
-                    'cancel' => 'gray',
-                    default => 'black',
-                };
-
-                return $fight;
-            });
     }
 
     public function render()

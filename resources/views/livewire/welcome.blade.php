@@ -4,20 +4,43 @@
         <div class="flex flex-col md:flex-row h-screen {{ $isSmallScreen ? 'bg-zinc-900' : '' }}">
             <aside
                 class="w-full md:w-78 grid grid-cols-1 gap-3 px-4 md:px-6 py-4 md:py-8 border-b md:border-b-0 md:border-e border-zinc-200 dark:border-zinc-700 overflow-y-auto scrollbar-hide">
-                @if ($activeFight)
+
+                @php
+                    $activeStatuses = ['start', 'open', 'close'];
+                    $activeFight = $fights->firstWhere(fn($f) => in_array($f->status, $activeStatuses));
+                    $currentFight = $activeFight ?: $fights->firstWhere('status', 'pending');
+                    $completedFights = $fights
+                        ->where('id', '!=', optional($currentFight)->id)
+                        ->whereNotIn('status', ['pending', 'start', 'open', 'close'])
+                        ->reverse()
+                        ->take(3);
+
+                    function fightColor($fight)
+                    {
+                        return match ($fight->winner) {
+                            'meron' => 'bg-red-400 text-white',
+                            'wala' => 'bg-blue-400 text-white',
+                            'draw' => 'bg-green-400 text-black',
+                            'cancel' => 'bg-gray-400 text-black',
+                            default => 'bg-white text-black',
+                        };
+                    }
+                @endphp
+
+                @if ($currentFight)
                     <div
-                        class="py-8 px-12 md:p-12 {{ $activeFight->bgColor }} flex flex-col items-center justify-center text-3xl md:text-4xl rounded-2xl transition-all duration-300">
-                        <p>{{ $activeFight->fight_number }}</p>
+                        class="py-8 px-12 md:p-12 {{ fightColor($currentFight) }} flex flex-col items-center justify-center text-3xl md:text-4xl rounded-2xl relative transition-all duration-300">
+                        <p>{{ $currentFight->fight_number }}</p>
                     </div>
                 @endif
 
                 @foreach ($completedFights as $fight)
                     <div
-                        class="py-8 px-12 md:p-12 {{ $fight->bgColor }} flex flex-col items-center justify-center text-3xl md:text-4xl rounded-2xl transition-all duration-300">
+                        class="py-8 px-12 md:p-12 {{ fightColor($fight) }} flex flex-col items-center justify-center text-3xl md:text-4xl rounded-2xl relative transition-all duration-300">
                         <p>{{ $fight->fight_number }}</p>
 
                         @if ($fight->status === 'done' && $fight->winner)
-                            <flux:badge class="mt-2" size="lg" variant="solid" color="{{ $fight->badgeColor }}">
+                            <flux:badge class="mt-2" size="lg" variant="solid" color="black">
                                 {{ strtoupper($fight->winner) }}
                             </flux:badge>
                         @endif
