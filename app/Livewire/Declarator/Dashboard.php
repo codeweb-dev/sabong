@@ -245,8 +245,13 @@ class Dashboard extends Component
             return;
         }
 
-        if ($this->activeFight->status !== 'close' && !$this->activeFight->winner) {
-            Toaster::error('Please close the bet and declare a winner first.');
+        if (!$this->activeFight->winner) {
+            Toaster::error('Please declare a winner before ending the fight.');
+            return;
+        }
+
+        if ($this->activeFight->status !== 'close') {
+            Toaster::error('Bet must be closed before ending the fight.');
             return;
         }
 

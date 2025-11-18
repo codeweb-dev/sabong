@@ -62,7 +62,7 @@ class Transactions extends Component
         $this->validate([
             'amount' => 'required|numeric|min:1',
             'receiver_id' => 'required|exists:users,id',
-            'note' => 'nullable|string|max:255',
+            'note' => 'required|string|max:255',
         ]);
 
         if ($this->event->revolving < $this->amount) {
@@ -84,6 +84,7 @@ class Transactions extends Component
         $this->totalTransfer = $this->event->fresh()->total_transfer;
 
         $this->reset(['amount', 'receiver_id', 'note']);
+        $this->loadTransactions();
         Flux::modal('transfer')->close();
         Toaster::success('Transaction successfully created.');
     }
