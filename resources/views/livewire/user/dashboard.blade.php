@@ -235,7 +235,7 @@
                                     @endif
 
                                     @if ($previewBet->is_claimed)
-                                        <p class="text-red-600 font-bold">*** ALREADY CLAIMED ***</p>
+                                        <p class="text-red-600 font-bold text-center">*** ALREADY CLAIMED ***</p>
                                     @endif
 
                                     <hr class="border-gray-300 my-2">
@@ -247,8 +247,6 @@
                                     <div class="flex justify-center mt-3">
                                         <p class="barcode">*{{ $previewBet->ticket_no }}*</p>
                                     </div>
-
-                                    <p class="text-center">{{ $previewBet->ticket_no }}</p>
 
                                     <p class="text-center text-sm mt-3 uppercase font-semibold">Thank you for betting!
                                     </p>
