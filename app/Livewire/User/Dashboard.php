@@ -70,10 +70,11 @@ class Dashboard extends Component
             $this->previewTicketNo = $ticketNo;
             $this->scanMode = false;
             $this->scannedBarcode = '';
+
             $this->loadPreview();
 
             if ($this->previewBet) {
-                Flux::modal('preview-modal')->show();
+                $this->payout();
             }
         }
     }
