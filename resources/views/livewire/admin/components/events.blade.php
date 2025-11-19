@@ -28,7 +28,8 @@
                     </tr>
                 @empty
                     <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                        <td colspan="4" class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400 uppercase">
+                        <td colspan="4"
+                            class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400 uppercase">
                             No events found
                         </td>
                     </tr>
@@ -55,11 +56,32 @@
                     @foreach ($fights as $fight)
                         <tr class="hover:bg-white/5 bg-black/5 transition-all">
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->fight_number }}</td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->meron_bet ?? 0 }}</td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->wala_bet ?? 0 }}</td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center uppercase">{{ $fight->winner ?? '-' }}
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->meron_bet ?? 0 }}
                             </td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->payout ?? 0 }}
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">{{ $fight->wala_bet ?? 0 }}
+                            </td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center uppercase">
+                                {{ $fight->winner ?? '-' }}
+                            </td>
+                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                @php
+                                    if ($fight->winner === 'meron') {
+                                        $displayPayout = $fight->meron_payout ?? 0;
+                                    } elseif ($fight->winner === 'wala') {
+                                        $displayPayout = $fight->wala_payout ?? 0;
+                                    } elseif (in_array($fight->winner, ['draw', 'cancel'])) {
+                                        $displayPayout = 0;
+                                    } else {
+                                        $displayPayout = 0;
+                                    }
+
+                                    $displayPayoutInt =
+                                        $fight->winner === 'draw' || $fight->winner === 'cancel'
+                                            ? null
+                                            : floor($displayPayout * 100);
+                                @endphp
+
+                                {{ $fight->winner === 'draw' || $fight->winner === 'cancel' ? 'Refund' : $displayPayoutInt }}
                             </td>
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center uppercase">
                                 {{ ucfirst($fight->status) }}
@@ -68,7 +90,8 @@
                     @endforeach
                 @else
                     <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                        <td colspan="6" class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400 uppercase">
+                        <td colspan="6"
+                            class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400 uppercase">
                             No fight history yet
                         </td>
                     </tr>

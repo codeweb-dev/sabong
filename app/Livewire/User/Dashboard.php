@@ -318,6 +318,43 @@ class Dashboard extends Component
             : Flux::modal('wala-confirmation-modal')->close();
     }
 
+    public function payout()
+    {
+        if (!$this->previewBet) {
+            Toaster::error('No bet loaded for payout.');
+            return;
+        }
+
+        $bet = $this->previewBet;
+
+        // Check if bet has already been claimed
+        if ($bet->is_claimed) {
+            Toaster::error('This bet has already been claimed.');
+            return;
+        }
+
+        // Check if bet is a winning bet
+        if (!$bet->is_win) {
+            Toaster::error('This bet did not win. Cannot claim payout.');
+            return;
+        }
+
+        // Process payout
+        $user = Auth::user();
+        $user->decrement('cash', $bet->payout_amount);
+
+        $bet->update([
+            'is_claimed' => true,
+            'claimed_at' => now(),
+            'claimed_by' => $user->id,
+        ]);
+
+        $this->cashOnHand = $user->fresh()->cash;
+
+        Toaster::success('Payout successful!');
+        $this->previewBet = null;
+    }
+
     public function render()
     {
         return view('livewire.user.dashboard');

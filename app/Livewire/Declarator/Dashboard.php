@@ -195,7 +195,7 @@ class Dashboard extends Component
 
     public function setWinner($winner)
     {
-        if (! $this->activeFight) {
+        if (!$this->activeFight) {
             Toaster::error('No active fight.');
             return;
         }
@@ -215,23 +215,58 @@ class Dashboard extends Component
             return;
         }
 
-        $this->activeFight->update([
-            'winner' => $winner,
-        ]);
+        $this->activeFight->update(['winner' => $winner]);
+
+        $bets = Bet::where('fight_id', $this->activeFight->id)->get();
 
         if (in_array($winner, ['draw', 'cancel'])) {
-            $bets = Bet::where('fight_id', $this->activeFight->id)->get();
-
+            // Refund all bets
             foreach ($bets as $bet) {
-                $user = $bet->user;
-                if ($user) {
-                    $user->increment('cash', $bet->amount);
-                }
+                $bet->user?->increment('cash', $bet->amount);
+                $bet->update([
+                    'is_win' => null,
+                    'payout_amount' => $bet->amount,
+                    'is_claimed' => true,
+                    'claimed_at' => now(),
+                ]);
             }
 
             Toaster::info('All bets refunded due to ' . strtoupper($winner) . '.');
         } else {
-            Toaster::success(strtoupper($winner) . ' declared as winner!');
+            $winnerSide = $winner;
+            $loserSide = $winner === 'meron' ? 'wala' : 'meron';
+
+            // Calculate total losing bets (for proportional payout if needed)
+            $totalLoserBets = $bets->where('side', $loserSide)->sum('amount');
+
+            foreach ($bets as $bet) {
+                if ($bet->side === $winnerSide) {
+                    $payout = $bet->amount * ($winnerSide === 'meron'
+                        ? $this->activeFight->meron_payout
+                        : $this->activeFight->wala_payout);
+
+                    $bet->update([
+                        'is_win' => true,
+                        'payout_amount' => $payout,
+                        'is_claimed' => false, // user must claim
+                        'claimed_at' => null,
+                    ]);
+                } else {
+                    $bet->update([
+                        'is_win' => false,
+                        'payout_amount' => 0,
+                        'is_claimed' => false,
+                        'claimed_at' => null,
+                    ]);
+                }
+            }
+
+            $this->activeFight->update([
+                'payout' => $bets->where('side', $winnerSide)->sum('amount') *
+                    ($winnerSide === 'meron' ? $this->activeFight->meron_payout : $this->activeFight->wala_payout)
+            ]);
+
+            Toaster::success(strtoupper($winner) . ' declared as winner! Users can now claim their winnings.');
         }
 
         $this->fights = $this->currentEvent->fresh()->fights;

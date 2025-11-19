@@ -45,7 +45,8 @@
 
             <div class="py-5 flex-1">
                 <p class="font-bold text-center">
-                    betting : {{ $activeFight?->status === 'start' || $activeFight?->status === 'pending' ? '-' : $activeFight?->status ?? '' }}
+                    betting :
+                    {{ $activeFight?->status === 'start' || $activeFight?->status === 'pending' ? '-' : $activeFight?->status ?? '' }}
                 </p>
             </div>
         </div>
@@ -76,7 +77,25 @@
                                 {{ ucfirst($fight->winner ?? '-') }}
                             </td>
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">
-                                {{ $fight->payout ?? 0 }}</td>
+                                @php
+                                    if ($fight->winner === 'meron') {
+                                        $displayPayout = $fight->meron_payout ?? 0;
+                                    } elseif ($fight->winner === 'wala') {
+                                        $displayPayout = $fight->wala_payout ?? 0;
+                                    } elseif (in_array($fight->winner, ['draw', 'cancel'])) {
+                                        $displayPayout = 0;
+                                    } else {
+                                        $displayPayout = 0;
+                                    }
+
+                                    $displayPayoutInt =
+                                        $fight->winner === 'draw' || $fight->winner === 'cancel'
+                                            ? null
+                                            : floor($displayPayout * 100);
+                                @endphp
+
+                                {{ $fight->winner === 'draw' || $fight->winner === 'cancel' ? 'Refund' : $displayPayoutInt }}
+                            </td>
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center uppercase">
                                 {{ ucfirst($fight->status) }}
                             </td>
