@@ -52,7 +52,6 @@ class Dashboard extends Component
 
         if ($this->scanMode) {
             $this->scannedBarcode = '';
-            $this->js('focusBarcode');
             Toaster::info('Scan mode activated. Please scan the barcode.');
         } else {
             Toaster::info('Scan mode deactivated.');

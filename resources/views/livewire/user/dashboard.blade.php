@@ -264,16 +264,4 @@
             </div>
         </div>
     </div>
-
-    @script
-        <script>
-            $js('focusBarcode', () => {
-                const field = document.getElementById('barcode-field');
-                if (field) {
-                    field.value = '';
-                    field.focus();
-                }
-            })
-        </script>
-    @endscript
 </div>
