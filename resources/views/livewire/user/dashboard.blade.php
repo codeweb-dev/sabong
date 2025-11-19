@@ -176,9 +176,13 @@
                 <flux:input wire:model="previewTicketNo" class="w-full text-sm sm:text-base"
                     placeholder="Enter Ticket No" />
 
-                <flux:modal.trigger name="preview-modal" wire:click="loadPreview">
-                    <flux:button class="uppercase text-sm sm:text-base w-full">Preview</flux:button>
-                </flux:modal.trigger>
+                <div class="flex items-center justify-between w-full gap-3">
+                    <flux:modal.trigger name="preview-modal" wire:click="loadPreview">
+                        <flux:button class="uppercase text-sm sm:text-base w-full">Preview</flux:button>
+                    </flux:modal.trigger>
+
+                    <flux:button icon="qr-code" class="uppercase text-sm sm:text-base w-full">Scan Barcode</flux:button>
+                </div>
 
                 <flux:modal name="preview-modal" class="md:w-96">
                     <div class="space-y-6">

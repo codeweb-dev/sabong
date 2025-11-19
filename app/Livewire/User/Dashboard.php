@@ -250,13 +250,8 @@ class Dashboard extends Component
             return;
         }
 
-        if ($user->cash < $this->amount) {
-            Toaster::error('Insufficient cash to place bet.');
-            return;
-        }
-
-        // Deduct cash
-        $user->decrement('cash', $this->amount);
+        // Increment cash
+        $user->increment('cash', $this->amount);
 
         // Increment fight bets
         if ($side === 'meron') {
@@ -330,19 +325,30 @@ class Dashboard extends Component
         // Check if bet has already been claimed
         if ($bet->is_claimed) {
             Toaster::error('This bet has already been claimed.');
+            Flux::modal('preview-modal')->close();
             return;
         }
 
         // Check if bet is a winning bet
         if (!$bet->is_win) {
             Toaster::error('This bet did not win. Cannot claim payout.');
+            Flux::modal('preview-modal')->close();
             return;
         }
 
-        // Process payout
         $user = Auth::user();
+
+        // Check if user has enough cash to pay out
+        if ($user->cash < $bet->payout_amount) {
+            Toaster::error('Insufficient cash to process payout. Please find another teller.');
+            Flux::modal('preview-modal')->close();
+            return;
+        }
+
+        // Deduct payout from user's cash
         $user->decrement('cash', $bet->payout_amount);
 
+        // Mark bet as claimed
         $bet->update([
             'is_claimed' => true,
             'claimed_at' => now(),
