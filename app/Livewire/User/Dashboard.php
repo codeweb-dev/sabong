@@ -3,8 +3,10 @@
 namespace App\Livewire\User;
 
 use App\Events\BetPlaced;
+use App\HandlesPayouts;
 use App\Models\Bet;
 use App\Models\Fight;
+use App\Models\SystemOver;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
@@ -15,6 +17,8 @@ use Carbon\Carbon;
 
 class Dashboard extends Component
 {
+    use HandlesPayouts;
+
     public $cashOnHand;
     public $amount = 0;
     public $activeFight = null;
@@ -27,6 +31,9 @@ class Dashboard extends Component
 
     public $previewTicketNo;
     public $previewBet;
+
+    public $meronPayoutDisplay = 0;
+    public $walaPayoutDisplay = 0;
 
     public function mount()
     {
@@ -57,7 +64,6 @@ class Dashboard extends Component
         }
 
         $this->previewTicketNo = null;
-        Toaster::success('Ticket loaded successfully!');
     }
 
     public function reprintTicket()
@@ -249,14 +255,20 @@ class Dashboard extends Component
             return;
         }
 
+        // Deduct cash
         $user->decrement('cash', $this->amount);
 
+        // Increment fight bets
         if ($side === 'meron') {
             $this->activeFight->increment('meron_bet', $this->amount);
         } else {
             $this->activeFight->increment('wala_bet', $this->amount);
         }
 
+        // Recalculate payouts
+        $payouts = $this->calculateAndSavePayout($this->activeFight->fresh());
+
+        // Create bet
         $bet = Bet::create([
             'user_id' => $user->id,
             'fight_id' => $this->activeFight->id,
@@ -270,7 +282,9 @@ class Dashboard extends Component
         $this->cashOnHand = $user->fresh()->cash;
         $this->loadUserBets();
 
-        // 🖨️ Try printing ticket
+        $this->meronPayoutDisplay = $payouts['meronDisplay'];
+        $this->walaPayoutDisplay = $payouts['walaDisplay'];
+
         try {
             $connector = new WindowsPrintConnector("POS-80");
             $printer = new Printer($connector);
@@ -278,26 +292,20 @@ class Dashboard extends Component
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setTextSize(2, 2);
             $printer->text(strtoupper($bet->side) . "\n\n");
-
             $printer->setTextSize(2, 1);
             $printer->text("-----------------------\n");
-
             $printer->setJustification(Printer::JUSTIFY_LEFT);
             $printer->text("Inputed By:   " . $user->username . "\n");
             $printer->text("Ticket No:    " . $bet->ticket_no . "\n");
             $printer->text("Fight No:     " . $bet->fight->fight_number . "\n");
             $printer->text("Amount:       " . number_format($bet->amount, 2) . "\n");
             $printer->text("-----------------------\n");
-
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->text(Carbon::now()->timezone('Asia/Manila')->format('M d, Y h:i A') . "\n\n");
-
             $printer->barcode($bet->ticket_no, Printer::BARCODE_CODE39);
             $printer->text($bet->ticket_no . "\n\n");
-
             $printer->text("Thank you for betting!\n");
             $printer->feed(3);
-
             $printer->cut();
             $printer->close();
         } catch (\Exception $e) {

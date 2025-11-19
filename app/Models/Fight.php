@@ -6,7 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class Fight extends Model
 {
-    protected $fillable = ['event_id', 'fight_number', 'meron_bet', 'wala_bet',  'meron', 'wala', 'fighter_a', 'fighter_b', 'status', 'winner'];
+    protected $fillable = [
+        'event_id',
+        'fight_number',
+        'meron_bet',
+        'wala_bet',
+        'meron_payout',
+        'wala_payout',
+        'meron',
+        'wala',
+        'fighter_a',
+        'fighter_b',
+        'status',
+        'winner'
+    ];
+
+    protected $casts = [
+        'meron_payout' => 'float',
+        'wala_payout'  => 'float',
+    ];
 
     public function event()
     {

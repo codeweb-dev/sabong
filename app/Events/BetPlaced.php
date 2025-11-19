@@ -16,6 +16,8 @@ class BetPlaced implements ShouldBroadcast
     public $eventId;
     public $totalMeronBet;
     public $totalWalaBet;
+    public $meronPayout;
+    public $walaPayout;
 
     public function __construct(Fight $fight)
     {
@@ -23,6 +25,8 @@ class BetPlaced implements ShouldBroadcast
         $this->eventId = $fight->event_id;
         $this->totalMeronBet = $fight->meron_bet;
         $this->totalWalaBet = $fight->wala_bet;
+        $this->meronPayout = $fight->meron_payout; // RAW
+        $this->walaPayout  = $fight->wala_payout;  // RAW
     }
 
     public function broadcastOn()

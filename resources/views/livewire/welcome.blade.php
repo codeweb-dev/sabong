@@ -79,7 +79,9 @@
                             <p class="text-center text-5xl md:text-7xl font-bold">
                                 {{ number_format($totalMeronBet, 2) }}
                             </p>
-                            <p class="text-center text-xl md:text-3xl mt-2">PAYOUT : 0</p>
+                            <p class="text-center text-xl md:text-3xl mt-2">
+                                PAYOUT : {{ $meronPayoutDisplay }}
+                            </p>
                         </div>
                         <div class="p-4 md:p-6 flex-1">
                             <p class="text-center text-4xl md:text-5xl font-bold uppercase">
@@ -107,7 +109,9 @@
                             <p class="text-center text-5xl md:text-7xl font-bold">
                                 {{ number_format($totalWalaBet, 2) }}
                             </p>
-                            <p class="text-center text-xl md:text-3xl mt-2">PAYOUT : 0</p>
+                            <p class="text-center text-xl md:text-3xl mt-2">
+                                PAYOUT : {{ $walaPayoutDisplay }}
+                            </p>
                         </div>
                         <div class="p-4 md:p-6 flex-1">
                             <p class="text-center text-4xl md:text-5xl font-bold uppercase">

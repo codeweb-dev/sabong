@@ -18,6 +18,11 @@ return new class extends Migration
             $table->foreignId('fight_id')->constrained('fights')->onDelete('cascade');
             $table->enum('side', ['meron', 'wala']);
             $table->decimal('amount', 12, 2);
+            $table->boolean('is_win')->default(false);
+            $table->decimal('payout_amount', 12, 2)->nullable();
+            $table->boolean('is_claimed')->default(false);
+            $table->timestamp('claimed_at')->nullable();
+            $table->foreignId('claimed_by')->nullable()->constrained('users');
             $table->timestamps();
         });
     }

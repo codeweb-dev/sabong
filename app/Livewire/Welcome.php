@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\HandlesPayouts;
 use App\Models\Bet;
 use App\Models\Event;
 use Livewire\Attributes\Layout;
@@ -11,12 +12,17 @@ use Livewire\Component;
 #[Layout('components.layouts.welcome')]
 class Welcome extends Component
 {
+    use HandlesPayouts;
+
     public $isSmallScreen = false;
     public $currentEvent = null;
     public $fights = [];
     public $activeFight = null;
     public $totalMeronBet = 0;
     public $totalWalaBet = 0;
+
+    public $meronPayoutDisplay = 0;
+    public $walaPayoutDisplay = 0;
 
     public function mount($smallScreen = false)
     {
@@ -63,8 +69,18 @@ class Welcome extends Component
     public function handleBetPlaced($data)
     {
         if ($this->activeFight && $this->activeFight->id === $data['fightId']) {
-            $this->totalMeronBet = $data['totalMeronBet'];
-            $this->totalWalaBet = $data['totalWalaBet'];
+            $this->totalMeronBet = Bet::where('fight_id', $this->activeFight->id)
+                ->where('side', 'meron')
+                ->sum('amount');
+
+            $this->totalWalaBet = Bet::where('fight_id', $this->activeFight->id)
+                ->where('side', 'wala')
+                ->sum('amount');
+
+            $payouts = $this->calculateAndSavePayout($this->activeFight->fresh());
+
+            $this->meronPayoutDisplay = $payouts['meronDisplay'];
+            $this->walaPayoutDisplay = $payouts['walaDisplay'];
         }
     }
 
@@ -97,6 +113,8 @@ class Welcome extends Component
         if (!$this->activeFight) {
             $this->totalMeronBet = 0;
             $this->totalWalaBet = 0;
+            $this->meronPayoutDisplay = 0;
+            $this->walaPayoutDisplay = 0;
             return;
         }
 
@@ -107,6 +125,12 @@ class Welcome extends Component
         $this->totalWalaBet = Bet::where('fight_id', $this->activeFight->id)
             ->where('side', 'wala')
             ->sum('amount');
+
+        // Calculate payouts dynamically
+        $payouts = $this->calculateAndSavePayout($this->activeFight);
+
+        $this->meronPayoutDisplay = $payouts['meronDisplay'];
+        $this->walaPayoutDisplay = $payouts['walaDisplay'];
     }
 
     public function render()

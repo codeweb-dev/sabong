@@ -17,6 +17,8 @@ return new class extends Migration
             $table->integer('fight_number');
             $table->decimal('meron_bet', 12, 2)->default(0);
             $table->decimal('wala_bet', 12, 2)->default(0);
+            $table->decimal('meron_payout', 12, 5)->nullable();
+            $table->decimal('wala_payout', 12, 5)->nullable();
             $table->boolean('meron')->default(true);
             $table->boolean('wala')->default(true);
             $table->string('fighter_a')->nullable();

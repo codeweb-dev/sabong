@@ -15,6 +15,11 @@ class Bet extends Model
         'fight_id',
         'side',
         'amount',
+        'is_win',
+        'payout_amount',
+        'is_claimed',
+        'claimed_at',
+        'claimed_by',
     ];
 
     public function fight()

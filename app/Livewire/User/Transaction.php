@@ -33,7 +33,7 @@ class Transaction extends Component
     {
         $this->validate([
             'amount' => 'required|numeric|min:1',
-            'note' => 'nullable|string|max:255',
+            'note' => 'required|string|max:255',
         ]);
 
         $user = Auth::user();
