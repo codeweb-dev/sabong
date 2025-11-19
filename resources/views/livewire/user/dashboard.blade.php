@@ -172,16 +172,33 @@
             <p class="text-lg sm:text-xl uppercase">payout</p>
 
             <div class="flex flex-col items-center gap-2 w-full max-w-sm sm:max-w-md lg:max-w-2xl mx-auto">
-
-                <flux:input wire:model="previewTicketNo" class="w-full text-sm sm:text-base"
-                    placeholder="Enter Ticket No" />
+                @if ($scanMode)
+                    <div class="w-full p-4 border-2 border-green-500 rounded-lg bg-green-500/10 animate-pulse">
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <flux:icon.qr-code class="w-6 h-6 text-green-500" />
+                            <p class="text-green-500 font-semibold uppercase">Scan Mode Active</p>
+                        </div>
+                        <flux:input id="barcode-field" wire:model.live.300ms="scannedBarcode"
+                            placeholder="Waiting for barcode scan..."
+                            onkeydown="if(event.key === 'Enter') event.preventDefault();" />
+                    </div>
+                @else
+                    <flux:input wire:model="previewTicketNo" class="w-full text-sm sm:text-base"
+                        placeholder="Enter Ticket No" />
+                @endif
 
                 <div class="flex items-center justify-between w-full gap-3">
                     <flux:modal.trigger name="preview-modal" wire:click="loadPreview">
-                        <flux:button class="uppercase text-sm sm:text-base w-full">Preview</flux:button>
+                        <flux:button class="uppercase text-sm sm:text-base w-full" :disabled="$scanMode">
+                            Preview
+                        </flux:button>
                     </flux:modal.trigger>
 
-                    <flux:button icon="qr-code" class="uppercase text-sm sm:text-base w-full">Scan Barcode</flux:button>
+                    <flux:button wire:click="toggleScanMode" icon="qr-code"
+                        class="uppercase text-sm sm:text-base w-full"
+                        variant="{{ $scanMode ? 'primary' : 'danger' }}">
+                        {{ $scanMode ? 'Stop Scan' : 'Scan Barcode' }}
+                    </flux:button>
                 </div>
 
                 <flux:modal name="preview-modal" class="md:w-96">
@@ -210,6 +227,17 @@
                                     <p><strong>Ticket No:</strong> {{ $previewBet->ticket_no }}</p>
                                     <p><strong>Fight No:</strong> {{ $previewBet->fight->fight_number }}</p>
                                     <p><strong>Amount:</strong> {{ number_format($previewBet->amount, 2) }}</p>
+
+                                    @if ($previewBet->is_win)
+                                        <p><strong>Payout:</strong> <span
+                                                class="text-green-600">{{ number_format($previewBet->payout_amount, 2) }}</span>
+                                        </p>
+                                    @endif
+
+                                    @if ($previewBet->is_claimed)
+                                        <p class="text-red-600 font-bold">*** ALREADY CLAIMED ***</p>
+                                    @endif
+
                                     <hr class="border-gray-300 my-2">
 
                                     <p class="text-center text-xs text-gray-700">
@@ -231,11 +259,23 @@
                         </div>
 
                         <flux:button wire:click="payout" class="uppercase text-sm sm:text-base w-full">
-                            Submit
+                            Submit Payout
                         </flux:button>
                     </div>
                 </flux:modal>
             </div>
         </div>
     </div>
+
+    @script
+        <script>
+            $js('focusBarcode', () => {
+                const field = document.getElementById('barcode-field');
+                if (field) {
+                    field.value = '';
+                    field.focus();
+                }
+            })
+        </script>
+    @endscript
 </div>

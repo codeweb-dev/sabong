@@ -35,12 +35,55 @@ class Dashboard extends Component
     public $meronPayoutDisplay = 0;
     public $walaPayoutDisplay = 0;
 
+    // For barcode scanning
+    public $scanMode = false;
+    public $scannedBarcode = '';
+
     public function mount()
     {
         $this->cashOnHand = Auth::user()->cash ?? 0;
         $this->fights = Fight::latest()->get();
         $this->loadActiveFight();
         $this->loadUserBets();
+    }
+
+    public function toggleScanMode()
+    {
+        $this->scanMode = !$this->scanMode;
+
+        if ($this->scanMode) {
+            $this->scannedBarcode = '';
+            $this->js('focusBarcode');
+            Toaster::info('Scan mode activated. Please scan the barcode.');
+        } else {
+            Toaster::info('Scan mode deactivated.');
+        }
+    }
+
+    public function updatedScannedBarcode()
+    {
+        // Only process if scan mode is active and we have data
+        if (!$this->scanMode || empty($this->scannedBarcode)) {
+            return;
+        }
+
+        // Remove any asterisks that CODE39 barcodes might add and trim whitespace
+        $ticketNo = str_replace('*', '', trim($this->scannedBarcode));
+
+        // Make sure we have a valid ticket number (at least 3 characters)
+        if (strlen($ticketNo) >= 3) {
+            $this->previewTicketNo = $ticketNo;
+            $this->scanMode = false;
+            $this->scannedBarcode = '';
+
+            // Load preview and open modal
+            $this->loadPreview();
+
+            // Only open modal if we found a valid bet
+            if ($this->previewBet) {
+                Flux::modal('preview-modal')->show();
+            }
+        }
     }
 
     public function loadPreview()
@@ -52,8 +95,11 @@ class Dashboard extends Component
             return;
         }
 
+        // Clean the ticket number (remove asterisks from CODE39 format)
+        $ticketNo = str_replace('*', '', trim($this->previewTicketNo));
+
         $this->previewBet = Bet::with(['fight.event', 'user'])
-            ->where('ticket_no', $this->previewTicketNo)
+            ->where('ticket_no', $ticketNo)
             ->first();
 
         if (!$this->previewBet) {
@@ -359,6 +405,7 @@ class Dashboard extends Component
 
         Toaster::success('Payout successful!');
         $this->previewBet = null;
+        Flux::modal('preview-modal')->close();
     }
 
     public function render()
