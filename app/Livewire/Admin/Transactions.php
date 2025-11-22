@@ -53,7 +53,7 @@ class Transactions extends Component
 
     public function createTransaction()
     {
-        if (! $this->event) {
+        if (!$this->event) {
             Toaster::error('You cannot transfer while there is no ongoing event.');
             Flux::modal('transfer')->close();
             return;
@@ -122,7 +122,7 @@ class Transactions extends Component
         $transactions = $this->event
             ? Transaction::with(['sender', 'receiver'])
             ->where('event_id', $this->event->id)
-            ->where('receiver_id', Auth::id()) // only admin transactions
+            ->where('receiver_id', Auth::id())
             ->latest()
             ->get()
             : collect();

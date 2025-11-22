@@ -220,7 +220,6 @@ class Dashboard extends Component
         $bets = Bet::where('fight_id', $this->activeFight->id)->get();
 
         if (in_array($winner, ['draw', 'cancel'])) {
-            // Refund all bets
             foreach ($bets as $bet) {
                 $bet->user?->increment('cash', $bet->amount);
                 $bet->update([
@@ -236,9 +235,6 @@ class Dashboard extends Component
             $winnerSide = $winner;
             $loserSide = $winner === 'meron' ? 'wala' : 'meron';
 
-            // Calculate total losing bets (for proportional payout if needed)
-            $totalLoserBets = $bets->where('side', $loserSide)->sum('amount');
-
             foreach ($bets as $bet) {
                 if ($bet->side === $winnerSide) {
                     $payout = $bet->amount * ($winnerSide === 'meron'
@@ -248,7 +244,7 @@ class Dashboard extends Component
                     $bet->update([
                         'is_win' => true,
                         'payout_amount' => $payout,
-                        'is_claimed' => false, // user must claim
+                        'is_claimed' => false,
                         'claimed_at' => null,
                     ]);
                 } else {

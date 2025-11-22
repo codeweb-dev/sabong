@@ -74,7 +74,7 @@ class Transaction extends Component
             ->where('status', 'pending')
             ->first();
 
-        if (! $transaction) {
+        if (!$transaction) {
             Toaster::error('Invalid or already received transaction.');
 
             return;

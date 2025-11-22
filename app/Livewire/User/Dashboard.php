@@ -88,7 +88,6 @@ class Dashboard extends Component
             return;
         }
 
-        // Clean the ticket number (remove asterisks from CODE39 format)
         $ticketNo = str_replace('*', '', trim($this->previewTicketNo));
 
         $this->previewBet = Bet::with(['fight.event', 'user'])
@@ -107,37 +106,33 @@ class Dashboard extends Component
 
     public function reprintTicket()
     {
-        if (empty($this->reprintTicketNo)) {
-            Toaster::error('Please enter a ticket number to reprint.');
-            return;
-        }
-
+        $user = Auth::user();
         $bet = Bet::with(['fight.event', 'user'])
             ->where('ticket_no', $this->reprintTicketNo)
             ->where('user_id', Auth::id())
             ->first();
+
+        if (empty($this->reprintTicketNo)) {
+            Toaster::error('Please enter a ticket number to reprint.');
+            return;
+        }
 
         if (!$bet) {
             Toaster::error('No bet found with that ticket number.');
             return;
         }
 
-        $user = Auth::user();
-
         try {
             $connector = new WindowsPrintConnector("POS-80");
             $printer = new Printer($connector);
 
-            // === HEADER: SIDE (Meron/Wala) ===
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setTextSize(2, 2);
             $printer->text(strtoupper($bet->side) . "\n\n");
 
-            // === DIVIDER ===
             $printer->setTextSize(2, 1);
             $printer->text("-----------------------\n");
 
-            // === DETAILS ===
             $printer->setJustification(Printer::JUSTIFY_LEFT);
             $printer->text("Event Name:   " . ($bet->fight->event->event_name ?? 'N/A') . "\n");
             $printer->text("Description:  " . ($bet->fight->event->description ?? 'N/A') . "\n");
@@ -148,15 +143,10 @@ class Dashboard extends Component
             $printer->text("Amount:       " . number_format($bet->amount, 2) . "\n");
             $printer->text("-----------------------\n");
 
-            // === DATE ===
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->text(Carbon::now()->timezone('Asia/Manila')->format('M d, Y h:i A') . "\n\n");
-
-            // === BARCODE ===
             $printer->barcode($bet->ticket_no, Printer::BARCODE_CODE39);
             $printer->text($bet->ticket_no . "\n\n");
-
-            // === FOOTER ===
             $printer->text("** REPRINTED COPY **\n");
             $printer->text("Thank you for betting!\n");
             $printer->feed(3);
@@ -193,7 +183,6 @@ class Dashboard extends Component
         }
 
         $user = Auth::user();
-
         $user->increment('cash', $bet->amount);
 
         if ($bet->side === 'meron') {
@@ -203,7 +192,6 @@ class Dashboard extends Component
         }
 
         $bet->delete();
-
         if ($bet->fight) {
             broadcast(new BetPlaced($bet->fight->fresh()));
         }
@@ -289,20 +277,16 @@ class Dashboard extends Component
             return;
         }
 
-        // Increment cash
         $user->increment('cash', $this->amount);
 
-        // Increment fight bets
         if ($side === 'meron') {
             $this->activeFight->increment('meron_bet', $this->amount);
         } else {
             $this->activeFight->increment('wala_bet', $this->amount);
         }
 
-        // Recalculate payouts
         $payouts = $this->calculateAndSavePayout($this->activeFight->fresh());
 
-        // Create bet
         $bet = Bet::create([
             'user_id' => $user->id,
             'fight_id' => $this->activeFight->id,
@@ -354,49 +338,42 @@ class Dashboard extends Component
 
     public function payout()
     {
+        $user = Auth::user();
+        $bet = $this->previewBet;
+
         if (!$this->previewBet) {
             Toaster::error('No bet loaded for payout.');
             return;
         }
 
-        $bet = $this->previewBet;
-
-        // Check if bet has already been claimed
         if ($bet->is_claimed) {
             Toaster::error('This bet has already been claimed.');
             Flux::modal('preview-modal')->close();
             return;
         }
 
-        // Check if bet is a winning bet
         if (!$bet->is_win) {
             Toaster::error('This bet did not win. Cannot claim payout.');
             Flux::modal('preview-modal')->close();
             return;
         }
 
-        $user = Auth::user();
-
-        // Check if user has enough cash to pay out
         if ($user->cash < $bet->payout_amount) {
             Toaster::error('Insufficient cash to process payout. Please find another teller.');
             Flux::modal('preview-modal')->close();
             return;
         }
 
-        // Deduct payout from user's cash
         $user->decrement('cash', $bet->payout_amount);
 
-        // Mark bet as claimed
         $bet->update([
             'is_claimed' => true,
             'claimed_at' => now(),
             'claimed_by' => $user->id,
         ]);
 
-        $this->cashOnHand = $user->fresh()->cash;
-
         Toaster::success('Payout successful!');
+        $this->cashOnHand = $user->fresh()->cash;
         $this->previewBet = null;
         Flux::modal('preview-modal')->close();
     }
