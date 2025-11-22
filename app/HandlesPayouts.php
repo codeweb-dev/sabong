@@ -25,13 +25,16 @@ trait HandlesPayouts
         $oddsMeron = $totalMeron > 0 ? $pooling / $totalMeron : 0;
         $oddsWala  = $totalWala > 0 ? $pooling / $totalWala : 0;
 
-        $fight->update([
-            'meron_payout' => $oddsMeron,
-            'wala_payout'  => $oddsWala,
-        ]);
-
         $meron = $this->convertOdds($oddsMeron);
         $wala  = $this->convertOdds($oddsWala);
+
+        $meronPayout = floor($oddsMeron * 100) / 100;
+        $walaPayout = floor($oddsWala * 100) / 100;
+
+        $fight->update([
+            'meron_payout' => $meronPayout,
+            'wala_payout'  => $walaPayout,
+        ]);
 
         SystemOver::updateOrCreate(
             ['fight_id' => $fight->id, 'side' => 'meron'],
