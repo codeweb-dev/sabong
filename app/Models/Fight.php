@@ -30,4 +30,9 @@ class Fight extends Model
     {
         return $this->belongsTo(Event::class);
     }
+
+    public function bets()
+    {
+        return $this->hasMany(Bet::class);
+    }
 }
