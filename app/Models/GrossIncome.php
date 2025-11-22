@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SystemOver extends Model
+class GrossIncome extends Model
 {
     protected $fillable = [
         'fight_id',
-        'side',
-        'overflow',
+        'income',
     ];
 
     public function fight()

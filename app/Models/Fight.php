@@ -35,4 +35,14 @@ class Fight extends Model
     {
         return $this->hasMany(Bet::class);
     }
+
+    public function grossIncomes()
+    {
+        return $this->hasMany(GrossIncome::class);
+    }
+
+    public function systemOvers()
+    {
+        return $this->hasMany(SystemOver::class);
+    }
 }

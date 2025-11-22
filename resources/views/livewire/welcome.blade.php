@@ -3,7 +3,7 @@
     @if ($currentEvent)
         <div class="flex flex-col md:flex-row h-screen {{ $isSmallScreen ? 'bg-zinc-900' : '' }}">
             <aside
-                class="w-full md:w-78 grid grid-cols-1 gap-3 px-4 md:px-6 py-4 md:py-8 border-b md:border-b-0 md:border-e border-zinc-200 dark:border-zinc-700 overflow-y-auto scrollbar-hide">
+                class="w-full md:w-78 flex flex-col gap-3 px-4 md:px-6 py-4 md:py-8 border-b md:border-b-0 md:border-e border-zinc-200 dark:border-zinc-700 overflow-y-auto scrollbar-hide">
 
                 @php
                     $activeStatuses = ['start', 'open', 'close'];
@@ -13,7 +13,7 @@
                         ->where('id', '!=', optional($currentFight)->id)
                         ->whereNotIn('status', ['pending', 'start', 'open', 'close'])
                         ->reverse()
-                        ->take(3);
+                        ->take(4);
 
                     function fightColor($fight)
                     {
@@ -31,6 +31,12 @@
                     <div
                         class="py-8 px-12 md:p-12 {{ fightColor($currentFight) }} flex flex-col items-center justify-center text-3xl md:text-4xl rounded-2xl relative transition-all duration-300">
                         <p>{{ $currentFight->fight_number }}</p>
+
+                        @if ($currentFight->winner)
+                            <flux:badge class="mt-2" size="lg" variant="solid" color="black">
+                                {{ strtoupper($currentFight->winner) }}
+                            </flux:badge>
+                        @endif
                     </div>
                 @endif
 

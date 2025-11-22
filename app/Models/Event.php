@@ -21,4 +21,52 @@ class Event extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function systemOvers()
+    {
+        return $this->hasManyThrough(
+            SystemOver::class,
+            Fight::class,
+            'event_id',
+            'fight_id',
+            'id',
+            'id'
+        );
+    }
+
+    public function bets()
+    {
+        return $this->hasManyThrough(
+            Bet::class,
+            Fight::class,
+            'event_id',
+            'fight_id',
+            'id',
+            'id'
+        );
+    }
+
+    public function grossIncomes()
+    {
+        return $this->hasManyThrough(
+            GrossIncome::class,
+            Fight::class,
+            'event_id',
+            'fight_id',
+            'id',
+            'id'
+        );
+    }
+
+    public function meronBets()
+    {
+        return $this->hasManyThrough(Bet::class, Fight::class)
+            ->where('side', 'meron');
+    }
+
+    public function walaBets()
+    {
+        return $this->hasManyThrough(Bet::class, Fight::class)
+            ->where('side', 'wala');
+    }
 }

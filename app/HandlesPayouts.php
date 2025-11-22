@@ -4,6 +4,7 @@ namespace App;
 
 use App\Models\Bet;
 use App\Models\Fight;
+use App\Models\GrossIncome;
 use App\Models\SystemOver;
 
 trait HandlesPayouts
@@ -21,6 +22,11 @@ trait HandlesPayouts
         $commissionRate = 0.06;
         $pool = $totalMeron + $totalWala;
         $pooling = $pool - ($pool * $commissionRate);
+
+        GrossIncome::updateOrCreate(
+            ['fight_id' => $fight->id],
+            ['income' => $pool * $commissionRate]
+        );
 
         $oddsMeron = $totalMeron > 0 ? $pooling / $totalMeron : 0;
         $oddsWala  = $totalWala > 0 ? $pooling / $totalWala : 0;

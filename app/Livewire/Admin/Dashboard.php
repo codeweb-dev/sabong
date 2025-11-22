@@ -73,21 +73,17 @@ class Dashboard extends Component
 
     public function render()
     {
-        $totalBetsMeron = Bet::where('side', 'meron')
-            ->sum('amount');
-        $totalBetsWala = Bet::where('side', 'wala')
-            ->sum('amount');
-        $totalBet = $totalBetsMeron + $totalBetsWala;
-        $systemOverflow = SystemOver::sum('overflow');
+        $events = Event::whereIn('status', ['upcoming', 'ongoing'])
+            ->withSum('systemOvers as total_system_overflow', 'overflow')
+            ->withSum('bets as total_bets', 'amount')
+            ->withSum('meronBets as total_bets_meron', 'amount')
+            ->withSum('walaBets as total_bets_wala', 'amount')
+            ->withSum('grossIncomes as total_gross_income', 'income')
+            ->latest()
+            ->get();
 
         return view('livewire.admin.dashboard', [
-            'events' => Event::whereIn('status', ['upcoming', 'ongoing'])
-                ->latest()
-                ->get(),
-            'totalBetsMeron' => $totalBetsMeron,
-            'totalBetsWala' => $totalBetsWala,
-            'totalBet' => $totalBet,
-            'systemOverflow' => $systemOverflow,
+            'events' => $events,
         ]);
     }
 }
