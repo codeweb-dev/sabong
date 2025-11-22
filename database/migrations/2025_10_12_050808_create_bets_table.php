@@ -19,6 +19,7 @@ return new class extends Migration
             $table->enum('side', ['meron', 'wala']);
             $table->decimal('amount', 12, 2);
             $table->boolean('is_win')->default(false);
+            $table->boolean('is_lock')->default(false);
             $table->decimal('payout_amount', 12, 2)->nullable();
             $table->boolean('is_claimed')->default(false);
             $table->timestamp('claimed_at')->nullable();

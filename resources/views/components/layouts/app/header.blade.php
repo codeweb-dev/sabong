@@ -37,10 +37,6 @@
                     @if (auth()->user()->hasRole('admin'))
                         {{-- <livewire:admin.dashboard /> --}}
                     @elseif (auth()->user()->hasRole('user'))
-                        <flux:menu.item :href="route('dashboard')" icon="circle-stack" wire:navigate>
-                            {{ __('BET SUMMARY') }}
-                        </flux:menu.item>
-
                         <flux:menu.item :href="route('user.transactions')" icon="newspaper" wire:navigate>
                             {{ __('TRANSACTION') }}
                         </flux:menu.item>

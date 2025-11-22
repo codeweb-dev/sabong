@@ -53,9 +53,9 @@
                         class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
                         <tr>
                             <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">fight no.</th>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">teller payout</th>
                             <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">ticket #</th>
                             <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">side</th>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">teller pay in</th>
                             <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">amount pay in</th>
                             <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">teller payout</th>
                             <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">amount payout</th>

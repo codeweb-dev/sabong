@@ -16,6 +16,7 @@ class Bet extends Model
         'side',
         'amount',
         'is_win',
+        'is_lock',
         'payout_amount',
         'is_claimed',
         'claimed_at',
