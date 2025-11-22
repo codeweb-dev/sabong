@@ -4,8 +4,10 @@ namespace App\Livewire\Admin;
 
 use App\Events\EventEnded;
 use App\Events\EventStarted;
+use App\Models\Bet;
 use App\Models\Event;
 use App\Models\Fight;
+use App\Models\SystemOver;
 use Flux\Flux;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
@@ -71,10 +73,21 @@ class Dashboard extends Component
 
     public function render()
     {
+        $totalBetsMeron = Bet::where('side', 'meron')
+            ->sum('amount');
+        $totalBetsWala = Bet::where('side', 'wala')
+            ->sum('amount');
+        $totalBet = $totalBetsMeron + $totalBetsWala;
+        $systemOverflow = SystemOver::sum('overflow');
+
         return view('livewire.admin.dashboard', [
             'events' => Event::whereIn('status', ['upcoming', 'ongoing'])
                 ->latest()
                 ->get(),
+            'totalBetsMeron' => $totalBetsMeron,
+            'totalBetsWala' => $totalBetsWala,
+            'totalBet' => $totalBet,
+            'systemOverflow' => $systemOverflow,
         ]);
     }
 }

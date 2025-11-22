@@ -87,5 +87,23 @@
                 </div>
             </flux:modal>
         @endif
+
+        <div class="flex flex-col gap-3 py-3">
+            <flux:heading size="lg" class="uppercase">
+                Total Meron Bet: {{ $totalBetsMeron }}
+            </flux:heading>
+            <flux:heading size="lg" class="uppercase">
+                Total Wala Bet: {{ $totalBetsWala }}
+            </flux:heading>
+            <flux:heading size="lg" class="uppercase">
+                Total Bet: {{ $totalBet }}
+            </flux:heading>
+            <flux:heading size="lg" class="uppercase">
+                Gross Income:
+            </flux:heading>
+            <flux:heading size="lg" class="uppercase">
+                System Over: {{ $systemOverflow }}
+            </flux:heading>
+        </div>
     </div>
 </div>
