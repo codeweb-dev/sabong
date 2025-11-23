@@ -43,7 +43,7 @@
 
             <div class="flex-1">
                 <div
-                    class="p-6 md:p-10 flex-1 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl bg-green-400">
+                    class="p-6 md:p-10 flex-1 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl bg-blue-400">
                     <p class="text-center font-bold">WALA</p>
                 </div>
                 <div class="p-4 md:p-6 flex-1">

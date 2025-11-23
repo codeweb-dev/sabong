@@ -5,6 +5,8 @@ namespace App\Livewire\Declarator;
 use App\Events\FightUpdated;
 use App\Models\Bet;
 use App\Models\Event;
+use App\Models\GrossIncome;
+use App\Models\SystemOver;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Masmerise\Toaster\Toaster;
@@ -221,14 +223,15 @@ class Dashboard extends Component
 
         if (in_array($winner, ['draw', 'cancel'])) {
             foreach ($bets as $bet) {
-                $bet->user?->increment('cash', $bet->amount);
                 $bet->update([
-                    'is_win' => null,
+                    'is_win' => true,
                     'payout_amount' => $bet->amount,
-                    'is_claimed' => true,
                     'claimed_at' => now(),
                 ]);
             }
+
+            SystemOver::where('fight_id', $this->activeFight->id)->delete();
+            GrossIncome::where('fight_id', $this->activeFight->id)->delete();
 
             Toaster::info('All bets refunded due to ' . strtoupper($winner) . '.');
         } else {
