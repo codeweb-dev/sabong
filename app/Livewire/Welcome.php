@@ -21,8 +21,9 @@ class Welcome extends Component
     public $totalMeronBet = 0;
     public $totalWalaBet = 0;
 
-    public $meronPayoutDisplay = 0;
-    public $walaPayoutDisplay = 0;
+    public $meronPayoutDisplay = null;
+    public $walaPayoutDisplay = null;
+    public $showPayout = false;
 
     public function mount($smallScreen = false)
     {
@@ -81,6 +82,10 @@ class Welcome extends Component
 
             $this->meronPayoutDisplay = $payouts['meronDisplay'];
             $this->walaPayoutDisplay = $payouts['walaDisplay'];
+
+            $this->showPayout =
+                $this->meronPayoutDisplay > 0 &&
+                $this->walaPayoutDisplay > 0;
         }
     }
 
@@ -113,8 +118,8 @@ class Welcome extends Component
         if (!$this->activeFight) {
             $this->totalMeronBet = 0;
             $this->totalWalaBet = 0;
-            $this->meronPayoutDisplay = 0;
-            $this->walaPayoutDisplay = 0;
+            $this->meronPayoutDisplay = null;
+            $this->walaPayoutDisplay = null;
             return;
         }
 
@@ -126,11 +131,14 @@ class Welcome extends Component
             ->where('side', 'wala')
             ->sum('amount');
 
-        // Calculate payouts dynamically
         $payouts = $this->calculateAndSavePayout($this->activeFight);
 
         $this->meronPayoutDisplay = $payouts['meronDisplay'];
         $this->walaPayoutDisplay = $payouts['walaDisplay'];
+
+        $this->showPayout =
+            $this->meronPayoutDisplay > 0 &&
+            $this->walaPayoutDisplay > 0;
     }
 
     public function render()
