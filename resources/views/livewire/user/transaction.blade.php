@@ -69,13 +69,24 @@
                         {{ $transaction->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
                     </td>
                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                        @if ($transaction->receiver_id === auth()->id() && $transaction->status === 'pending')
-                            <flux:button wire:click="receiveTransaction({{ $transaction->id }})" size="sm">
-                                Receive
+                        @php
+                            $isReceiver = $transaction->receiver_id === auth()->id();
+                            $isPending = $transaction->status === 'pending';
+                            $isCancelled = $transaction->status === 'cancelled';
+                            $isReceived = $transaction->status === 'received';
+                        @endphp
+
+                        @if (!$isCancelled)
+                            <flux:button wire:click="receiveTransaction({{ $transaction->id }})"
+                                :disabled="!($isReceiver && $isPending)" size="sm">
+                                {{ $isReceiver && $isPending ? 'Receive' : 'Received' }}
                             </flux:button>
-                        @else
-                            <flux:button disabled size="sm">
-                                Received
+                        @endif
+
+                        @if (!$isReceived)
+                            <flux:button wire:click="cancelTransaction({{ $transaction->id }})"
+                                :disabled="$isReceiver && $isCancelled" size="sm">
+                                {{ $isReceiver && $isCancelled ? 'Cancelled' : 'Cancel' }}
                             </flux:button>
                         @endif
                     </td>

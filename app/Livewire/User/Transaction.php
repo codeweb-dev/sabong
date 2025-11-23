@@ -2,6 +2,7 @@
 
 namespace App\Livewire\User;
 
+use App\Models\Event;
 use App\Models\Transaction as ModelTransaction;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -85,6 +86,30 @@ class Transaction extends Component
         $user->increment('cash', $transaction->amount);
 
         Toaster::success('You have successfully received ₱' . number_format($transaction->amount, 2));
+    }
+
+    public function cancelTransaction($id)
+    {
+        $transaction = ModelTransaction::where('id', $id)
+            ->where('receiver_id', Auth::id())
+            ->where('status', 'pending')
+            ->first();
+
+        if (!$transaction) {
+            Toaster::error('Invalid or already received transaction.');
+            return;
+        }
+
+        $event = Event::find($transaction->event_id);
+
+        if ($event) {
+            $event->increment('revolving', $transaction->amount);
+            $event->decrement('total_transfer', $transaction->amount);
+        }
+
+        $transaction->update(['status' => 'cancelled']);
+
+        Toaster::success('You have successfully cancelled the transaction of ₱' . number_format($transaction->amount, 2));
     }
 
     public function render()
