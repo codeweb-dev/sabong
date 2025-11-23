@@ -83,40 +83,50 @@
 
                         <flux:modal name="edit-user-{{ $user->id }}" class="md:w-96"
                             wire:key="edit-modal-{{ $user->id }}">
-                            <form wire:submit="update">
-                                <div class="space-y-6">
-                                    <div>
-                                        <flux:heading size="lg" class="uppercase">Edit User</flux:heading>
-                                        <flux:text class="mt-2 uppercase">
-                                            Update the user's information below.
-                                        </flux:text>
+                            <div wire:loading.flex wire:target="edit"
+                                class="flex flex-col items-center justify-center pt-3">
+                                <flux:icon.loading />
+                                <p class="mt-4 text-sm animate-pulse">Loading...</p>
+                            </div>
+
+                            <div wire:loading.remove wire:target="edit">
+                                <form wire:submit="update">
+                                    <div class="space-y-6">
+                                        <div>
+                                            <flux:heading size="lg" class="uppercase">Edit User</flux:heading>
+                                            <flux:text class="mt-2 uppercase">
+                                                Update the user's information below.
+                                            </flux:text>
+                                        </div>
+
+                                        <flux:input label="Username" placeholder="Enter username" clearable
+                                            wire:model.blur="edit_username" required />
+
+                                        <flux:select wire:model.defer="edit_role" placeholder="Choose role..."
+                                            label="Role">
+                                            @foreach ($roles as $role)
+                                                <flux:select.option value="{{ $role->name }}">
+                                                    {{ $role->name }}
+                                                </flux:select.option>
+                                            @endforeach
+                                        </flux:select>
+
+                                        <flux:input label="Password (leave blank to keep current)" type="password"
+                                            placeholder="Enter new password" viewable wire:model.blur="edit_password" />
+
+                                        <flux:input label="Confirm Password" type="password"
+                                            placeholder="Confirm new password" viewable
+                                            wire:model.blur="edit_password_confirmation" />
+
+                                        <div class="flex">
+                                            <flux:spacer />
+                                            <flux:button type="submit" variant="primary" class="uppercase">
+                                                Update User
+                                            </flux:button>
+                                        </div>
                                     </div>
-
-                                    <flux:input label="Username" placeholder="Enter username" clearable
-                                        wire:model.blur="edit_username" required />
-
-                                    <flux:select wire:model.defer="edit_role" placeholder="Choose role..." label="Role">
-                                        @foreach ($roles as $role)
-                                            <flux:select.option value="{{ $role->name }}">
-                                                {{ $role->name }}
-                                            </flux:select.option>
-                                        @endforeach
-                                    </flux:select>
-
-                                    <flux:input label="Password (leave blank to keep current)" type="password"
-                                        placeholder="Enter new password" viewable wire:model.blur="edit_password" />
-
-                                    <flux:input label="Confirm Password" type="password" placeholder="Confirm new password"
-                                        viewable wire:model.blur="edit_password_confirmation" />
-
-                                    <div class="flex">
-                                        <flux:spacer />
-                                        <flux:button type="submit" variant="primary" class="uppercase">
-                                            Update User
-                                        </flux:button>
-                                    </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </flux:modal>
 
                         <flux:modal name="delete-user-{{ $user->id }}" class="min-w-[22rem]"
@@ -135,7 +145,8 @@
                                     <flux:modal.close>
                                         <flux:button variant="ghost">Cancel</flux:button>
                                     </flux:modal.close>
-                                    <flux:button type="button" variant="danger" wire:click="delete({{ $user->id }})">
+                                    <flux:button type="button" variant="danger"
+                                        wire:click="delete({{ $user->id }})">
                                         Delete Permanently
                                     </flux:button>
                                 </div>
