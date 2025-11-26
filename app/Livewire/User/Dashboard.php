@@ -2,18 +2,17 @@
 
 namespace App\Livewire\User;
 
-use App\Events\BetPlaced;
-use App\HandlesPayouts;
-use App\Models\Bet;
-use App\Models\Fight;
-use App\Models\SystemOver;
-use Livewire\Component;
+use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
-use Flux\Flux;
 use Mike42\Escpos\Printer;
-use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
+use App\Events\BetPlaced;
+use Livewire\Component;
+use App\HandlesPayouts;
+use App\Models\Fight;
+use App\Models\Bet;
 use Carbon\Carbon;
+use Flux\Flux;
 
 class Dashboard extends Component
 {

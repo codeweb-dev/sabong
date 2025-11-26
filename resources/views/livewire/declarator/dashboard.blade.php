@@ -130,29 +130,15 @@
         </div>
 
         <div class="flex items-center justify-between">
-            @if ($activeFight?->meron)
-                <flux:button :disabled="$activeFight?->status !== 'open'" wire:click="lockSide('meron')"
-                    class="uppercase">
-                    Meron Lock
-                </flux:button>
-            @else
-                <flux:button wire:click="unlockSide('meron')" :disabled="$activeFight?->status === 'close'"
-                    class="uppercase" variant="danger">
-                    Meron Open
-                </flux:button>
-            @endif
+            <flux:button :disabled="$activeFight?->status !== 'open'" wire:click="toggleSide('meron')"
+                class="uppercase" :variant="$activeFight?->meron ? 'primary' : 'danger'">
+                {{ $activeFight?->meron ? 'Meron Lock' : 'Meron Open' }}
+            </flux:button>
 
-            @if ($activeFight?->wala)
-                <flux:button :disabled="$activeFight?->status !== 'open'" wire:click="lockSide('wala')"
-                    class="uppercase">
-                    Wala Lock
-                </flux:button>
-            @else
-                <flux:button wire:click="unlockSide('wala')" :disabled="$activeFight?->status === 'close'"
-                    class="uppercase" variant="danger">
-                    Wala Open
-                </flux:button>
-            @endif
+            <flux:button :disabled="$activeFight?->status !== 'open'" wire:click="toggleSide('wala')"
+                class="uppercase" :variant="$activeFight?->wala ? 'primary' : 'danger'">
+                {{ $activeFight?->wala ? 'Wala Lock' : 'Wala Open' }}
+            </flux:button>
         </div>
 
         <div class="flex flex-col items-center justify-center gap-3">
