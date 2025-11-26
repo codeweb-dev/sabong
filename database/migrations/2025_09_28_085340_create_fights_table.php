@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('fighter_b')->nullable();
             $table->enum('status', ['pending', 'start', 'open', 'close', 'done'])->default('pending');
             $table->string('winner')->nullable();
+            $table->boolean('is_refunded')->default(false);
             $table->timestamps();
         });
     }

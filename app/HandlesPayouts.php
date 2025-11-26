@@ -11,6 +11,18 @@ trait HandlesPayouts
 {
     public function calculateAndSavePayout(Fight $fight)
     {
+        if ($fight->is_refunded == true) {
+            SystemOver::where('fight_id', $fight->id)->delete();
+            GrossIncome::where('fight_id', $fight->id)->delete();
+
+            return [
+                'meronRaw' => 0,
+                'walaRaw' => 0,
+                'meronDisplay' => 0,
+                'walaDisplay' => 0,
+            ];
+        }
+
         $totalMeron = Bet::where('fight_id', $fight->id)
             ->where('side', 'meron')
             ->sum('amount');

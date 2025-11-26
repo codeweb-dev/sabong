@@ -230,8 +230,9 @@ class Dashboard extends Component
                 ]);
             }
 
-            SystemOver::where('fight_id', $this->activeFight->id)->delete();
-            GrossIncome::where('fight_id', $this->activeFight->id)->delete();
+            $this->activeFight->is_refunded = true;
+            $this->activeFight->save();
+            $this->activeFight->refresh();
 
             Toaster::info('All bets refunded due to ' . strtoupper($winner) . '.');
         } else {

@@ -91,19 +91,19 @@
         @if ($events->isNotEmpty())
             <div class="flex flex-col gap-3 py-3">
                 <flux:heading size="lg" class="uppercase">
-                    Total Meron Bet: {{ $events->first()->total_bets_meron }}
+                    Total Meron Bet: {{ $events->first()->total_bets_meron ?? 0 }}
                 </flux:heading>
                 <flux:heading size="lg" class="uppercase">
-                    Total Wala Bet: {{ $events->first()->total_bets_wala }}
+                    Total Wala Bet: {{ $events->first()->total_bets_wala ?? 0 }}
                 </flux:heading>
                 <flux:heading size="lg" class="uppercase">
-                    Total Bet: {{ $events->first()->total_bets }}
+                    Total Bet: {{ $events->first()->total_bets ?? 0 }}
                 </flux:heading>
                 <flux:heading size="lg" class="uppercase">
-                    Gross Income: {{ $events->first()->total_gross_income ?? 0, 2 }}
+                    Gross Income: {{ $events->first()->total_gross_income ?? 0 }}
                 </flux:heading>
                 <flux:heading size="lg" class="uppercase">
-                    System Over: {{ $events->first()->total_system_overflow }}
+                    System Over: {{ $events->first()->total_system_overflow ?? 0 }}
                 </flux:heading>
             </div>
         @endif

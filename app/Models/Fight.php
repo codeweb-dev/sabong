@@ -18,7 +18,8 @@ class Fight extends Model
         'fighter_a',
         'fighter_b',
         'status',
-        'winner'
+        'winner',
+        'is_refunded',
     ];
 
     protected $casts = [
