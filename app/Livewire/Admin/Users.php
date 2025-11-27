@@ -2,12 +2,12 @@
 
 namespace App\Livewire\Admin;
 
+use Spatie\Permission\Models\Role;
+use Masmerise\Toaster\Toaster;
+use Livewire\WithPagination;
+use Livewire\Component;
 use App\Models\User;
 use Flux\Flux;
-use Livewire\Component;
-use Livewire\WithPagination;
-use Masmerise\Toaster\Toaster;
-use Spatie\Permission\Models\Role;
 
 class Users extends Component
 {

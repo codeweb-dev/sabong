@@ -2,13 +2,13 @@
 
 namespace App\Livewire\Admin;
 
-use App\Events\EventEnded;
+use Masmerise\Toaster\Toaster;
 use App\Events\EventStarted;
+use App\Events\EventEnded;
+use Livewire\Component;
 use App\Models\Event;
 use App\Models\Fight;
 use Flux\Flux;
-use Livewire\Component;
-use Masmerise\Toaster\Toaster;
 
 class Dashboard extends Component
 {

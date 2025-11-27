@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Admin\Components;
 
-use App\Models\Event;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use App\Models\Event;
 
 class Events extends Component
 {
