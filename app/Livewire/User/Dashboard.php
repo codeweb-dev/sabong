@@ -89,13 +89,15 @@ class Dashboard extends Component
     public function loadPreview()
     {
         if (empty($this->previewTicketNo)) {
-            return $this->previewError('Please enter a ticket number.');
+            $this->previewError('Please enter a ticket number.');
+            return;
         }
 
         $this->previewBet = $this->findBetByTicket($this->previewTicketNo);
 
         if (!$this->previewBet) {
-            return $this->previewError('No ticket found with that number.');
+            $this->previewError('No ticket found with that number.');
+            return;
         }
 
         $this->previewTicketNo = null;
@@ -112,13 +114,15 @@ class Dashboard extends Component
     public function reprintTicket()
     {
         if (!$this->reprintTicketNo) {
-            return Toaster::error('Please enter a ticket number.');
+            Toaster::error('Please enter a ticket number.');
+            return;
         }
 
         $bet = $this->findBetByTicket($this->reprintTicketNo, true);
 
         if (!$bet) {
-            return Toaster::error('No bet found with that ticket number.');
+            Toaster::error('No bet found with that ticket number.');
+            return;
         }
 
         if (app(PrinterService::class)->printTicket($bet, true)) {
@@ -132,15 +136,20 @@ class Dashboard extends Component
     public function cancelBet()
     {
         if (!$this->cancelBetInput) {
-            return Toaster::error('Enter a ticket ID to cancel.');
+            Toaster::error('Enter a ticket ID to cancel.');
+            return;
         }
 
         $bet = $this->findBetByTicket($this->cancelBetInput, true);
 
-        if (!$bet) return Toaster::error('No bet found.');
+        if (!$bet) {
+            Toaster::error('No bet found with that ticket number.');
+            return;
+        }
 
         if ($bet->fight?->status !== 'open') {
-            return Toaster::error('This bet cannot be cancelled.');
+            Toaster::error('This bet cannot be cancelled.');
+            return;
         }
 
         $user = $this->user();
@@ -200,11 +209,51 @@ class Dashboard extends Component
     {
         $user = $this->user();
 
-        if (!$this->activeFight) return Toaster::error('No active fight.');
-        if (!in_array($side, ['meron', 'wala'])) return Toaster::error('Invalid side.');
-        if (!$this->activeFight->$side) return Toaster::error(ucfirst($side) . ' is locked.');
-        if ($this->activeFight->status !== 'open') return Toaster::error('Betting closed.');
-        if ($this->amount <= 0) return Toaster::error('Invalid amount.');
+        if (!$this->activeFight) {
+            Toaster::error('No active fight for betting.');
+            Flux::modal(
+                $side === 'meron'
+                    ? 'meron-confirmation-modal'
+                    : 'wala-confirmation-modal'
+            )->close();
+            return;
+        }
+        if (!in_array($side, ['meron', 'wala'])) {
+            Toaster::error('Invalid side.');
+            Flux::modal(
+                $side === 'meron'
+                    ? 'meron-confirmation-modal'
+                    : 'wala-confirmation-modal'
+            )->close();
+            return;
+        }
+        if (!$this->activeFight->$side) {
+            Toaster::error(ucfirst($side) . ' is locked.');
+            Flux::modal(
+                $side === 'meron'
+                    ? 'meron-confirmation-modal'
+                    : 'wala-confirmation-modal'
+            )->close();
+            return;
+        }
+        if ($this->activeFight->status !== 'open') {
+            Toaster::error('Betting closed.');
+            Flux::modal(
+                $side === 'meron'
+                    ? 'meron-confirmation-modal'
+                    : 'wala-confirmation-modal'
+            )->close();
+            return;
+        }
+        if ($this->amount <= 0) {
+            Toaster::error('Invalid amount.');
+            Flux::modal(
+                $side === 'meron'
+                    ? 'meron-confirmation-modal'
+                    : 'wala-confirmation-modal'
+            )->close();
+            return;
+        }
 
         $user->increment('cash', $this->amount);
         $this->activeFight->increment($side . '_bet', $this->amount);
@@ -240,15 +289,29 @@ class Dashboard extends Component
     public function payout()
     {
         if (!$this->previewBet) {
-            return Toaster::error('No bet loaded.');
+            Toaster::error('No bet loaded.');
+            return;
         }
 
         $bet = $this->previewBet;
         $user = $this->user();
 
-        if ($bet->is_claimed) return Toaster::error('Already claimed.');
-        if (!$bet->is_win) return Toaster::error('Not a winning ticket.');
-        if ($user->cash < $bet->payout_amount) return Toaster::error('Insufficient cash.');
+        if ($bet->is_claimed) {
+            Toaster::error('Already claimed.');
+            return;
+        }
+        if ($bet->is_lock) {
+            Toaster::error('Bet is locked. Please contact the admin for assistance.');
+            return;
+        }
+        if (!$bet->is_win) {
+            Toaster::error('Not a winning ticket.');
+            return;
+        }
+        if ($user->cash < $bet->payout_amount) {
+            Toaster::error('Insufficient cash.');
+            return;
+        }
 
         $user->decrement('cash', $bet->payout_amount);
 
@@ -256,6 +319,7 @@ class Dashboard extends Component
             'is_claimed' => true,
             'claimed_at' => now(),
             'claimed_by' => $user->id,
+            'status'     => 'paid',
         ]);
 
         $this->cashOnHand = $user->cash;

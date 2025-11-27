@@ -56,6 +56,7 @@ class PayoutService
                     : 0,
                 'is_claimed' => false,
                 'claimed_at' => null,
+                'status' => 'unpaid',
             ]);
         }
 

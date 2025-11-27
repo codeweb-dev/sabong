@@ -19,6 +19,7 @@ class Bet extends Model
         'is_lock',
         'payout_amount',
         'is_claimed',
+        'status',
         'claimed_at',
         'claimed_by',
     ];
@@ -31,6 +32,11 @@ class Bet extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function claimedBy()
+    {
+        return $this->belongsTo(User::class, 'claimed_by');
     }
 
     protected static function boot()

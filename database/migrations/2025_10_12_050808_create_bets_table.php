@@ -22,6 +22,7 @@ return new class extends Migration
             $table->boolean('is_lock')->default(false);
             $table->decimal('payout_amount', 12, 2)->nullable();
             $table->boolean('is_claimed')->default(false);
+            $table->string('status')->default('ongoing');
             $table->timestamp('claimed_at')->nullable();
             $table->foreignId('claimed_by')->nullable()->constrained('users');
             $table->timestamps();

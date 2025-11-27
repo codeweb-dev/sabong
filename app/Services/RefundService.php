@@ -19,9 +19,8 @@ class RefundService
         Bet::where('fight_id', $fight->id)
             ->update([
                 'is_win' => true,
-                'is_claimed' => true,
                 'payout_amount' => DB::raw('amount'),
-                'claimed_at' => now(),
+                'status' => 'unpaid',
             ]);
 
         GrossIncome::where('fight_id', $fight->id)->delete();

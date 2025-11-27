@@ -128,6 +128,9 @@ class Users extends Component
     {
         $users = User::query()
             ->with('roles')
+            ->whereDoesntHave('roles', function ($query) {
+                $query->where('name', 'admin');
+            })
             ->when(
                 $this->search,
                 fn($q) =>
