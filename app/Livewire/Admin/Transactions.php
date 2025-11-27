@@ -12,7 +12,7 @@ use Masmerise\Toaster\Toaster;
 
 class Transactions extends Component
 {
-    public $event;
+    public ?Event $event = null;
     public $users = [];
     public $amount;
     public $receiver_id;
@@ -29,69 +29,73 @@ class Transactions extends Component
         $this->users = User::role('user')->orderBy('username')->get();
 
         $this->loadTransactions();
+        $this->updateTotals();
     }
 
-    public function loadTransactions()
+    private function loadTransactions()
     {
-        if ($this->event) {
-            $this->userToAdminTransactions = Transaction::with('sender', 'receiver')
-                ->where('event_id', $this->event->id)
-                ->where('receiver_id', Auth::id())
-                ->latest()
-                ->get();
-
-            $this->adminToUserTransactions = Transaction::with('sender', 'receiver')
-                ->where('event_id', $this->event->id)
-                ->where('sender_id', Auth::id())
-                ->latest()
-                ->get();
-        } else {
+        if (!$this->event) {
             $this->userToAdminTransactions = collect();
             $this->adminToUserTransactions = collect();
+            return;
         }
+
+        $eventId = $this->event->id;
+        $adminId = Auth::id();
+
+        $this->userToAdminTransactions = Transaction::with(['sender', 'receiver'])
+            ->where('event_id', $eventId)
+            ->where('receiver_id', $adminId)
+            ->latest()
+            ->get();
+
+        $this->adminToUserTransactions = Transaction::with(['sender', 'receiver'])
+            ->where('event_id', $eventId)
+            ->where('sender_id', $adminId)
+            ->latest()
+            ->get();
+    }
+
+    private function updateTotals()
+    {
+        $this->totalTransfer = $this->event?->total_transfer ?? 0;
     }
 
     public function createTransaction()
     {
         if (!$this->event) {
-            Toaster::error('You cannot transfer while there is no ongoing event.');
-            Flux::modal('transfer')->close();
-            return;
+            return $this->errorAndClose('You cannot transfer while there is no ongoing event.');
         }
 
         $this->validate([
-            'amount' => 'required|numeric|min:1',
-            'receiver_id' => 'required|exists:users,id',
-            'note' => 'required|string|max:255',
+            'amount'       => 'required|numeric|min:1',
+            'receiver_id'  => 'required|exists:users,id',
+            'note'         => 'required|string|max:255',
         ]);
 
         if ($this->event->revolving < $this->amount) {
-            Toaster::error('Insufficient revolving funds.');
-            return;
+            return Toaster::error('Insufficient revolving funds.');
         }
 
         $this->event->decrement('revolving', $this->amount);
 
         Transaction::create([
-            'event_id' => $this->event->id,
-            'sender_id' => Auth::id(),
+            'event_id'    => $this->event->id,
+            'sender_id'   => Auth::id(),
             'receiver_id' => $this->receiver_id,
-            'amount' => $this->amount,
-            'note' => $this->note,
+            'amount'      => $this->amount,
+            'note'        => $this->note,
         ]);
 
         $this->event->increment('total_transfer', $this->amount);
-        $this->totalTransfer = $this->event->fresh()->total_transfer;
+        $this->event->refresh();
 
         $this->reset(['amount', 'receiver_id', 'note']);
         $this->loadTransactions();
+        $this->updateTotals();
+
         Flux::modal('transfer')->close();
         Toaster::success('Transaction successfully created.');
-    }
-
-    public function calculateTotals()
-    {
-        $this->totalTransfer = $this->event ? $this->event->total_transfer : 0;
     }
 
     public function receiveTransaction($id)
@@ -101,20 +105,26 @@ class Transactions extends Component
             ->where('status', 'pending')
             ->first();
 
-        if (! $transaction) {
-            Toaster::error('Invalid or already received transaction.');
-            return;
+        if (!$transaction) {
+            return Toaster::error('Invalid or already received transaction.');
         }
 
         $transaction->update(['status' => 'success']);
 
         if ($this->event) {
             $this->event->increment('revolving', $transaction->amount);
-            $this->event = $this->event->fresh();
+            $this->event->refresh();
         }
 
         $this->loadTransactions();
         Toaster::success('Transaction successfully received.');
+    }
+
+    private function errorAndClose($message)
+    {
+        Toaster::error($message);
+        Flux::modal('transfer')->close();
+        return;
     }
 
     public function render()
@@ -127,8 +137,6 @@ class Transactions extends Component
             ->get()
             : collect();
 
-        return view('livewire.admin.transactions', [
-            'transactions' => $transactions,
-        ]);
+        return view('livewire.admin.transactions', compact('transactions'));
     }
 }
