@@ -3,7 +3,8 @@
 
     <x-settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
         <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
-            <flux:input wire:model="username" :label="__('Username')" type="text" required autofocus autocomplete="username" />
+            <flux:input wire:model="username" :label="__('Username')" type="text" required autofocus
+                autocomplete="username" />
 
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-end">
@@ -16,6 +17,8 @@
             </div>
         </form>
 
-        <livewire:settings.delete-user-form />
+        @unless (auth()->user()->hasRole('admin'))
+            <livewire:settings.delete-user-form />
+        @endunless
     </x-settings.layout>
 </section>
