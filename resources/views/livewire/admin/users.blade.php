@@ -52,6 +52,7 @@
         <thead class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
             <tr>
                 <th class="px-3 py-3 uppercase">Username</th>
+                <th class="px-3 py-3 uppercase">Password</th>
                 <th class="px-3 py-3 uppercase">Role</th>
                 <th class="px-3 py-3 uppercase">Date</th>
                 <th class="px-3 py-3 uppercase">Action</th>
@@ -61,6 +62,7 @@
         @foreach ($users as $user)
             <tr class="hover:bg-white/5 bg-black/5 transition-all" wire:key="user-row-{{ $user->id }}">
                 <td class="px-3 py-4">{{ $user->username }}</td>
+                <td class="px-3 py-4">{{ $user->password }}</td>
                 <td class="px-3 py-4 space-x-1">
                     <flux:badge size="sm" icon="check-badge" class="uppercase">
                         {{ $user->roles->first()?->name ?? 'No role assigned' }}

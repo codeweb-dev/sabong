@@ -27,10 +27,11 @@ class Login extends Component
     public function login(): void
     {
         $this->validate();
-
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt(['username' => $this->username, 'password' => $this->password])) {
+        $user = \App\Models\User::where('username', $this->username)->first();
+
+        if (! $user || $user->password !== $this->password) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -38,10 +39,12 @@ class Login extends Component
             ]);
         }
 
+        Auth::login($user);
+
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
     }
 
     /**
@@ -70,6 +73,6 @@ class Login extends Component
      */
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->username).'|'.request()->ip());
+        return Str::transliterate(Str::lower($this->username) . '|' . request()->ip());
     }
 }
