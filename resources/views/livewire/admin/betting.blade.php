@@ -103,7 +103,7 @@
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                                         {{ $bet->user->username ?? '' }}</td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                        {{ number_format($bet->amount, 2) }}</td>
+                                        {{ $bet->amount }}</td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                                         {{ $bet->claimedBy?->username ?? '—' }}</td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">

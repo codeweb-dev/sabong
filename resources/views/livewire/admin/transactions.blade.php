@@ -5,11 +5,11 @@
                 <div class="space-y-1">
                     <p class="flex justify-between">
                         <span>revolving:</span>
-                        <span>{{ $event ? number_format($event->revolving, 2) : '0.00' }}</span>
+                        <span>{{ $event ? $event->revolving : 0 }}</span>
                     </p>
                     <p class="flex justify-between">
                         <span>total transfer:</span>
-                        <span>{{ $event ? number_format($event->total_transfer, 2) : '0.00' }}</span>
+                        <span>{{ $event ? $event->total_transfer : 0 }}</span>
                     </p>
                     <p class="flex justify-between">
                         <span>total received:</span>
@@ -156,29 +156,37 @@
         </div>
 
         <div class="flex-1">
-            <p class="text-lg sm:text-xl uppercase">fight history</p>
+            <p class="text-lg sm:text-xl uppercase">Transaction History</p>
             <div class="overflow-x-auto">
                 <x-table class="min-w-full">
                     <thead
                         class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
                         <tr>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">teller name</th>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">coh</th>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">cash in</th>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">cash out</th>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">total bets</th>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">total payout</th>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">Teller Name</th>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">Coh</th>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">Cash In</th>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">Cash Out</th>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">Total Bets</th>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">Total Payout</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                            <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">empty</td>
-                        </tr>
+                        @foreach ($userSummaries as $summary)
+                            <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">{{ $summary['user']->username }}</td>
+                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">{{ $summary['user']->cash }}</td>
+                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                    {{ $summary['cash_in'] }}</td>
+                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                    {{ $summary['cash_out'] }}</td>
+                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                    {{ $summary['total_bets'] }}
+                                </td>
+                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                    {{ $summary['total_payout'] }}
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </x-table>
             </div>

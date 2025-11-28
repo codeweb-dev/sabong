@@ -1,0 +1,33 @@
+STEP 1: config the herd make the variables_order="E---"
+
+STEP 2: my the url like this - based on the ipconfig
+APP_URL=http://192.168.100.110
+
+STEP 3: make the reverb like this
+REVERB_APP_ID=119680
+REVERB_APP_KEY=h3nmkqzdr6j1rhpxnhyx
+REVERB_APP_SECRET=josyszt5ttpfv157pgap
+REVERB_HOST=192.168.100.110
+REVERB_PORT=8080
+REVERB_SCHEME=http
+
+VITE_REVERB_APP_KEY="${REVERB_APP_KEY}"
+VITE_REVERB_HOST="192.168.100.110"
+VITE_REVERB_PORT="${REVERB_PORT}"
+VITE_REVERB_SCHEME="${REVERB_SCHEME}"
+
+✅ STEP 4 — Allow port 8080 in Windows Firewall (VERY IMPORTANT)
+
+Open Windows Defender Firewall
+
+Click Advanced Settings
+Go to Inbound Rules
+Click New Rule
+Type: Port
+Protocol: TCP
+Port: 8080
+Allow the connection
+Apply to Private + Public
+Then click Finish.
+
+🔥 This step is REQUIRED so your phone can connect to Reverb.
