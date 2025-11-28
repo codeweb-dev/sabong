@@ -1,14 +1,117 @@
 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-    <livewire:admin.components.events />
+    <div class="flex flex-col gap-6 w-full lg:w-1/2">
+        <p class="text-lg sm:text-xl uppercase">events</p>
+        <div class="overflow-x-auto">
+            <x-table class="min-w-full">
+                <thead>
+                    <tr>
+                        <th class="px-2 py-3 text-sm uppercase text-center">date</th>
+                        <th class="px-2 py-3 text-sm uppercase text-center">event name</th>
+                        <th class="px-2 py-3 text-sm uppercase text-center">description</th>
+                        <th class="px-2 py-3 text-sm uppercase text-center">status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($events as $event)
+                        <tr wire:click="selectEvent({{ $event->id }})"
+                            class="
+                                cursor-pointer transition-all
+                                hover:bg-white/10
+                                {{ $selectedEventId === $event->id ? 'bg-blue-600/30 border border-blue-500' : 'bg-black/5' }}
+                            ">
+                            <td class="px-2 py-3 text-center text-sm">
+                                {{ $event->created_at->format('M d, Y') }}
+                            </td>
+                            <td class="px-2 py-3 text-center text-sm uppercase">
+                                {{ $event->event_name }}
+                            </td>
+                            <td class="px-2 py-3 text-center text-sm uppercase">
+                                {{ $event->description ?? '-' }}
+                            </td>
+                            <td class="px-2 py-3 text-center text-sm uppercase">
+                                {{ ucfirst($event->status) }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-sm text-gray-400 uppercase">
+                                No events found
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </x-table>
+        </div>
 
-    <div class="flex flex-col gap-2 w-full lg:w-1/2">
-        <div class="w-full h-100 overflow-hidden border border-zinc-700 rounded-lg bg-zinc-900">
+        <p class="text-lg sm:text-xl uppercase">fight history</p>
+        <div class="overflow-x-auto">
+            <div class="max-h-[500px] overflow-y-auto">
+                <x-table class="min-w-full">
+                    <thead
+                        class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
+                        <tr>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">fight #</th>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">meron</th>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">wala</th>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">result</th>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">payout</th>
+                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if ($events && $fights->isNotEmpty())
+                            @foreach ($fights as $fight)
+                                <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                        {{ $fight->fight_number }} </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                        {{ $fight->meron_bet ?? 0 }} </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                        {{ $fight->wala_bet ?? 0 }} </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center uppercase">
+                                        {{ $fight->winner ?? '' }} </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center"> @php
+                                        if ($fight->winner === 'meron') {
+                                            $displayPayout = $fight->meron_payout ?? 0;
+                                        } elseif ($fight->winner === 'wala') {
+                                            $displayPayout = $fight->wala_payout ?? 0;
+                                        } elseif (in_array($fight->winner, ['draw', 'cancel'])) {
+                                            $displayPayout = 0;
+                                        } else {
+                                            $displayPayout = 0;
+                                        }
+                                        $displayPayoutInt =
+                                            $fight->winner === 'draw' || $fight->winner === 'cancel'
+                                                ? null
+                                                : floor($displayPayout * 100);
+                                    @endphp
+                                        {{ $fight->winner === 'draw' || $fight->winner === 'cancel' ? 'Refund' : $displayPayoutInt }}
+                                    </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center uppercase">
+                                        {{ ucfirst($fight->status) }} </td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                                <td colspan="6"
+                                    class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400 uppercase"> No
+                                    fight history yet </td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </x-table>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-3 w-full lg:w-1/2">
+        <div class="w-full h-91 overflow-hidden border border-zinc-700 rounded-lg bg-zinc-900">
             <livewire:welcome :small-screen="true" />
         </div>
 
-        <div class="flex flex-col items-center justify-center gap-3">
+        <div class="flex justify-center">
             <flux:modal.trigger name="create-event">
-                <flux:button class="uppercase">create event</flux:button>
+                <flux:button class="uppercase">Create Event</flux:button>
             </flux:modal.trigger>
 
             <flux:modal name="create-event" class="md:w-96">
@@ -16,10 +119,9 @@
                     <div class="space-y-6">
                         <div>
                             <flux:heading size="lg" class="uppercase">Create Event</flux:heading>
-                            <flux:text class="mt-2 uppercase">Please provide accurate details to ensure the event
-                                information is
-                                correct.
-                            </flux:text>
+                            <flux:text class="mt-2 uppercase">Please provide accurate details to ensure the
+                                event
+                                information is correct. </flux:text>
                         </div>
                         <flux:input label="Event Name" wire:model='event_name' />
                         <flux:textarea label="Description" wire:model='description' />
@@ -27,85 +129,17 @@
                         <flux:input label="Revolving" wire:model='revolving' />
                         <div class="flex">
                             <flux:spacer />
-                            <flux:button type="submit" variant="primary" class="uppercase">Create Event</flux:button>
+                            <flux:button type="submit" variant="primary" class="uppercase">Create Event
+                            </flux:button>
                         </div>
                     </div>
                 </form>
             </flux:modal>
         </div>
 
-        @if ($events->isNotEmpty())
-            <div class="flex items-center justify-between">
-                <flux:modal.trigger name="event-{{ $events->first()->event_name }}-start">
-                    <flux:button class="uppercase">start event</flux:button>
-                </flux:modal.trigger>
-
-                <flux:modal.trigger name="event-{{ $events->first()->event_name }}-end">
-                    <flux:button class="uppercase">end event</flux:button>
-                </flux:modal.trigger>
-            </div>
-
-            <flux:modal name="event-{{ $events->first()->event_name }}-start" class="min-w-[22rem]"
-                wire:key="start-{{ $events->first()->id }}-modal">
-                <div class="space-y-6">
-                    <div>
-                        <flux:heading size="lg" class="uppercase">{{ $events->first()->event_name }}
-                        </flux:heading>
-                        <flux:text class="mt-2 uppercase">
-                            <p>Do you want to start {{ $events->first()->event_name }} event?</p>
-                        </flux:text>
-                    </div>
-                    <div class="flex gap-2">
-                        <flux:spacer />
-                        <flux:modal.close>
-                            <flux:button variant="ghost" class="uppercase">Cancel</flux:button>
-                        </flux:modal.close>
-                        <flux:button class="uppercase" wire:click="startEvent({{ $events->first()->id }})">Start
-                            Event</flux:button>
-                    </div>
-                </div>
-            </flux:modal>
-
-            <flux:modal name="event-{{ $events->first()->event_name }}-end" class="min-w-[22rem]"
-                wire:key="end-{{ $events->first()->id }}-modal">
-                <div class="space-y-6">
-                    <div>
-                        <flux:heading size="lg" class="uppercase">{{ $events->first()->event_name }}</flux:heading>
-                        <flux:text class="mt-2 uppercase">
-                            <p>Do you want to end {{ $events->first()->event_name }} event?</p>
-                        </flux:text>
-                    </div>
-                    <div class="flex gap-2">
-                        <flux:spacer />
-                        <flux:modal.close>
-                            <flux:button variant="ghost" class="uppercase">Cancel</flux:button>
-                        </flux:modal.close>
-
-                        <flux:button class="uppercase" wire:click="endEvent({{ $events->first()->id }})"
-                            class="uppercase">End Event</flux:button>
-                    </div>
-                </div>
-            </flux:modal>
-        @endif
-
-        @if ($events->isNotEmpty())
-            <div class="flex flex-col gap-3 py-3">
-                <flux:heading size="lg" class="uppercase">
-                    Total Meron Bet: {{ $events->first()->total_bets_meron ?? 0 }}
-                </flux:heading>
-                <flux:heading size="lg" class="uppercase">
-                    Total Wala Bet: {{ $events->first()->total_bets_wala ?? 0 }}
-                </flux:heading>
-                <flux:heading size="lg" class="uppercase">
-                    Total Bet: {{ $events->first()->total_bets ?? 0 }}
-                </flux:heading>
-                <flux:heading size="lg" class="uppercase">
-                    Gross Income: {{ $events->first()->total_gross_income ?? 0 }}
-                </flux:heading>
-                <flux:heading size="lg" class="uppercase">
-                    System Over: {{ $events->first()->total_system_overflow ?? 0 }}
-                </flux:heading>
-            </div>
-        @endif
+        <div class="flex justify-between">
+            <flux:button wire:click="startEvent" class="uppercase">Start Event</flux:button>
+            <flux:button wire:click="endEvent" class="uppercase">End Event</flux:button>
+        </div>
     </div>
 </div>
