@@ -22,6 +22,7 @@ class Transactions extends Component
     public $adminToUserTransactions;
 
     public $totalTransfer = 0;
+    public $totalReceived = 0;
 
     public function mount()
     {
@@ -59,7 +60,12 @@ class Transactions extends Component
     private function updateTotals()
     {
         $this->totalTransfer = $this->event?->total_transfer ?? 0;
+
+        $this->totalReceived = $this->userToAdminTransactions
+            ->where('status', 'success')
+            ->sum('amount');
     }
+
 
     public function createTransaction()
     {
@@ -117,6 +123,7 @@ class Transactions extends Component
         }
 
         $this->loadTransactions();
+        $this->updateTotals();
         Toaster::success('Transaction successfully received.');
     }
 

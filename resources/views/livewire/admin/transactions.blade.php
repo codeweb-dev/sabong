@@ -13,7 +13,7 @@
                     </p>
                     <p class="flex justify-between">
                         <span>total received:</span>
-                        <span></span>
+                        <span>{{ $event ? $totalReceived : 0 }}</span>
                     </p>
                 </div>
                 <div class="flex items-center justify-between gap-2">
@@ -90,7 +90,8 @@
                                             </td>
                                             <td class="px-2 py-4 text-center">
                                                 @if ($transaction->status === 'pending')
-                                                    <flux:button wire:click="receiveTransaction({{ $transaction->id }})"
+                                                    <flux:button
+                                                        wire:click="receiveTransaction({{ $transaction->id }})"
                                                         size="sm">
                                                         Receive
                                                     </flux:button>
