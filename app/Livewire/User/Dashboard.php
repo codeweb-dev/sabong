@@ -39,7 +39,11 @@ class Dashboard extends Component
     {
         $user = Auth::user();
         $this->cashOnHand = $user->cash;
-        $this->fights = Fight::latest()->get();
+        $this->fights = Fight::whereHas('event', function ($q) {
+            $q->where('status', 'ongoing');
+        })
+            ->orderBy('fight_number')
+            ->get();
         $this->loadActiveFight();
         $this->loadUserBets();
     }
@@ -179,8 +183,11 @@ class Dashboard extends Component
 
     private function loadUserBets()
     {
-        $query = Bet::with('fight')
+        $query = Bet::with('fight.event')
             ->where('user_id', $this->user()->id)
+            ->whereHas('fight.event', function ($q) {
+                $q->where('status', 'ongoing');
+            })
             ->latest();
 
         if ($this->fight_id) {
@@ -190,9 +197,9 @@ class Dashboard extends Component
         $this->bets = $query->take(5)->get();
     }
 
-    public function refreshFights()
+    public function updatedFightId()
     {
-        $this->fights = Fight::latest()->get();
+        $this->loadUserBets();
     }
 
     public function addAmount($value)

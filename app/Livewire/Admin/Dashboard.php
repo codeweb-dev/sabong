@@ -108,7 +108,6 @@ class Dashboard extends Component
 
         $event->update(['status' => 'ongoing']);
         broadcast(new EventStarted($event));
-
         Toaster::success("Event '{$event->event_name}' started.");
         $this->loadEvents();
     }
@@ -129,7 +128,6 @@ class Dashboard extends Component
 
         $event->update(['status' => 'finished']);
         broadcast(new EventEnded($event));
-
         Toaster::success("Event '{$event->event_name}' ended.");
         $this->loadEvents();
     }

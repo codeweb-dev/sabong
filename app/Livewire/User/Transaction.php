@@ -50,12 +50,14 @@ class Transaction extends Component
 
         $user = $this->user();
         if ($user->cash < $this->amount) {
-            return $this->failAndClose('transfer', 'Insufficient balance.');
+            $this->failAndClose('transfer', 'Insufficient balance.');
+            return;
         }
 
         $event = Event::where('status', 'ongoing')->latest()->first();
         if (!$event) {
-            return Toaster::error('No ongoing event found.');
+            $this->failAndClose('transfer', 'No ongoing event found.');
+            return;
         }
 
         $user->decrement('cash', $this->amount);
@@ -79,7 +81,8 @@ class Transaction extends Component
         $transaction = $this->findTransactionForReceiver($id);
 
         if (!$transaction || $transaction->status !== 'pending') {
-            return Toaster::error('Invalid or already processed transaction.');
+            Toaster::error('Invalid or already processed transaction.');
+            return;
         }
 
         $transaction->update(['status' => 'success']);
@@ -92,7 +95,8 @@ class Transaction extends Component
     {
         $transaction = $this->findTransactionForReceiver($id);
         if (!$transaction || $transaction->status !== 'pending') {
-            return Toaster::error('Transaction cannot be cancelled.');
+            Toaster::error('Transaction cannot be cancelled.');
+            return;
         }
 
         $event = Event::find($transaction->event_id);

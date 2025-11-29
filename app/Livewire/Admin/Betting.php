@@ -32,7 +32,6 @@ class Betting extends Component
         $this->fight = 'all';
         $this->side = 'all';
         $this->status = 'all';
-
         $this->search();
     }
 
@@ -48,7 +47,6 @@ class Betting extends Component
     public function lockBet($betId)
     {
         $bet = $this->event->bets()->find($betId);
-
         if (!$bet->is_win) {
             Toaster::error('Bet can only be locked if it is a winning bet.');
             return;
@@ -56,17 +54,14 @@ class Betting extends Component
 
         $bet->is_lock = true;
         $bet->save();
-
         Toaster::success('Bet locked successfully.');
     }
 
     public function unlockBet($betId)
     {
         $bet = $this->event->bets()->find($betId);
-
         $bet->is_lock = false;
         $bet->save();
-
         Toaster::success('Bet unlocked successfully.');
     }
 

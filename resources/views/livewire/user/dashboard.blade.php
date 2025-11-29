@@ -91,17 +91,14 @@
                 <div class="flex flex-col sm:flex-row sm:items-center gap-2">
                     <p class="text-lg sm:text-xl">fight#</p>
                     <div class="flex items-center gap-2">
-                        <flux:select wire:model="fight_id" placeholder="Choose fight" class="min-w-0">
+                        <flux:select wire:model.live="fight_id" class="min-w-0">
+                            <flux:select.option value="">All Fights</flux:select.option>
                             @foreach ($fights as $fight)
                                 <flux:select.option value="{{ $fight->id }}">
                                     Fight #{{ $fight->fight_number }} — {{ ucfirst($fight->status) }}
                                 </flux:select.option>
                             @endforeach
                         </flux:select>
-
-                        <flux:button wire:click="refreshFights" class="text-sm sm:text-base" icon="arrow-path">
-                            Refresh
-                        </flux:button>
                     </div>
                 </div>
             </div>

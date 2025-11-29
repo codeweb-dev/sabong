@@ -137,7 +137,6 @@ class Dashboard extends Component
             'wala' => false,
             'status' => 'close',
         ]);
-
         $this->broadcastRefresh();
     }
 
@@ -196,9 +195,7 @@ class Dashboard extends Component
 
         $newValue = !$this->activeFight->$side;
         $this->activeFight->update([$side => $newValue]);
-
         $this->broadcastRefresh();
-
         Toaster::success(strtoupper($side) . ($newValue ? ' opened!' : ' locked!'));
     }
 

@@ -28,7 +28,6 @@ class Transactions extends Component
     {
         $this->event = Event::where('status', 'ongoing')->latest()->first();
         $this->users = User::role('user')->orderBy('username')->get();
-
         $this->loadTransactions();
         $this->updateTotals();
     }
@@ -70,7 +69,8 @@ class Transactions extends Component
     public function createTransaction()
     {
         if (!$this->event) {
-            return $this->errorAndClose('You cannot transfer while there is no ongoing event.');
+            $this->errorAndClose('You cannot transfer while there is no ongoing event.');
+            return;
         }
 
         $this->validate([
@@ -80,7 +80,8 @@ class Transactions extends Component
         ]);
 
         if ($this->event->revolving < $this->amount) {
-            return Toaster::error('Insufficient revolving funds.');
+            Toaster::error('Insufficient revolving funds.');
+            return;
         }
 
         $this->event->decrement('revolving', $this->amount);

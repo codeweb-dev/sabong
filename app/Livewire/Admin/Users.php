@@ -85,10 +85,8 @@ class Users extends Component
         $this->edit_id = $user->id;
         $this->edit_username = $user->username;
         $this->edit_role = $user->roles->first()?->name ?? '';
-
         $this->edit_password = '';
         $this->edit_password_confirmation = '';
-
         Flux::modal('edit-user')->show();
     }
 
@@ -97,7 +95,6 @@ class Users extends Component
         $this->validate($this->editRules());
 
         $user = User::findOrFail($this->edit_id);
-
         $data = ['username' => $this->edit_username];
 
         if ($this->edit_password) {
@@ -114,7 +111,6 @@ class Users extends Component
     public function delete(User $user)
     {
         $user->delete();
-
         $this->closeModal('delete-user-' . $user->id);
         Toaster::success('User deleted successfully.');
     }
