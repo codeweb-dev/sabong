@@ -26,6 +26,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'start', 'open', 'close', 'done'])->default('pending');
             $table->string('winner')->nullable();
             $table->boolean('is_refunded')->default(false);
+            $table->boolean('is_penalty')->default(false);
             $table->timestamps();
         });
     }

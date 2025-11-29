@@ -93,7 +93,8 @@
                         </thead>
                         <tbody>
                             @foreach ($bets as $bet)
-                                <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                                <tr
+                                    class="hover:bg-white/5 {{ $bet->fight->is_penalty ? 'bg-red-600/20' : 'bg-black/5' }} transition-all">
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                                         {{ $bet->fight->fight_number }}</td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
