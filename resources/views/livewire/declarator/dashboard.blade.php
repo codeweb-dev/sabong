@@ -1,6 +1,6 @@
 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
     <div class="flex flex-col gap-6 w-full lg:w-1/2">
-        <div class="flex items-center justify-between uppercase">
+        <div class="flex items-center justify-between">
             <div>
                 <p>Event: {{ $currentEvent?->event_name ?? '' }}</p>
                 <p>Description: {{ $currentEvent?->description ?? '' }}</p>
@@ -9,7 +9,7 @@
             <p>Date: {{ $currentEvent?->created_at?->timezone('Asia/Manila')->format('M d, Y') ?? '' }}</p>
         </div>
 
-        <div class="flex items-center gap-6 uppercase">
+        <div class="flex items-center gap-6">
             <div class="flex-1">
                 <p class="text-center mb-1">Meron</p>
                 <flux:button class="text-sm sm:text-base w-full">
@@ -70,9 +70,9 @@
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">
                                 {{ $fight->fight_number }}</td>
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">
-                                {{ $fight->meron_bet ?? 0 }}</td>
+                                {{ number_format($fight->meron_bet ?? 0, 0) }}</td>
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">
-                                {{ $fight->wala_bet ?? 0 }}</td>
+                                {{ number_format($fight->wala_bet ?? 0, 0) }}</td>
                             <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center capitalize">
                                 {{ ucfirst($fight->winner ?? '-') }}
                             </td>
@@ -102,8 +102,11 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center text-gray-400">
-                                No fights yet.
+                            <td colspan="6">
+                                <div class="flex flex-col items-center justify-center gap-4 py-6">
+                                    <flux:icon.archive-box class="size-12" />
+                                    <flux:heading class="">No fights found.</flux:heading>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -113,7 +116,7 @@
     </div>
 
     <div class="flex flex-col gap-2 w-full lg:w-1/2">
-        <div class="w-full h-100 overflow-hidden border border-zinc-700 rounded-lg bg-zinc-900">
+        <div class="w-full h-91 overflow-hidden border border-zinc-700 rounded-lg bg-zinc-900">
             <livewire:welcome :small-screen="true" />
         </div>
 

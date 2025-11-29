@@ -1,28 +1,28 @@
 <div class="mx-auto max-w-6xl">
     <div class="flex flex-col gap-12">
         <div class="flex items-center gap-6">
-            <div class="flex w-68 flex-col gap-2 uppercase">
+            <div class="flex w-68 flex-col gap-2 ">
                 <div class="space-y-1">
                     <p class="flex justify-between">
                         <span>revolving:</span>
-                        <span>{{ $event ? $event->revolving : 0 }}</span>
+                        <span>{{ $event ? number_format($event->revolving ?? 0, 0) : 0 }}</span>
                     </p>
                     <p class="flex justify-between">
                         <span>total transfer:</span>
-                        <span>{{ $event ? $event->total_transfer : 0 }}</span>
+                        <span>{{ $event ? number_format($event->total_transfer ?? 0, 0) : 0 }}</span>
                     </p>
                     <p class="flex justify-between">
                         <span>total received:</span>
-                        <span>{{ $event ? $totalReceived : 0 }}</span>
+                        <span>{{ $event ? number_format($totalReceived ?? 0, 0) : 0 }}</span>
                     </p>
                 </div>
                 <div class="flex items-center justify-between gap-2">
                     <flux:modal.trigger name="transfer">
-                        <flux:button class="flex-1 uppercase">transfer</flux:button>
+                        <flux:button class="flex-1 ">transfer</flux:button>
                     </flux:modal.trigger>
 
                     <flux:modal.trigger name="received">
-                        <flux:button class="flex-1 uppercase">received</flux:button>
+                        <flux:button class="flex-1 ">received</flux:button>
                     </flux:modal.trigger>
                 </div>
 
@@ -54,9 +54,8 @@
 
                             <flux:input label="Note" placeholder="Enter note" wire:model.defer="note" />
 
-                            <div class="flex">
-                                <flux:spacer />
-                                <flux:button type="submit" variant="primary">Send</flux:button>
+                            <div>
+                                <flux:button type="submit" variant="primary" class="w-full">Send</flux:button>
                             </div>
                         </div>
                     </form>
@@ -79,12 +78,18 @@
                                 <tbody>
                                     @forelse ($userToAdminTransactions as $transaction)
                                         <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                                            <td class="px-2 py-4 text-center">{{ $transaction->sender->username }}</td>
                                             <td class="px-2 py-4 text-center">
-                                                {{ number_format($transaction->amount, 2) }}
+                                                {{ $transaction->sender->username }}
                                             </td>
-                                            <td class="px-2 py-4 text-center">{{ $transaction->note }}</td>
-                                            <td class="px-2 py-4 text-center">{{ ucfirst($transaction->status) }}</td>
+                                            <td class="px-2 py-4 text-center">
+                                                {{ number_format($transaction->amount ?? 0, 0) }}
+                                            </td>
+                                            <td class="px-2 py-4 text-center">
+                                                {{ $transaction->note }}
+                                            </td>
+                                            <td class="px-2 py-4 text-center">
+                                                {{ ucfirst($transaction->status) }}
+                                            </td>
                                             <td class="px-2 py-4 text-center">
                                                 {{ $transaction->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
                                             </td>
@@ -104,9 +109,12 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center text-gray-400 uppercase">No
-                                                transactions
-                                                yet.</td>
+                                            <td colspan="6">
+                                                <div class="flex flex-col items-center justify-center gap-4 py-6">
+                                                    <flux:icon.archive-box class="size-12" />
+                                                    <flux:heading class="">No transaction found.</flux:heading>
+                                                </div>
+                                            </td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -145,8 +153,12 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center text-gray-400 uppercase">No transactions
-                                            yet.</td>
+                                        <td colspan="6">
+                                            <div class="flex flex-col items-center justify-center gap-4 py-6">
+                                                <flux:icon.archive-box class="size-12" />
+                                                <flux:heading class="">No transaction found.</flux:heading>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -157,34 +169,38 @@
         </div>
 
         <div class="flex-1">
-            <p class="text-lg sm:text-xl uppercase">Transaction History</p>
+            <p class="text-lg sm:text-xl ">Transaction History</p>
             <div class="overflow-x-auto">
                 <x-table class="min-w-full">
                     <thead
                         class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
                         <tr>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">Teller Name</th>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">Coh</th>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">Cash In</th>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">Cash Out</th>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">Total Bets</th>
-                            <th class="px-2 sm:px-3 py-3 uppercase text-center text-xs sm:text-sm">Total Payout</th>
+                            <th class="px-2 sm:px-3 py-3  text-center text-xs sm:text-sm">Teller Name</th>
+                            <th class="px-2 sm:px-3 py-3  text-center text-xs sm:text-sm">Coh</th>
+                            <th class="px-2 sm:px-3 py-3  text-center text-xs sm:text-sm">Cash In</th>
+                            <th class="px-2 sm:px-3 py-3  text-center text-xs sm:text-sm">Cash Out</th>
+                            <th class="px-2 sm:px-3 py-3  text-center text-xs sm:text-sm">Total Bets</th>
+                            <th class="px-2 sm:px-3 py-3  text-center text-xs sm:text-sm">Total Payout</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($userSummaries as $summary)
                             <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">{{ $summary['user']->username }}</td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">{{ $summary['user']->cash }}</td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
-                                    {{ $summary['cash_in'] }}</td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
-                                    {{ $summary['cash_out'] }}</td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
-                                    {{ $summary['total_bets'] }}
+                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm ">
+                                    {{ $summary['user']->username }}
                                 </td>
                                 <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
-                                    {{ $summary['total_payout'] }}
+                                    {{ number_format($summary['user']->cash ?? 0, 0) }}
+                                </td>
+                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                    {{ number_format($summary['cash_in'] ?? 0, 0) }}</td>
+                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                    {{ number_format($summary['cash_out'] ?? 0, 0) }}</td>
+                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                    {{ number_format($summary['total_bets'] ?? 0, 0) }}
+                                </td>
+                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                    {{ number_format($summary['total_payout'] ?? 0, 0) }}
                                 </td>
                             </tr>
                         @endforeach

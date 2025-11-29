@@ -1,6 +1,6 @@
 <div class="mx-auto max-w-6xl">
     <div class="mb-6 flex flex-col md:flex-row gap-6 md:gap-0 items-center justify-between w-full">
-        <h1 class="text-3xl font-bold uppercase">
+        <h1 class="text-3xl font-bold">
             Users
         </h1>
 
@@ -10,15 +10,15 @@
             </div>
 
             <flux:modal.trigger name="add-user">
-                <flux:button icon:trailing="plus" class="uppercase">Add User</flux:button>
+                <flux:button icon:trailing="plus">Add User</flux:button>
             </flux:modal.trigger>
 
             <flux:modal name="add-user" class="md:w-96">
                 <form wire:submit="save">
                     <div class="space-y-6">
                         <div>
-                            <flux:heading size="lg" class="uppercase">Add New User</flux:heading>
-                            <flux:text class="mt-2 uppercase">Fill out the form below to create a new user listing.
+                            <flux:heading size="lg">Add New User</flux:heading>
+                            <flux:text class="mt-2 ">Fill out the form below to create a new user listing.
                             </flux:text>
                         </div>
 
@@ -38,10 +38,8 @@
                         <flux:input wire:model="password_confirmation" label="Confirm password" type="password" required
                             placeholder="Confirm password" viewable />
 
-                        <div class="flex">
-                            <flux:spacer />
-
-                            <flux:button type="submit" variant="primary" class="uppercase">Create User</flux:button>
+                        <div>
+                            <flux:button type="submit" variant="primary" class="w-full">Create User</flux:button>
                         </div>
                     </div>
                 </form>
@@ -51,11 +49,11 @@
     <x-table>
         <thead class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
             <tr>
-                <th class="px-3 py-3 uppercase">Username</th>
-                <th class="px-3 py-3 uppercase">Password</th>
-                <th class="px-3 py-3 uppercase">Role</th>
-                <th class="px-3 py-3 uppercase">Date</th>
-                <th class="px-3 py-3 uppercase">Action</th>
+                <th class="px-3 py-3">Username</th>
+                <th class="px-3 py-3">Password</th>
+                <th class="px-3 py-3">Role</th>
+                <th class="px-3 py-3">Date</th>
+                <th class="px-3 py-3">Action</th>
             </tr>
         </thead>
 
@@ -64,7 +62,7 @@
                 <td class="px-3 py-4">{{ $user->username }}</td>
                 <td class="px-3 py-4">{{ $user->password }}</td>
                 <td class="px-3 py-4 space-x-1">
-                    <flux:badge size="sm" icon="check-badge" class="uppercase">
+                    <flux:badge size="sm" icon="check-badge">
                         {{ $user->roles->first()?->name ?? 'No role assigned' }}
                     </flux:badge>
                 </td>
@@ -95,8 +93,8 @@
                                 <form wire:submit="update">
                                     <div class="space-y-6">
                                         <div>
-                                            <flux:heading size="lg" class="uppercase">Edit User</flux:heading>
-                                            <flux:text class="mt-2 uppercase">
+                                            <flux:heading size="lg">Edit User</flux:heading>
+                                            <flux:text class="mt-2 ">
                                                 Update the user's information below.
                                             </flux:text>
                                         </div>
@@ -120,9 +118,8 @@
                                             placeholder="Confirm new password" viewable
                                             wire:model.blur="edit_password_confirmation" />
 
-                                        <div class="flex">
-                                            <flux:spacer />
-                                            <flux:button type="submit" variant="primary" class="uppercase">
+                                        <div>
+                                            <flux:button type="submit" variant="primary" class="w-full">
                                                 Update User
                                             </flux:button>
                                         </div>
@@ -147,8 +144,7 @@
                                     <flux:modal.close>
                                         <flux:button variant="ghost">Cancel</flux:button>
                                     </flux:modal.close>
-                                    <flux:button type="button" variant="danger"
-                                        wire:click="delete({{ $user->id }})">
+                                    <flux:button type="button" variant="danger" wire:click="delete({{ $user->id }})">
                                         Delete Permanently
                                     </flux:button>
                                 </div>
@@ -159,4 +155,15 @@
             </tr>
         @endforeach
     </x-table>
+
+    @if ($users->isEmpty())
+        <div class="flex flex-col items-center justify-center gap-4 py-6">
+            <flux:icon.archive-box class="size-12" />
+            <flux:heading class="">No users found.</flux:heading>
+        </div>
+    @endif
+
+    <div class="mt-6">
+        {{ $users->links() }}
+    </div>
 </div>

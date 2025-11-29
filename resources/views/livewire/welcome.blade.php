@@ -83,7 +83,7 @@
                         </div>
                         <div class="p-4 md:p-6 flex-1">
                             <p class="text-center text-5xl md:text-7xl font-bold">
-                                {{ number_format($totalMeronBet, 2) }}
+                                {{ number_format($totalMeronBet ?? 0, 0) }}
                             </p>
                             <p class="text-center text-xl md:text-3xl mt-2">
                                 PAYOUT : {{ $showPayout ? $meronPayoutDisplay : 0 }}
@@ -113,7 +113,7 @@
                         </div>
                         <div class="p-4 md:p-6 flex-1">
                             <p class="text-center text-5xl md:text-7xl font-bold">
-                                {{ number_format($totalWalaBet, 2) }}
+                                {{ number_format($totalWalaBet ?? 0, 0) }}
                             </p>
                             <p class="text-center text-xl md:text-3xl mt-2">
                                 PAYOUT : {{ $showPayout ? $walaPayoutDisplay : 0 }}

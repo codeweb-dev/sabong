@@ -3,16 +3,17 @@
         <h1 class="text-2xl font-bold">Transactions</h1>
 
         <flux:modal.trigger name="transfer">
-            <flux:button class="uppercase">Transfer</flux:button>
+            <flux:button>Transfer</flux:button>
         </flux:modal.trigger>
     </div>
 
     <flux:modal name="transfer" class="md:w-96">
         <form wire:submit.prevent="createTransaction">
             <div class="space-y-6">
-
-                <flux:heading size="lg">Transfer Funds</flux:heading>
-                <flux:text>Send an amount to the admin.</flux:text>
+                <div>
+                    <flux:heading size="lg">Transfer Funds</flux:heading>
+                    <flux:text class="mt-2">Send an amount to the admin.</flux:text>
+                </div>
 
                 <flux:input label="Amount" wire:model.defer="amount" placeholder="Enter amount" />
 
@@ -24,7 +25,7 @@
                 <flux:input label="Note" wire:model.defer="note" placeholder="Enter note" />
 
                 <div class="flex justify-end">
-                    <flux:button type="submit" variant="primary">Send</flux:button>
+                    <flux:button type="submit" variant="primary" class="w-full">Send</flux:button>
                 </div>
             </div>
         </form>
@@ -34,7 +35,7 @@
         <thead class="bg-black/5 border-b border-black/10 dark:border-white/10">
             <tr>
                 @foreach (['Sender', 'Amount', 'Receiver', 'Note', 'Status', 'Date', 'Action'] as $header)
-                    <th class="px-3 py-3 text-xs sm:text-sm text-center uppercase">{{ $header }}</th>
+                    <th class="px-3 py-3 text-xs sm:text-sm text-center">{{ $header }}</th>
                 @endforeach
             </tr>
         </thead>
@@ -70,7 +71,12 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="py-4 text-center text-gray-400 uppercase">No transactions yet.</td>
+                    <td colspan="7">
+                        <div class="flex flex-col items-center justify-center gap-4 py-6">
+                            <flux:icon.archive-box class="size-12" />
+                            <flux:heading class="">No transaction found.</flux:heading>
+                        </div>
+                    </td>
                 </tr>
             @endforelse
         </tbody>
