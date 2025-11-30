@@ -1,6 +1,6 @@
 <div class="mx-auto max-w-6xl">
     <div class="flex flex-col gap-12">
-        <div class="flex items-center gap-6">
+        <div class="flex md:flex-row flex-col items-center gap-6">
             <div class="flex w-68 flex-col gap-2 ">
                 <div class="space-y-1">
                     <p class="flex justify-between">

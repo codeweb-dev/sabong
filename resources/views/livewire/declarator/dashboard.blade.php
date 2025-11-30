@@ -171,7 +171,7 @@
                 fight</flux:button>
         </div>
 
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col md:flex-row py-5 md:py-0 gap-3 md:gap-0 items-center justify-between">
             <div>
                 <p class="text-center uppercase mb-1">meron (fighter a)</p>
                 <flux:input.group>

@@ -1,6 +1,6 @@
 <div class="mx-auto max-w-6xl">
     <div class="flex flex-col gap-12">
-        <div class="grid grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="flex w-68 flex-col gap-2">
                 <p class="text-center">bets & payout</p>
                 <div class="space-y-1">
