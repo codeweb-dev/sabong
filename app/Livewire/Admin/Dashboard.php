@@ -134,6 +134,25 @@ class Dashboard extends Component
 
     public function render()
     {
-        return view('livewire.admin.dashboard');
+        // Load all events for the table
+        $events = Event::with('fights')->latest()->get();
+
+        // Load summary only for selected event
+        $selectedEvent = null;
+
+        if ($this->selectedEventId) {
+            $selectedEvent = Event::where('id', $this->selectedEventId)
+                ->withSum('systemOvers as total_system_overflow', 'overflow')
+                ->withSum('bets as total_bets', 'amount')
+                ->withSum('meronBets as total_bets_meron', 'amount')
+                ->withSum('walaBets as total_bets_wala', 'amount')
+                ->withSum('grossIncomes as total_gross_income', 'income')
+                ->first();
+        }
+
+        return view('livewire.admin.dashboard', [
+            'events'         => $events,
+            'selectedEvent'  => $selectedEvent,
+        ]);
     }
 }

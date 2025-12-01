@@ -150,5 +150,23 @@
             <flux:button wire:click="startEvent">Start Event</flux:button>
             <flux:button wire:click="endEvent">End Event</flux:button>
         </div>
+
+        <div class="flex flex-col gap-3 py-3">
+            <flux:heading size="lg" class="uppercase">
+                Total Meron Bet: {{ $selectedEvent->total_bets_meron ?? 0 }}
+            </flux:heading>
+            <flux:heading size="lg" class="uppercase">
+                Total Wala Bet: {{ $selectedEvent->total_bets_wala ?? 0 }}
+            </flux:heading>
+            <flux:heading size="lg" class="uppercase">
+                Total Bet: {{ $selectedEvent->total_bets ?? 0 }}
+            </flux:heading>
+            <flux:heading size="lg" class="uppercase">
+                Gross Income: {{ $selectedEvent->total_gross_income ?? 0 }}
+            </flux:heading>
+            <flux:heading size="lg" class="uppercase">
+                System Over: {{ $selectedEvent->total_system_overflow ?? 0 }}
+            </flux:heading>
+        </div>
     </div>
 </div>
