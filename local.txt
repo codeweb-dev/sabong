@@ -35,3 +35,43 @@ Then click Finish.
 STEP 5: Run the system
 php artisan serve --host=0.0.0.0 --port=8000
 php artisan reverb:start
+
+_
+
+for example
+si declator nag declare ng meron may nag payout na meron (2) eh mali pala dapat wala panalo ngayon yun dalawa nag payout sa meron magpupula
+
+
+
+DECLATOR SIDE:
+    make the close button & open clickable for example that if declarator
+
+TEller SIDE:
+    remove the 0 in the input
+
+    short keyboard
+    / = meron button
+    * = wala button
+
+    will redirect to place bet when show the modal then the ENTER short cut will submit (make it form)
+
+    - (dash) = clear input
+
+ADMIN SIDE:
+    add the system over, etc.
+
+    TRANSACTION
+     make the received button will count for example the button will have (2)
+     add the cancel in received it will redirect the money to the one who send
+
+
+add short page in user
+    sumarry short
+    then table
+
+    for example sa declarator may na declare na isang side na meron pero may taya sya na 200 tapos na payout na scan ngayon nag change galing sya na unpaid naging paid
+
+    if declarator change the winner all the previuos payout will make the status to "short" and then the payout_amount will redirect to the new table of user "short"
+
+    remove the red background in betting history
+    make the all the price comma

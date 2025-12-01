@@ -107,7 +107,7 @@ class Betting extends Component
 
         $this->bets = $query->get();
 
-        $this->total_bets = $this->bets->where('is_win', true)->sum('amount');
+        $this->total_bets = $this->bets->sum('amount');
         $this->total_payout = $this->bets->where('is_win', true)->sum('payout_amount');
 
         return view('livewire.admin.betting', [
