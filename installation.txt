@@ -20,16 +20,18 @@ Step 5 Part 2:
     - then run in command php artisan reverb:install
     - once you see the credential ctrl+c to stop the install
 
-Step 6: open command again and type "php artisan key:generate"
+step 6: (do this one time now no need to do in next project update) php artisan migrate:fresh --seed
 
-Step 7: open again command and do "npm run build"
+Step 7: open command again and type "php artisan key:generate"
 
-Step 8: is change the url and for example default
+Step 8: open again command and do "npm run build"
+
+Step 9: is change the url and for example default
         - APP_URL=http://localhost to APP_URL=http://your-ip-address
         - REVERB_HOST=your-ip-address
         - REVERB_PORT=8080
         - VITE_REVERB_HOST="your-ip-address"
 
-Step 9: run the system
+Step 10: run the system
     - php artisan serve --host=0.0.0.0 --port=8000 (Terminal 1)
     - php artisan reverb:start (Terminal 2)
