@@ -191,27 +191,4 @@
             </div>
         </div>
     </div>
-
-    <flux:modal name="winner-change-modal" wire:model.self="winnerChangeModal">
-        <div class="space-y-6">
-            <div>
-                <flux:heading size="lg">Winner Already Declared</flux:heading>
-                <flux:text class="mt-2">
-                    A winner was already set for this fight.<br>
-                    Applying a new winner will apply a <strong class="text-red-500">penalty</strong>.<br>
-                    Do you want to continue?
-                </flux:text>
-            </div>
-
-            <div class="flex justify-between">
-                <flux:button variant="danger" wire:click="confirmPenaltyChange">
-                    Confirm Penalty & Change Winner
-                </flux:button>
-
-                <flux:button variant="ghost" wire:click="$set('winnerChangeModal', false)">
-                    Cancel
-                </flux:button>
-            </div>
-        </div>
-    </flux:modal>
 </div>

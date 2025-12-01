@@ -20,7 +20,6 @@ class Fight extends Model
         'status',
         'winner',
         'is_refunded',
-        'is_penalty',
     ];
 
     protected $casts = [

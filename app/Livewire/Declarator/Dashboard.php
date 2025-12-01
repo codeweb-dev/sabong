@@ -19,9 +19,6 @@ class Dashboard extends Component
     public $fighterAName = '';
     public $fighterBName = '';
 
-    public $winnerChangeModal = false;
-    public $newWinner = null;
-
     public function mount()
     {
         $this->loadOngoingEvent();
@@ -211,33 +208,6 @@ class Dashboard extends Component
             return;
         }
 
-        if ($this->activeFight->winner && $this->activeFight->winner !== $winner) {
-            $this->newWinner = $winner;
-            $this->winnerChangeModal = true;
-            return;
-        }
-
-        $this->applyWinner($winner);
-    }
-
-    public function confirmPenaltyChange()
-    {
-        if (!$this->newWinner) {
-            return;
-        }
-
-        $this->activeFight->update(['is_penalty' => true]);
-
-        $this->applyWinner($this->newWinner);
-
-        Toaster::warning("Winner changed to " . strtoupper($this->newWinner) . " with penalty applied.");
-
-        $this->winnerChangeModal = false;
-        $this->newWinner = null;
-    }
-
-    private function applyWinner($winner)
-    {
         $this->activeFight->update(['winner' => $winner]);
 
         if (in_array($winner, ['draw', 'cancel'])) {
