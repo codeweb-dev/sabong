@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Admin;
 
+use Livewire\Attributes\On;
+use App\Events\TransactionsUpdated;
 use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
 use App\Models\Transaction;
@@ -30,6 +32,18 @@ class Transactions extends Component
         $this->users = User::role('user')->orderBy('username')->get();
         $this->loadTransactions();
         $this->updateTotals();
+    }
+
+    #[On('echo:transactions,.transactions.updated')]
+    public function handleTransactionsUpdated($data)
+    {
+        if ($this->event && ($data['eventId'] ?? null) !== $this->event->id) {
+            return;
+        }
+
+        $this->loadTransactions();
+        $this->updateTotals();
+        $this->dispatch('$refresh');
     }
 
     private function loadTransactions()
@@ -64,7 +78,6 @@ class Transactions extends Component
             ->where('status', 'success')
             ->sum('amount');
     }
-
 
     public function createTransaction()
     {
@@ -101,6 +114,8 @@ class Transactions extends Component
         $this->loadTransactions();
         $this->updateTotals();
 
+        broadcast(new TransactionsUpdated($this->event->id));
+
         Flux::modal('transfer')->close();
         Toaster::success('Transaction successfully created.');
     }
@@ -125,6 +140,7 @@ class Transactions extends Component
 
         $this->loadTransactions();
         $this->updateTotals();
+        broadcast(new TransactionsUpdated($this->event->id));
         Toaster::success('Transaction successfully received.');
     }
 

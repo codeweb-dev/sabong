@@ -2,6 +2,8 @@
 
 namespace App\Livewire\User;
 
+use Livewire\Attributes\On;
+use App\Events\TransactionsUpdated;
 use App\Models\Event;
 use App\Models\Transaction as ModelTransaction;
 use App\Models\User;
@@ -27,6 +29,13 @@ class Transaction extends Component
         if ($this->admin) {
             $this->receiver_id = $this->admin->id;
         }
+    }
+
+    #[On('echo:transactions,.transactions.updated')]
+    public function handleTransactionsUpdated($data)
+    {
+        $this->resetPage();
+        $this->dispatch('$refresh');
     }
 
     private function user()
@@ -72,6 +81,7 @@ class Transaction extends Component
         ]);
 
         $this->reset(['amount', 'note']);
+        broadcast(new TransactionsUpdated($event->id));
         Toaster::success('Transaction successfully sent.');
         Flux::modal('transfer')->close();
     }
@@ -87,6 +97,7 @@ class Transaction extends Component
 
         $transaction->update(['status' => 'success']);
         $this->user()->increment('cash', $transaction->amount);
+        broadcast(new TransactionsUpdated($transaction->event_id));
 
         Toaster::success('You received ' . number_format($transaction->amount, 2));
     }
@@ -106,9 +117,10 @@ class Transaction extends Component
         }
 
         $transaction->update(['status' => 'cancelled']);
+        broadcast(new TransactionsUpdated($transaction->event_id));
 
         Toaster::success(
-            'Transaction of ₱' . number_format($transaction->amount, 2) . ' cancelled.'
+            'Transaction of ' . number_format($transaction->amount, 2) . ' cancelled.'
         );
     }
 
