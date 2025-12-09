@@ -3,6 +3,8 @@
 namespace App\Livewire\Admin;
 
 use Masmerise\Toaster\Toaster;
+use Livewire\Attributes\On;
+use App\Events\BetsUpdated;
 use Livewire\Component;
 use App\Models\Event;
 
@@ -23,6 +25,16 @@ class Betting extends Component
     public function search()
     {
         $this->render();
+    }
+
+    #[On('echo:bets,.bets.updated')]
+    public function handleBetsUpdated($data)
+    {
+        if ($this->event && ($data['eventId'] ?? null) !== $this->event->id) {
+            return;
+        }
+
+        $this->dispatch('$refresh');
     }
 
     public function clearFilters()
@@ -54,14 +66,20 @@ class Betting extends Component
 
         $bet->is_lock = true;
         $bet->save();
+
+        broadcast(new BetsUpdated($this->event->id));
         Toaster::success('Bet locked successfully.');
     }
+
 
     public function unlockBet($betId)
     {
         $bet = $this->event->bets()->find($betId);
+
         $bet->is_lock = false;
         $bet->save();
+
+        broadcast(new BetsUpdated($this->event->id));
         Toaster::success('Bet unlocked successfully.');
     }
 

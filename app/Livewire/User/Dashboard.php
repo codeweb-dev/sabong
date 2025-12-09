@@ -5,6 +5,8 @@ namespace App\Livewire\User;
 use Illuminate\Support\Facades\Auth;
 use App\Services\PrinterService;
 use Masmerise\Toaster\Toaster;
+use App\Events\BetsUpdated;
+use Livewire\Attributes\On;
 use App\Events\BetPlaced;
 use Livewire\Component;
 use App\HandlesPayouts;
@@ -46,6 +48,16 @@ class Dashboard extends Component
             ->get();
         $this->loadActiveFight();
         $this->loadUserBets();
+    }
+
+    #[On('echo:bets,.bets.updated')]
+    public function handleBetsUpdated($data)
+    {
+        $this->cashOnHand = $this->user()->cash;
+        $this->loadActiveFight();
+        $this->loadUserBets();
+
+        $this->dispatch('$refresh');
     }
 
     private function user()
@@ -161,6 +173,7 @@ class Dashboard extends Component
         $bet->fight?->decrement($bet->side . '_bet', $bet->amount);
         $bet->delete();
         broadcast(new BetPlaced($bet->fight->fresh()));
+        broadcast(new BetPlaced($bet->fight->fresh()));
 
         $this->cashOnHand = $user->cash;
         $this->loadUserBets();
@@ -274,6 +287,7 @@ class Dashboard extends Component
         ]);
 
         broadcast(new BetPlaced($this->activeFight->fresh()));
+        broadcast(new BetsUpdated($this->activeFight->event_id));
 
         $this->amount = null;
         $this->cashOnHand = $user->fresh()->cash;
@@ -328,6 +342,8 @@ class Dashboard extends Component
             'claimed_by' => $user->id,
             'status'     => 'paid',
         ]);
+
+        broadcast(new BetsUpdated($bet->fight->event_id));
 
         $this->cashOnHand = $user->cash;
         $this->previewBet = null;
