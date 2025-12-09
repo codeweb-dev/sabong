@@ -15,17 +15,13 @@ class Betting extends Component
 
     public $total_bets = 0;
     public $total_payout = 0;
+    public $total_unpaid = 0;
 
     public $teller_name = '';
     public $ticket_number = '';
     public $fight = 'all';
     public $side = 'all';
     public $status = 'all';
-
-    public function search()
-    {
-        $this->render();
-    }
 
     #[On('echo:bets,.bets.updated')]
     public function handleBetsUpdated($data)
@@ -44,7 +40,6 @@ class Betting extends Component
         $this->fight = 'all';
         $this->side = 'all';
         $this->status = 'all';
-        $this->search();
     }
 
     public function allPropertiesEmpty()
@@ -131,11 +126,13 @@ class Betting extends Component
 
         $this->total_bets = $this->bets->sum('amount');
         $this->total_payout = $this->bets->where('is_win', true)->sum('payout_amount');
+        $this->total_unpaid = $this->bets->where('is_win', true)->where('status', 'unpaid')->sum('payout_amount');
 
         return view('livewire.admin.betting', [
             'bets' => $this->bets,
             'total_bets' => $this->total_bets,
             'total_payout' => $this->total_payout,
+            'total_unpaid' => $this->total_unpaid,
         ]);
     }
 }

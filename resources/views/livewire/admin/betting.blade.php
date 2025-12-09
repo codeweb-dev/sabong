@@ -12,24 +12,28 @@
                         <span>total payout:</span>
                         <span>{{ $total_payout }}</span>
                     </p>
+                    <p class="flex justify-between">
+                        <span>total unpaid:</span>
+                        <span>{{ $total_unpaid }}</span>
+                    </p>
                 </div>
             </div>
             <div>
-                <div class="flex justify-between items-center gap-3 mt-2">
+                <div class="flex justify-between items-center gap-3 mt-6">
                     <div class="flex flex-col gap-1 flex-1">
                         <p class="text-center">TELLER NAME</p>
-                        <flux:input wire:model="teller_name" />
+                        <flux:input wire:model.live.debounce.300ms="teller_name" />
                     </div>
                     <div class="flex flex-col gap-1 flex-1">
                         <p class="text-center">TICKET NUMBER</p>
-                        <flux:input wire:model="ticket_number" />
+                        <flux:input wire:model.live.debounce.300ms="ticket_number" />
                     </div>
                 </div>
             </div>
             <div class="flex items-center gap-3">
                 <div class="flex flex-col gap-1 flex-1">
                     <p class="text-center">Fight</p>
-                    <flux:select wire:model="fight" class="">
+                    <flux:select wire:model.live.debounce.300ms="fight" class="">
                         <flux:select.option value="all">All</flux:select.option>
                         @if ($this->event)
                             @foreach ($this->event->fights as $fight)
@@ -42,7 +46,7 @@
 
                 <div class="flex flex-col gap-1 flex-1">
                     <p class="text-center">Side</p>
-                    <flux:select wire:model="side" class="">
+                    <flux:select wire:model.live.debounce.300ms="side" class="">
                         <flux:select.option value="all">All</flux:select.option>
                         <flux:select.option value="meron">Meron</flux:select.option>
                         <flux:select.option value="wala">Wala</flux:select.option>
@@ -51,7 +55,7 @@
 
                 <div class="flex flex-col gap-1 flex-1">
                     <p class="text-center">Status</p>
-                    <flux:select wire:model="status" class="">
+                    <flux:select wire:model.live.debounce.300ms="status" class="">
                         <flux:select.option value="all">All</flux:select.option>
                         <flux:select.option value="ongoing">Ongoing</flux:select.option>
                         <flux:select.option value="paid">Paid</flux:select.option>
@@ -60,7 +64,6 @@
                 </div>
 
                 <div class="mt-7 flex items-center gap-2">
-                    <flux:button wire:click="search">Search</flux:button>
                     @if (!$this->allPropertiesEmpty())
                         <flux:button wire:click="clearFilters" icon="x-mark" />
                     @endif
@@ -93,8 +96,7 @@
                         </thead>
                         <tbody>
                             @foreach ($bets as $bet)
-                                <tr
-                                    class="hover:bg-white/5 bg-black/5 transition-all">
+                                <tr class="hover:bg-white/5 bg-black/5 transition-all">
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                                         {{ $bet->fight->fight_number }}</td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
