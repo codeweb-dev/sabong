@@ -9,6 +9,7 @@ use App\Events\FightUpdated;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use App\Models\Event;
+use Flux\Flux;
 
 class Dashboard extends Component
 {
@@ -108,6 +109,36 @@ class Dashboard extends Component
 
         $this->activeFight->update(['status' => 'start']);
         $this->broadcastRefresh();
+    }
+
+    public function addFight()
+    {
+        if (!$this->currentEvent) {
+            Toaster::error('No ongoing event to add a fight to.');
+            return;
+        }
+
+        $lastFightNumber = $this->currentEvent->fights()
+            ->max('fight_number');
+
+        $nextFightNumber = $lastFightNumber ? $lastFightNumber + 1 : 1;
+
+        $fight = $this->currentEvent->fights()->create([
+            'fight_number' => $nextFightNumber,
+            'status'       => 'pending',
+            'meron'        => false,
+            'wala'         => false,
+        ]);
+
+        $this->currentEvent->increment('no_of_fights');
+        $this->currentEvent->load('fights');
+        $this->refreshFights();
+        $this->loadFighterNames();
+
+        broadcast(new FightUpdated($fight));
+
+        Flux::modal('add-fight')->close();
+        Toaster::success("Fight #{$nextFightNumber} added to {$this->currentEvent->event_name}.");
     }
 
     public function openBet()

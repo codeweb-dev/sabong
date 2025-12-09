@@ -51,7 +51,42 @@
             </div>
         </div>
 
-        <p class="text-lg sm:text-xl uppercase">fight history</p>
+        <div class="flex gap-3 items-center">
+            <p class="text-lg sm:text-xl uppercase">fight history</p>
+
+            <flux:modal.trigger name="add-fight">
+                <flux:button class="uppercase">
+                    add fight
+                </flux:button>
+            </flux:modal.trigger>
+
+            <flux:modal name="add-fight" class="min-w-[22rem]">
+                <div class="space-y-6">
+                    <div>
+                        <flux:heading size="lg">
+                            Add new fight
+                        </flux:heading>
+
+                        <flux:text class="mt-2">
+                            This will add a new pending fight to the current event
+                            <strong>{{ $currentEvent?->event_name }}</strong>.
+                        </flux:text>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <flux:spacer />
+                        <flux:modal.close>
+                            <flux:button variant="ghost">Cancel</flux:button>
+                        </flux:modal.close>
+
+                        <flux:button wire:click="addFight" class="uppercase">
+                            confirm
+                        </flux:button>
+                    </div>
+                </div>
+            </flux:modal>
+        </div>
+
         <div class="overflow-x-auto">
             <x-table class="min-w-full">
                 <thead class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
