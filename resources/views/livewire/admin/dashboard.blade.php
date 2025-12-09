@@ -133,7 +133,7 @@
                         <flux:input label="Event Name" wire:model='event_name' />
                         <flux:textarea label="Description" wire:model='description' />
                         <flux:input label="No. Of Fights" type="number" wire:model='no_of_fights' />
-                        <flux:input label="Revolving" wire:model='revolving' />
+                        <flux:input label="Revolving" mask:dynamic="$money($input)" wire:model='revolving' />
 
                         <div class="flex">
                             <flux:spacer />

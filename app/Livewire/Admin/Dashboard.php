@@ -74,6 +74,10 @@ class Dashboard extends Component
 
     public function save()
     {
+        $cleanRevolving = str_replace([',', ' '], '', $this->revolving);
+
+        $this->revolving = $cleanRevolving;
+
         $validated = $this->validate([
             'event_name'   => 'required|string|max:255',
             'description'  => 'nullable|string',
@@ -81,6 +85,7 @@ class Dashboard extends Component
             'revolving'    => 'required|numeric|min:0',
         ]);
 
+        $validated['revolving'] = $cleanRevolving;
         $event = Event::create($validated);
 
         $this->initializeFights($event);
@@ -89,6 +94,7 @@ class Dashboard extends Component
         $this->loadEvents();
         Flux::modal('create-event')->close();
     }
+
 
     public function startEvent()
     {
