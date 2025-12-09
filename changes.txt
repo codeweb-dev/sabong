@@ -1,0 +1,5 @@
+make it live reverb
+done - transaction user/admin
+done - betting(admin)/dashboard(user)
+
+make the coh of user is based on the event so that would be like a new database for coh, because the coh of the users is based on the event

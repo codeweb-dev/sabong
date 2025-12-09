@@ -171,41 +171,50 @@
         <div class="flex-1">
             <p class="text-lg sm:text-xl ">Teller Summary</p>
             <div class="overflow-x-auto">
-                <x-table class="min-w-full">
-                    <thead
-                        class="border-b dark:border-white/10 border-black/10 hover:bg-white/5 bg-black/5 transition-all">
-                        <tr>
-                            <th class="px-2 sm:px-3 py-3  text-center text-xs sm:text-sm">Teller Name</th>
-                            <th class="px-2 sm:px-3 py-3  text-center text-xs sm:text-sm">Coh</th>
-                            <th class="px-2 sm:px-3 py-3  text-center text-xs sm:text-sm">Cash In</th>
-                            <th class="px-2 sm:px-3 py-3  text-center text-xs sm:text-sm">Cash Out</th>
-                            <th class="px-2 sm:px-3 py-3  text-center text-xs sm:text-sm">Total Bets</th>
-                            <th class="px-2 sm:px-3 py-3  text-center text-xs sm:text-sm">Total Payout</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($userSummaries as $summary)
-                            <tr class="hover:bg-white/5 bg-black/5 transition-all">
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm ">
-                                    {{ $summary['user']->username }}
-                                </td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
-                                    {{ number_format($summary['user']->cash ?? 0, 0) }}
-                                </td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
-                                    {{ number_format($summary['cash_in'] ?? 0, 0) }}</td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
-                                    {{ number_format($summary['cash_out'] ?? 0, 0) }}</td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
-                                    {{ number_format($summary['total_bets'] ?? 0, 0) }}
-                                </td>
-                                <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
-                                    {{ number_format($summary['total_payout'] ?? 0, 0) }}
-                                </td>
+                @if ($event && $userSummaries->isNotEmpty())
+                    <x-table class="min-w-full">
+                        <thead
+                            class="border-b dark:border-white/10 hover:bg-white/5 bg-black/5 transition-all">
+                            <tr>
+                                <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">Teller Name</th>
+                                <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">Coh</th>
+                                <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">Cash In</th>
+                                <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">Cash Out</th>
+                                <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">Total Bets</th>
+                                <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">Total Payout</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </x-table>
+                        </thead>
+                        <tbody>
+                            @foreach ($userSummaries as $summary)
+                                <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm ">
+                                        {{ $summary['user']->username }}
+                                    </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                        {{ number_format($summary['user']->cash ?? 0, 0) }}
+                                    </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                        {{ number_format($summary['cash_in'] ?? 0, 0) }}
+                                    </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                        {{ number_format($summary['cash_out'] ?? 0, 0) }}
+                                    </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                        {{ number_format($summary['total_bets'] ?? 0, 0) }}
+                                    </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
+                                        {{ number_format($summary['total_payout'] ?? 0, 0) }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </x-table>
+                @else
+                    <div class="flex flex-col items-center justify-center gap-4 py-6">
+                        <flux:icon.archive-box class="size-12" />
+                        <flux:heading class="">No teller summary. No ongoing event.</flux:heading>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

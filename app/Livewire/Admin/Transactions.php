@@ -162,11 +162,23 @@ class Transactions extends Component
 
         $eventId = $this->event?->id;
 
+        if (!$eventId) {
+            $userSummaries = collect();
+
+            return view('livewire.admin.transactions', compact('transactions', 'userSummaries'));
+        }
+
         $users = User::role('user')->get();
 
         $userSummaries = $users->map(function ($user) use ($eventId) {
-            $cashIn = $user->receivedTransactions->where('status', 'success')->sum('amount');
-            $cashOut = $user->sentTransactions->sum('amount');
+            $cashIn = Transaction::where('event_id', $eventId)
+                ->where('receiver_id', $user->id)
+                ->where('status', 'success')
+                ->sum('amount');
+
+            $cashOut = Transaction::where('event_id', $eventId)
+                ->where('sender_id', $user->id)
+                ->sum('amount');
 
             $totalPayout = $user->bets()
                 ->whereHas('fight', function ($q) use ($eventId) {
@@ -182,10 +194,10 @@ class Transactions extends Component
                 ->sum('amount');
 
             return [
-                'user' => $user,
-                'cash_in' => $cashIn,
-                'cash_out' => $cashOut,
-                'total_bets' => $totalBets,
+                'user'         => $user,
+                'cash_in'      => $cashIn,
+                'cash_out'     => $cashOut,
+                'total_bets'   => $totalBets,
                 'total_payout' => $totalPayout,
             ];
         });
