@@ -88,7 +88,7 @@ class Transaction extends Component
         $transaction->update(['status' => 'success']);
         $this->user()->increment('cash', $transaction->amount);
 
-        Toaster::success('You received ₱' . number_format($transaction->amount, 2));
+        Toaster::success('You received ' . number_format($transaction->amount, 2));
     }
 
     public function cancelTransaction($id)

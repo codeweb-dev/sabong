@@ -42,7 +42,7 @@
                 <div>
                     <flux:heading size="lg" class="text-sm sm:text-base">Confirm Bet</flux:heading>
                     <flux:text class="mt-2 ">
-                        You are about to place a bet ₱{{ $amount }} on <strong
+                        You are about to place a bet {{ $amount }} on <strong
                             class=" text-red-400">Meron</strong>. Are you sure you want to continue?
                     </flux:text>
                 </div>

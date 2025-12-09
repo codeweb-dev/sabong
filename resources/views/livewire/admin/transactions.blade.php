@@ -169,7 +169,7 @@
         </div>
 
         <div class="flex-1">
-            <p class="text-lg sm:text-xl ">Transaction History</p>
+            <p class="text-lg sm:text-xl ">Teller Summary</p>
             <div class="overflow-x-auto">
                 <x-table class="min-w-full">
                     <thead

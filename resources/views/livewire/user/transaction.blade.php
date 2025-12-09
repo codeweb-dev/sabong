@@ -49,7 +49,7 @@
 
                 <tr class="bg-black/5 hover:bg-white/5 transition">
                     <td class="px-3 py-4 text-center">{{ $t->sender->username }}</td>
-                    <td class="px-3 py-4 text-center">₱{{ number_format($t->amount, 2) }}</td>
+                    <td class="px-3 py-4 text-center">{{ number_format($t->amount, 2) }}</td>
                     <td class="px-3 py-4 text-center">{{ $t->receiver->username }}</td>
                     <td class="px-3 py-4 text-center">{{ $t->note }}</td>
                     <td class="px-3 py-4 text-center">{{ ucfirst($t->status) }}</td>
