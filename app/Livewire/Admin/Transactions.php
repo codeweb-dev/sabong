@@ -165,7 +165,7 @@ class Transactions extends Component
         $users = User::role('user')->get();
 
         $userSummaries = $users->map(function ($user) use ($eventId) {
-            $cashIn = $user->receivedTransactions->sum('amount');
+            $cashIn = $user->receivedTransactions->where('status', 'success')->sum('amount');
             $cashOut = $user->sentTransactions->sum('amount');
 
             $totalPayout = $user->bets()
