@@ -28,7 +28,7 @@
 
         <!-- Desktop User Menu -->
         <flux:dropdown position="top" align="end">
-            <flux:profile class="cursor-pointer" :initials="auth()->user()->initials()" />
+            <flux:profile class="cursor-pointer" :initials="auth()->user()->initials()" :name="auth()->user()->username" />
 
             <flux:menu>
                 <flux:menu.radio.group>

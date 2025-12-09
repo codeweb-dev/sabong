@@ -6,7 +6,7 @@
 @source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
 @source '../../vendor/livewire/flux/stubs/**/*.blade.php';
 
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&);
 
 * {
     text-transform: uppercase;
@@ -35,7 +35,7 @@
 }
 
 @layer theme {
-    .dark {
+    :root {
         --color-accent: var(--color-white);
         --color-accent-content: var(--color-white);
         --color-accent-foreground: var(--color-neutral-800);
