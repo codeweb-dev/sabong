@@ -64,13 +64,17 @@ class Betting extends Component
             return;
         }
 
+        if ($bet->status == 'paid') {
+            Toaster::error('Only unclaimed bets can be locked.');
+            return;
+        }
+
         $bet->is_lock = true;
         $bet->save();
 
         broadcast(new BetsUpdated($this->event->id));
         Toaster::success('Bet locked successfully.');
     }
-
 
     public function unlockBet($betId)
     {
