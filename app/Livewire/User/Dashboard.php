@@ -17,7 +17,7 @@ class Dashboard extends Component
     use HandlesPayouts;
 
     public $cashOnHand;
-    public $amount = 0;
+    public $amount = null;
     public $activeFight;
     public $bets = [];
     public $fights = [];
@@ -275,7 +275,7 @@ class Dashboard extends Component
 
         broadcast(new BetPlaced($this->activeFight->fresh()));
 
-        $this->amount = 0;
+        $this->amount = null;
         $this->cashOnHand = $user->fresh()->cash;
         $this->loadUserBets();
 

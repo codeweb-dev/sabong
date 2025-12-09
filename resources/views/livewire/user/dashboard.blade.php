@@ -23,14 +23,14 @@
 
         <div class="grid grid-cols-2 gap-3">
             <flux:modal.trigger name="meron-confirmation-modal">
-                <flux:button :disabled="$activeFight && !$activeFight->meron" class="text-sm sm:text-base w-full"
+                <flux:button :disabled="!$activeFight" class="text-sm sm:text-base w-full"
                     variant="{{ $activeFight && !$activeFight->meron ? 'danger' : 'primary' }}">
                     Meron
                 </flux:button>
             </flux:modal.trigger>
 
             <flux:modal.trigger name="wala-confirmation-modal">
-                <flux:button :disabled="$activeFight && !$activeFight->wala" class="text-sm sm:text-base w-full"
+                <flux:button :disabled="!$activeFight" class="text-sm sm:text-base w-full"
                     variant="{{ $activeFight && !$activeFight->wala ? 'danger' : 'primary' }}">
                     Wala
                 </flux:button>
