@@ -199,61 +199,113 @@
                     </flux:button>
                 </div>
 
-                <flux:modal name="preview-modal" class="md:w-96">
+                <flux:modal name="preview-modal" class="w-full max-w-3xl lg:max-w-4xl">
                     <div class="space-y-6">
-                        <div>
-                            <flux:heading size="lg">Preview Print</flux:heading>
+                        <div class="flex items-center gap-4">
+                            <flux:heading size="lg" class="text-xl sm:text-2xl font-bold">
+                                Preview Print
+                            </flux:heading>
+
+                            @if ($previewBet)
+                                <p class="text-xs sm:text-sm text-zinc-400">
+                                    Ticket #{{ $previewBet->ticket_no }}
+                                </p>
+                            @endif
                         </div>
 
                         <div wire:loading.flex wire:target="loadPreview"
-                            class="flex flex-col items-center justify-center pt-3">
-                            <flux:icon.loading />
-                            <p class="mt-4 text-sm animate-pulse">Loading...</p>
+                            class="flex flex-col items-center justify-center py-10">
+                            <flux:icon.loading class="size-8 sm:size-10" />
+                            <p class="mt-4 text-sm sm:text-base animate-pulse">Loading preview...</p>
                         </div>
 
                         <div wire:loading.remove wire:target="loadPreview">
                             @if ($previewBet)
                                 <div
-                                    class="bg-white text-black p-4 rounded-lg shadow-md w-full max-w-sm sm:max-w-md lg:max-w-lg font-mono text-left border border-gray-300">
-                                    <div class="text-center mb-2">
-                                        <p class="text-xl font-bold">{{ strtoupper($previewBet->side) }}</p>
-                                        <hr class="border-gray-400 my-2">
+                                    class="bg-zinc-100 text-zinc-900 p-6 sm:p-8 rounded-2xl shadow-lg border border-zinc-300 w-full max-w-2xl mx-auto">
+
+                                    <div class="text-center mb-4 sm:mb-6">
+                                        <p class="text-2xl sm:text-3xl font-extrabold tracking-wide">
+                                            {{ strtoupper($previewBet->side) }}
+                                        </p>
+                                        <p class="text-xs sm:text-sm text-zinc-500 mt-1 uppercase tracking-[0.15em]">
+                                            bet receipt
+                                        </p>
+                                        <hr class="border-zinc-300 my-3 sm:my-4">
                                     </div>
 
-                                    <p><strong>Inputed By:</strong> {{ $previewBet->user->username }}</p>
-                                    <p><strong>Ticket No:</strong> {{ $previewBet->ticket_no }}</p>
-                                    <p><strong>Fight No:</strong> {{ $previewBet->fight->fight_number }}</p>
-                                    <p><strong>Amount:</strong> {{ number_format($previewBet->amount, 2) }}</p>
+                                    <div class="space-y-3 sm:space-y-4 text-sm sm:text-base">
+                                        <div class="flex items-center gap-4">
+                                            <span class="font-semibold">Inputed By:</span>
+                                            <span class="font-medium text-right">
+                                                {{ $previewBet->user->username }}
+                                            </span>
+                                        </div>
 
-                                    @if ($previewBet->is_win)
-                                        <p><strong>Payout:</strong> <span
-                                                class="text-green-600">{{ number_format($previewBet->payout_amount, 2) }}</span>
+                                        <div class="flex items-center gap-4">
+                                            <span class="font-semibold">Ticket No:</span>
+                                            <span class="font-medium text-right">
+                                                {{ $previewBet->ticket_no }}
+                                            </span>
+                                        </div>
+
+                                        <div class="flex items-center gap-4">
+                                            <span class="font-semibold">Fight No:</span>
+                                            <span class="font-medium text-right">
+                                                {{ $previewBet->fight->fight_number }}
+                                            </span>
+                                        </div>
+
+                                        <div class="flex items-center gap-4">
+                                            <span class="font-semibold">Amount:</span>
+                                            <span class="font-bold text-lg sm:text-xl text-right">
+                                                {{ number_format($previewBet->amount, 2) }}
+                                            </span>
+                                        </div>
+
+                                        @if ($previewBet->is_win)
+                                            <div class="flex items-center gap-4">
+                                                <span class="font-semibold">Payout:</span>
+                                                <span
+                                                    class="font-extrabold text-lg sm:text-xl text-green-700 text-right">
+                                                    {{ number_format($previewBet->payout_amount, 2) }}
+                                                </span>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    @if ($previewBet->is_claimed)
+                                        <p
+                                            class="text-red-600 font-extrabold text-center mt-4 sm:mt-5 text-base sm:text-lg tracking-wide">
+                                            *** ALREADY CLAIMED ***
                                         </p>
                                     @endif
 
-                                    @if ($previewBet->is_claimed)
-                                        <p class="text-red-600 font-bold text-center">*** ALREADY CLAIMED ***</p>
-                                    @endif
+                                    <hr class="border-zinc-300 my-4 sm:my-5">
 
-                                    <hr class="border-gray-300 my-2">
-
-                                    <p class="text-center text-xs text-gray-700">
+                                    <p class="text-center text-xs sm:text-sm text-zinc-600">
                                         {{ $previewBet->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
                                     </p>
 
-                                    <div class="flex justify-center mt-3">
-                                        <p class="barcode">*{{ $previewBet->ticket_no }}*</p>
+                                    <div class="flex justify-center mt-4 sm:mt-5">
+                                        <p class="barcode font-mono text-lg sm:text-2xl tracking-[0.25em]">
+                                            *{{ $previewBet->ticket_no }}*
+                                        </p>
                                     </div>
 
-                                    <p class="text-center text-sm mt-3 font-semibold">Thank you for betting!
+                                    <p class="text-center text-sm sm:text-base mt-5 font-semibold tracking-wide">
+                                        Thank you for betting!
                                     </p>
                                 </div>
                             @else
-                                <flux:text>No receipt</flux:text>
+                                <flux:text class="text-center text-sm sm:text-base">
+                                    No receipt to preview.
+                                </flux:text>
                             @endif
                         </div>
 
-                        <flux:button wire:click="payout" class="text-sm sm:text-base w-full">
+                        <flux:button wire:click="payout"
+                            class="text-sm sm:text-base w-full py-3 sm:py-4 text-center font-semibold uppercase tracking-wide">
                             Submit Payout
                         </flux:button>
                     </div>
