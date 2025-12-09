@@ -50,6 +50,8 @@ class Welcome extends Component
             $this->currentEvent = null;
             $this->fights = [];
             $this->activeFight = null;
+            $this->totalMeronBet = 0;
+            $this->totalWalaBet = 0;
 
             $this->showWinnerOverlay = false;
             $this->winnerSide = null;
@@ -61,15 +63,16 @@ class Welcome extends Component
     {
         if ($this->currentEvent && $this->currentEvent->id === $data['eventId']) {
             $this->fights = Event::with('fights')->find($data['eventId'])->fights;
+
             $this->activeFight = collect($this->fights)
                 ->first(fn($fight) => in_array($fight->status, ['start', 'open', 'close']));
 
             if ($this->activeFight) {
                 $this->activeFight->fighter_a = $data['fighterA'];
                 $this->activeFight->fighter_b = $data['fighterB'];
-                $this->loadBetTotals();
             }
 
+            $this->loadBetTotals();
             $this->updateWinnerOverlay();
         }
     }
