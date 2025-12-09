@@ -179,7 +179,8 @@
                             <flux:icon.qr-code class="w-6 h-6 text-green-500" />
                             <p class="text-green-500 font-semibold">Scan Mode Active</p>
                         </div>
-                        <flux:input id="barcode-field" wire:model.live.300ms="scannedBarcode"
+
+                        <flux:input id="barcode-field" autofocus wire:model.live.300ms="scannedBarcode"
                             placeholder="Waiting for barcode scan..."
                             onkeydown="if(event.key === 'Enter') event.preventDefault();" />
                     </div>
@@ -376,6 +377,28 @@
                     event.preventDefault();
                     walaConfirm.click();
                 }
+            }
+        });
+
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('focus-barcode', () => {
+                const input = document.getElementById('barcode-field');
+                if (input) {
+                    input.focus();
+                    if (input.select) input.select();
+                }
+            });
+        });
+
+        document.addEventListener('focusout', (event) => {
+            if (event.target && event.target.id === 'barcode-field') {
+                setTimeout(() => {
+                    const input = document.getElementById('barcode-field');
+                    if (input) {
+                        input.focus();
+                        if (input.select) input.select();
+                    }
+                }, 0);
             }
         });
     </script>

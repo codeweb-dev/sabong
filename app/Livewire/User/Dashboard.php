@@ -81,6 +81,11 @@ class Dashboard extends Component
     {
         $this->scanMode = !$this->scanMode;
         $this->scannedBarcode = '';
+
+        if ($this->scanMode) {
+            $this->dispatch('focus-barcode');
+        }
+
         Toaster::info($this->scanMode ? 'Scan mode activated.' : 'Scan mode deactivated.');
     }
 
@@ -92,12 +97,15 @@ class Dashboard extends Component
 
         if (strlen($ticketNo) >= 3) {
             $this->previewTicketNo = $ticketNo;
-            $this->scanMode = false;
             $this->scannedBarcode = '';
-
             $this->loadPreview();
+
             if ($this->previewBet) {
                 $this->payout();
+            }
+
+            if ($this->scanMode) {
+                $this->dispatch('focus-barcode');
             }
         }
     }
