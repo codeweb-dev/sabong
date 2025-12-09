@@ -15,21 +15,23 @@
 
         <div>
             <flux:input.group>
-                <flux:input wire:model="amount" type="number" placeholder="Enter Here" class="text-sm sm:text-base" />
-                <flux:button wire:click="clearAmount" icon="x-mark" class="text-sm sm:text-base">clear
+                <flux:input id="amount-input" wire:model="amount" type="number" placeholder="Enter Here"
+                    class="text-sm sm:text-base" />
+                <flux:button id="clear-amount-btn" wire:click="clearAmount" icon="x-mark" class="text-sm sm:text-base">
+                    clear
                 </flux:button>
             </flux:input.group>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-            <flux:modal.trigger name="meron-confirmation-modal">
+            <flux:modal.trigger id="meron-btn" name="meron-confirmation-modal">
                 <flux:button :disabled="!$activeFight" class="text-sm sm:text-base w-full"
                     variant="{{ $activeFight && !$activeFight->meron ? 'danger' : 'primary' }}">
                     Meron
                 </flux:button>
             </flux:modal.trigger>
 
-            <flux:modal.trigger name="wala-confirmation-modal">
+            <flux:modal.trigger id="wala-btn" name="wala-confirmation-modal">
                 <flux:button :disabled="!$activeFight" class="text-sm sm:text-base w-full"
                     variant="{{ $activeFight && !$activeFight->wala ? 'danger' : 'primary' }}">
                     Wala
@@ -54,7 +56,7 @@
                         <flux:button variant="ghost" class="text-sm sm:text-base">Cancel</flux:button>
                     </flux:modal.close>
 
-                    <flux:button wire:click="placeBet('meron')" class="text-sm sm:text-base">
+                    <flux:button id="meron-confirm-btn" wire:click="placeBet('meron')" class="text-sm sm:text-base">
                         Confirm
                     </flux:button>
                 </div>
@@ -78,7 +80,7 @@
                         <flux:button variant="ghost" class="text-sm sm:text-base">Cancel</flux:button>
                     </flux:modal.close>
 
-                    <flux:button wire:click="placeBet('wala')" class="text-sm sm:text-base">
+                    <flux:button id="meron-confirm-btn" wire:click="placeBet('wala')" class="text-sm sm:text-base">
                         Confirm
                     </flux:button>
                 </div>
@@ -313,4 +315,68 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('keydown', function(event) {
+            const tag = event.target.tagName;
+            const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag);
+            const amountInput = document.getElementById('amount-input');
+
+            const unfocus = () => {
+                if (amountInput) amountInput.blur();
+            };
+
+            // SPACE → focus amount field
+            if (event.code === 'Space' && !isTyping) {
+                event.preventDefault();
+                if (amountInput) {
+                    amountInput.focus();
+                    amountInput.select();
+                }
+            }
+
+            // "-" → clear amount + unfocus
+            if (event.key === '-' && !isTyping) {
+                event.preventDefault();
+                unfocus();
+
+                const clearBtn = document.getElementById('clear-amount-btn');
+                if (clearBtn) clearBtn.click();
+            }
+
+            // "/" → open Meron modal + unfocus
+            if (event.key === '/' && !isTyping) {
+                event.preventDefault();
+                unfocus();
+
+                const meronBtn = document.getElementById('meron-btn');
+                if (meronBtn && !meronBtn.disabled) meronBtn.click();
+            }
+
+            // "*" → open Wala modal + unfocus
+            if ((event.key === '*' || (event.shiftKey && event.key === '8')) && !isTyping) {
+                event.preventDefault();
+                unfocus();
+
+                const walaBtn = document.getElementById('wala-btn');
+                if (walaBtn && !walaBtn.disabled) walaBtn.click();
+            }
+
+            // ENTER → confirm modal
+            if (event.key === 'Enter' && !isTyping) {
+                const isVisible = (el) => el && el.offsetParent !== null;
+
+                const meronConfirm = document.getElementById('meron-confirm-btn');
+                const walaConfirm = document.getElementById('wala-confirm-btn');
+
+                if (isVisible(meronConfirm)) {
+                    event.preventDefault();
+                    meronConfirm.click();
+                } else if (isVisible(walaConfirm)) {
+                    event.preventDefault();
+                    walaConfirm.click();
+                }
+            }
+        });
+    </script>
 </div>
