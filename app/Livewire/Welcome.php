@@ -25,6 +25,9 @@ class Welcome extends Component
     public $walaPayoutDisplay = null;
     public $showPayout = false;
 
+    public $showWinnerOverlay = false;
+    public $winnerSide = null;
+
     public function mount($smallScreen = false)
     {
         $this->isSmallScreen = $smallScreen;
@@ -47,6 +50,9 @@ class Welcome extends Component
             $this->currentEvent = null;
             $this->fights = [];
             $this->activeFight = null;
+
+            $this->showWinnerOverlay = false;
+            $this->winnerSide = null;
         }
     }
 
@@ -63,6 +69,8 @@ class Welcome extends Component
                 $this->activeFight->fighter_b = $data['fighterB'];
                 $this->loadBetTotals();
             }
+
+            $this->updateWinnerOverlay();
         }
     }
 
@@ -89,6 +97,17 @@ class Welcome extends Component
         }
     }
 
+    private function updateWinnerOverlay()
+    {
+        if ($this->activeFight && $this->activeFight->winner) {
+            $this->winnerSide = $this->activeFight->winner;
+            $this->showWinnerOverlay = true;
+        } else {
+            $this->winnerSide = null;
+            $this->showWinnerOverlay = false;
+        }
+    }
+
     private function loadOngoingEvent()
     {
         $this->currentEvent = Event::where('status', 'ongoing')
@@ -99,6 +118,7 @@ class Welcome extends Component
         $this->fights = $this->currentEvent?->fights ?? [];
         $this->activeFight = $this->getActiveFight();
         $this->loadBetTotals();
+        $this->updateWinnerOverlay();
     }
 
     private function getActiveFight()

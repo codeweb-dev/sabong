@@ -1,5 +1,54 @@
 <div
     class="{{ $isSmallScreen ? 'transform scale-50 origin-top-left w-[200%] h-[200%] overflow-hidden rounded-lg' : '' }}">
+    @if ($showWinnerOverlay && $activeFight)
+        @php
+            $winner = $winnerSide;
+            $winnerGradient = match ($winner) {
+                'meron' => 'from-red-500 to-red-800',
+                'wala' => 'from-blue-500 to-blue-800',
+                'draw' => 'from-emerald-400 to-emerald-700',
+                'cancel' => 'from-zinc-400 to-zinc-700',
+                default => 'from-zinc-500 to-zinc-800',
+            };
+        @endphp
+
+        <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/70">
+            <div class="relative w-[90%] max-w-6xl rounded-3xl shadow-2xl overflow-hidden border border-white/10">
+                <div class="bg-gradient-to-br {{ $winnerGradient }} px-6 py-8 md:px-12 md:py-26 text-center text-white">
+                    <p class="text-xs md:text-base uppercase tracking-[0.35em] text-white/80 mb-3">
+                        Official Result
+                    </p>
+
+                    <p class="text-4xl md:text-8xl font-extrabold mb-2">
+                        {{ strtoupper($winnerSide) }}
+                    </p>
+
+                    <p class="text-sm md:text-xl opacity-80 mb-4">
+                        Fight #{{ $activeFight?->fight_number ?? '-' }}
+                    </p>
+
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-6 mt-4">
+                        <div class="flex-1">
+                            <p class="uppercase tracking-[0.2em] text-white/70 mb-1">Meron</p>
+                            <p class="text-xl md:text-2xl font-semibold">
+                                {{ $activeFight?->fighter_a ?? 'Fighter Meron' }}
+                            </p>
+                        </div>
+
+                        <div class="hidden md:block h-10 w-px bg-white/20"></div>
+
+                        <div class="flex-1">
+                            <p class="uppercase tracking-[0.2em] text-white/70 mb-1">Wala</p>
+                            <p class="text-xl md:text-2xl font-semibold">
+                                {{ $activeFight?->fighter_b ?? 'Fighter Wala' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     @if ($currentEvent)
         <div class="flex flex-col md:flex-row h-screen {{ $isSmallScreen ? 'bg-zinc-900' : '' }}">
             <aside
