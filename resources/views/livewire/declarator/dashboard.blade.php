@@ -162,7 +162,7 @@
                 start fight
             </flux:button>
 
-            <flux:button :disabled="$activeFight?->status !== 'start'" class="uppercase" wire:click="openBet">
+            <flux:button class="uppercase" wire:click="openBet">
                 open bet
             </flux:button>
         </div>
@@ -180,7 +180,7 @@
         </div>
 
         <div class="flex flex-col items-center justify-center gap-3">
-            <flux:button class="uppercase" wire:click="closeBet" :disabled="$activeFight?->status !== 'open'">
+            <flux:button class="uppercase" wire:click="closeBet">
                 close bet
             </flux:button>
         </div>

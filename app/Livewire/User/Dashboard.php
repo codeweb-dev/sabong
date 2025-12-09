@@ -173,7 +173,7 @@ class Dashboard extends Component
         $bet->fight?->decrement($bet->side . '_bet', $bet->amount);
         $bet->delete();
         broadcast(new BetPlaced($bet->fight->fresh()));
-        broadcast(new BetPlaced($bet->fight->fresh()));
+        broadcast(new BetsUpdated($bet->fight->event_id));
 
         $this->cashOnHand = $user->cash;
         $this->loadUserBets();

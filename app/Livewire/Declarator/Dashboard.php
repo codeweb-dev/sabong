@@ -6,6 +6,7 @@ use App\Services\PayoutService;
 use App\Services\RefundService;
 use Masmerise\Toaster\Toaster;
 use App\Events\FightUpdated;
+use App\Events\BetsUpdated;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use App\Models\Event;
@@ -23,6 +24,13 @@ class Dashboard extends Component
     public function mount()
     {
         $this->loadOngoingEvent();
+    }
+
+    #[On('echo:bets,.bets.updated')]
+    public function handleBetsUpdated($data)
+    {
+        $this->loadOngoingEvent();
+        $this->dispatch('$refresh');
     }
 
     #[On('echo:events,.event.started')]
@@ -94,8 +102,16 @@ class Dashboard extends Component
 
     private function broadcastRefresh()
     {
-        broadcast(new FightUpdated($this->activeFight->fresh()));
+        $fight = $this->activeFight?->fresh();
+
+        if ($fight) {
+            broadcast(new FightUpdated($fight));
+            broadcast(new BetsUpdated($fight->event_id));
+        }
+
         $this->refreshFights();
+        $this->loadFighterNames();
+        $this->dispatch('$refresh');
     }
 
     public function startFight()
@@ -136,6 +152,7 @@ class Dashboard extends Component
         $this->loadFighterNames();
 
         broadcast(new FightUpdated($fight));
+        broadcast(new BetsUpdated($this->currentEvent->id));
 
         Flux::modal('add-fight')->close();
         Toaster::success("Fight #{$nextFightNumber} added to {$this->currentEvent->event_name}.");
@@ -145,12 +162,11 @@ class Dashboard extends Component
     {
         if (!$this->ensureActiveFight()) return;
 
-        if ($this->activeFight->status !== 'start') {
-            Toaster::error('Fight must be started first.');
-            return;
-        }
-
-        $this->activeFight->update(['status' => 'open']);
+        $this->activeFight->update([
+            'meron' => true,
+            'wala' => true,
+            'status' => 'open',
+        ]);
         $this->broadcastRefresh();
     }
 
@@ -182,6 +198,7 @@ class Dashboard extends Component
 
         $this->activeFight->update(['status' => 'done']);
         broadcast(new FightUpdated($this->activeFight));
+        broadcast(new BetsUpdated($this->activeFight->event_id));
 
         $nextFight = $this->currentEvent->fights()
             ->where('status', 'pending')
