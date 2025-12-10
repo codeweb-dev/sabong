@@ -71,17 +71,22 @@ class Dashboard extends Component
             ->first()
             ?->event;
 
-        if (!$event) return;
+        if (!$event) {
+            return;
+        }
 
-        $event->users()->updateExistingPivot(Auth::id(), [
-            'cash' => $this->getEventCash() + $amount
+        $currentCash = $this->getEventCash();
+        $newCash     = $currentCash + $amount;
+
+        $event->users()->syncWithoutDetaching([
+            Auth::id() => ['cash' => $newCash],
         ]);
     }
 
     #[On('echo:bets,.bets.updated')]
     public function handleBetsUpdated($data)
     {
-        $this->cashOnHand = $this->user()->cash;
+        $this->cashOnHand = $this->getEventCash();
         $this->loadActiveFight();
         $this->loadUserBets();
 
@@ -377,7 +382,7 @@ class Dashboard extends Component
             return;
         }
 
-        $user->decrement('cash', $bet->payout_amount);
+        $this->updateEventCash(-$bet->payout_amount);
 
         $bet->update([
             'is_claimed' => true,
