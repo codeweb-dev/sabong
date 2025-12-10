@@ -22,7 +22,6 @@ class DatabaseSeeder extends Seeder
         $admin = User::firstOrCreate(
             [
                 'username' => 'admin',
-                'cash'     => 0,
                 'password' => '1234',
             ]
         );
@@ -30,7 +29,6 @@ class DatabaseSeeder extends Seeder
         $declarator = User::firstOrCreate(
             [
                 'username' => 'declarator',
-                'cash'     => 0,
                 'password' => '1234',
             ]
         );
@@ -38,7 +36,6 @@ class DatabaseSeeder extends Seeder
         $user = User::firstOrCreate(
             [
                 'username' => 'user',
-                'cash'     => 0,
                 'password' => '1234',
             ]
         );

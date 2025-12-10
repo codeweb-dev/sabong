@@ -69,4 +69,9 @@ class Event extends Model
         return $this->hasManyThrough(Bet::class, Fight::class)
             ->where('side', 'wala');
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class)->withPivot('cash')->withTimestamps();
+    }
 }

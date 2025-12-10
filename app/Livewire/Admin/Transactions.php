@@ -97,6 +97,7 @@ class Transactions extends Component
             return;
         }
 
+        // Admin sending cash to user: event revolving goes down immediately
         $this->event->decrement('revolving', $this->amount);
 
         Transaction::create([
@@ -105,10 +106,14 @@ class Transactions extends Component
             'receiver_id' => $this->receiver_id,
             'amount'      => $this->amount,
             'note'        => $this->note,
+            // stays 'pending' until user claims it
         ]);
 
+        // Track total transfer on event
         $this->event->increment('total_transfer', $this->amount);
         $this->event->refresh();
+
+        // ❌ NO pivot update here – user cash will change ONLY when they receive it
 
         $this->reset(['amount', 'receiver_id', 'note']);
         $this->loadTransactions();
@@ -134,8 +139,12 @@ class Transactions extends Component
         $transaction->update(['status' => 'success']);
 
         if ($this->event) {
+            // User -> Admin direction:
+            // when admin receives cash from user, revolving goes up
             $this->event->increment('revolving', $transaction->amount);
             $this->event->refresh();
+
+            // Do NOT touch pivot here; user-side already deducted when sending.
         }
 
         $this->loadTransactions();
@@ -164,13 +173,16 @@ class Transactions extends Component
 
         if (!$eventId) {
             $userSummaries = collect();
-
             return view('livewire.admin.transactions', compact('transactions', 'userSummaries'));
         }
 
+        $this->event->load('users');
         $users = User::role('user')->get();
 
         $userSummaries = $users->map(function ($user) use ($eventId) {
+            $eventUser = $this->event->users->firstWhere('id', $user->id);
+            $userCash  = $eventUser?->pivot->cash ?? 0;
+
             $cashIn = Transaction::where('event_id', $eventId)
                 ->where('receiver_id', $user->id)
                 ->where('status', 'success')
@@ -195,6 +207,7 @@ class Transactions extends Component
 
             return [
                 'user'         => $user,
+                'cash'         => $userCash,
                 'cash_in'      => $cashIn,
                 'cash_out'     => $cashOut,
                 'total_bets'   => $totalBets,

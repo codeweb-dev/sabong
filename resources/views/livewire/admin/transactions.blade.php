@@ -191,7 +191,7 @@
                                         {{ $summary['user']->username }}
                                     </td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
-                                        {{ number_format($summary['user']->cash ?? 0, 0) }}
+                                        {{ number_format($summary['cash'] ?? 0, 0) }}
                                     </td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
                                         {{ number_format($summary['cash_in'] ?? 0, 0) }}

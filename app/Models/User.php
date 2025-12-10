@@ -66,4 +66,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Bet::class);
     }
+
+    public function events()
+    {
+        return $this->belongsToMany(Event::class)->withPivot('cash')->withTimestamps();
+    }
 }

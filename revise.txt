@@ -1,0 +1,4 @@
+40k - sa event 1
+20k - sa event 2
+
+sa short pag add ng column na short katabi ni status

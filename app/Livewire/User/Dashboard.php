@@ -39,15 +39,43 @@ class Dashboard extends Component
 
     public function mount()
     {
-        $user = Auth::user();
-        $this->cashOnHand = $user->cash;
-        $this->fights = Fight::whereHas('event', function ($q) {
-            $q->where('status', 'ongoing');
-        })
+        $this->cashOnHand = $this->getEventCash();
+
+        $this->fights = Fight::whereHas('event', fn($q) => $q->where('status', 'ongoing'))
             ->orderBy('fight_number')
             ->get();
+
         $this->loadActiveFight();
         $this->loadUserBets();
+    }
+
+    private function getEventCash()
+    {
+        $event = Fight::whereHas('event', fn($q) => $q->where('status', 'ongoing'))
+            ->first()
+            ?->event;
+
+        if (!$event) {
+            return 0;
+        }
+
+        return $event->users()
+            ->where('user_id', Auth::id())
+            ->first()
+            ?->pivot->cash ?? 0;
+    }
+
+    private function updateEventCash($amount)
+    {
+        $event = Fight::whereHas('event', fn($q) => $q->where('status', 'ongoing'))
+            ->first()
+            ?->event;
+
+        if (!$event) return;
+
+        $event->users()->updateExistingPivot(Auth::id(), [
+            'cash' => $this->getEventCash() + $amount
+        ]);
     }
 
     #[On('echo:bets,.bets.updated')]
@@ -176,14 +204,12 @@ class Dashboard extends Component
             return;
         }
 
-        $user = $this->user();
-        $user->decrement('cash', $bet->amount);
+        $this->updateEventCash(-$bet->amount);
         $bet->fight?->decrement($bet->side . '_bet', $bet->amount);
         $bet->delete();
         broadcast(new BetPlaced($bet->fight->fresh()));
         broadcast(new BetsUpdated($bet->fight->event_id));
-
-        $this->cashOnHand = $user->cash;
+        $this->cashOnHand = $this->getEventCash();
         $this->loadUserBets();
 
         Toaster::success('Bet canceled & refunded!');
@@ -246,6 +272,7 @@ class Dashboard extends Component
             )->close();
             return;
         }
+
         if (!in_array($side, ['meron', 'wala'])) {
             Toaster::error('Invalid side.');
             Flux::modal(
@@ -255,6 +282,7 @@ class Dashboard extends Component
             )->close();
             return;
         }
+
         if (!$this->activeFight->$side) {
             Toaster::error(ucfirst($side) . ' is locked.');
             Flux::modal(
@@ -264,6 +292,7 @@ class Dashboard extends Component
             )->close();
             return;
         }
+
         if ($this->activeFight->status !== 'open') {
             Toaster::error('Betting closed.');
             Flux::modal(
@@ -273,6 +302,7 @@ class Dashboard extends Component
             )->close();
             return;
         }
+
         if ($this->amount <= 0) {
             Toaster::error('Invalid amount.');
             Flux::modal(
@@ -283,7 +313,7 @@ class Dashboard extends Component
             return;
         }
 
-        $user->increment('cash', $this->amount);
+        $this->updateEventCash($this->amount);
         $this->activeFight->increment($side . '_bet', $this->amount);
         $payouts = $this->calculateAndSavePayout($this->activeFight->fresh());
 
@@ -298,7 +328,7 @@ class Dashboard extends Component
         broadcast(new BetsUpdated($this->activeFight->event_id));
 
         $this->amount = null;
-        $this->cashOnHand = $user->fresh()->cash;
+        $this->cashOnHand = $this->getEventCash();
         $this->loadUserBets();
 
         $this->meronPayoutDisplay = $payouts['meronDisplay'];
@@ -329,15 +359,20 @@ class Dashboard extends Component
             Toaster::error('Already claimed.');
             return;
         }
+
         if ($bet->is_lock) {
             Toaster::error('Bet is locked. Please contact the admin for assistance.');
             return;
         }
+
         if (!$bet->is_win) {
             Toaster::error('Not a winning ticket.');
             return;
         }
-        if ($user->cash < $bet->payout_amount) {
+
+        $currentCash = $this->getEventCash();
+
+        if ($currentCash < $bet->payout_amount) {
             Toaster::error('Insufficient cash.');
             return;
         }
@@ -353,7 +388,7 @@ class Dashboard extends Component
 
         broadcast(new BetsUpdated($bet->fight->event_id));
 
-        $this->cashOnHand = $user->cash;
+        $this->cashOnHand = $this->getEventCash();
         $this->previewBet = null;
 
         Toaster::success('Payout successful!');

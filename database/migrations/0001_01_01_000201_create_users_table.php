@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('username')->unique();
             $table->string('password');
-            $table->decimal('cash', 10, 2)->default(0);
             $table->rememberToken();
             $table->timestamps();
         });

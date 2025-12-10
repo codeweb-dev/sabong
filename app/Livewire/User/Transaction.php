@@ -43,6 +43,39 @@ class Transaction extends Component
         return Auth::user();
     }
 
+    /**
+     * Get current ongoing event (if any)
+     */
+    private function currentEvent(): ?Event
+    {
+        return Event::where('status', 'ongoing')->latest()->first();
+    }
+
+    /**
+     * Get this user's cash for a specific event (from pivot)
+     */
+    private function getUserEventCash(Event $event, int $userId): float
+    {
+        $eventUser = $event->users()
+            ->where('user_id', $userId)
+            ->first();
+
+        return (float) ($eventUser?->pivot->cash ?? 0);
+    }
+
+    /**
+     * Adjust this user's cash for a specific event (± delta)
+     */
+    private function adjustUserEventCash(Event $event, int $userId, float $delta): void
+    {
+        $currentCash = $this->getUserEventCash($event, $userId);
+        $newCash     = $currentCash + $delta;
+
+        $event->users()->syncWithoutDetaching([
+            $userId => ['cash' => $newCash],
+        ]);
+    }
+
     private function findTransactionForReceiver($id)
     {
         return ModelTransaction::where('id', $id)
@@ -50,6 +83,9 @@ class Transaction extends Component
             ->first();
     }
 
+    /**
+     * USER → ADMIN: send cash up to admin (event-based)
+     */
     public function createTransaction()
     {
         $this->validate([
@@ -57,19 +93,24 @@ class Transaction extends Component
             'note'   => 'required|string|max:255',
         ]);
 
-        $user = $this->user();
-        if ($user->cash < $this->amount) {
-            $this->failAndClose('transfer', 'Insufficient balance.');
-            return;
-        }
+        $user  = $this->user();
+        $event = $this->currentEvent();
 
-        $event = Event::where('status', 'ongoing')->latest()->first();
         if (!$event) {
             $this->failAndClose('transfer', 'No ongoing event found.');
             return;
         }
 
-        $user->decrement('cash', $this->amount);
+        // ✅ Check event-based cash instead of users.cash
+        $currentCash = $this->getUserEventCash($event, $user->id);
+
+        if ($currentCash < $this->amount) {
+            $this->failAndClose('transfer', 'Insufficient balance.');
+            return;
+        }
+
+        // ✅ Deduct from user's event cash (pivot)
+        $this->adjustUserEventCash($event, $user->id, -$this->amount);
 
         ModelTransaction::create([
             'event_id'    => $event->id,
@@ -86,6 +127,10 @@ class Transaction extends Component
         Flux::modal('transfer')->close();
     }
 
+    /**
+     * ADMIN → USER: user receives money that admin sent
+     * (admin created it in admin panel; here user "claims" it)
+     */
     public function receiveTransaction($id)
     {
         $transaction = $this->findTransactionForReceiver($id);
@@ -95,13 +140,25 @@ class Transaction extends Component
             return;
         }
 
+        $event = Event::find($transaction->event_id);
+
+        if (!$event) {
+            Toaster::error('Related event not found.');
+            return;
+        }
+
         $transaction->update(['status' => 'success']);
-        $this->user()->increment('cash', $transaction->amount);
+        $this->adjustUserEventCash($event, $this->user()->id, $transaction->amount);
+
         broadcast(new TransactionsUpdated($transaction->event_id));
 
         Toaster::success('You received ' . number_format($transaction->amount, 2));
     }
 
+    /**
+     * Cancel a transaction where THIS user is the receiver
+     * (usually admin → user pending transfer)
+     */
     public function cancelTransaction($id)
     {
         $transaction = $this->findTransactionForReceiver($id);
@@ -112,6 +169,7 @@ class Transaction extends Component
 
         $event = Event::find($transaction->event_id);
         if ($event) {
+            // Same logic as before: just fix the event side
             $event->increment('revolving', $transaction->amount);
             $event->decrement('total_transfer', $transaction->amount);
         }
