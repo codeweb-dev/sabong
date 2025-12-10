@@ -165,7 +165,7 @@
                 Gross Income: {{ $selectedEvent->total_gross_income ?? 0 }}
             </flux:heading>
             <flux:heading size="lg" class="uppercase">
-                System Over: {{ $selectedEvent->total_system_overflow ?? 0 }}
+                System Over: {{ number_format($selectedEvent->total_system_over_applied ?? 0, 2) }}
             </flux:heading>
         </div>
     </div>

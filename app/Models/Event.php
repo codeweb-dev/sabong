@@ -31,7 +31,7 @@ class Event extends Model
             'fight_id',
             'id',
             'id'
-        );
+        )->where('system_overs.status', 'applied');
     }
 
     public function bets()

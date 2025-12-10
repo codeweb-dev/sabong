@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('fight_id')->constrained('fights')->onDelete('cascade');
             $table->enum('side', ['meron', 'wala']);
             $table->decimal('overflow', 10, 5)->default(0);
+            $table->decimal('total_system_over', 12, 5)->default(0);
+            $table->enum('status', ['pending', 'applied'])->default('pending');
             $table->timestamps();
         });
     }
