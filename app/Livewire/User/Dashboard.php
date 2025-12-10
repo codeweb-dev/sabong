@@ -12,6 +12,7 @@ use Livewire\Component;
 use App\HandlesPayouts;
 use App\Models\Fight;
 use App\Models\Bet;
+use App\Models\SystemOver;
 use Flux\Flux;
 
 class Dashboard extends Component
@@ -357,7 +358,7 @@ class Dashboard extends Component
             return;
         }
 
-        $bet = $this->previewBet;
+        $bet  = $this->previewBet;
         $user = $this->user();
 
         if ($bet->is_claimed) {
@@ -375,14 +376,38 @@ class Dashboard extends Component
             return;
         }
 
+        // ----- REAL PAYOUT vs CASH PAYOUT -----
+        $rawPayout = (float) $bet->payout_amount;      // e.g. 20599.20
+        $cashPayout = floor($rawPayout);               // e.g. 20599
+        $systemRemainder = round($rawPayout - $cashPayout, 2); // e.g. 0.20
+
+        // Make sure we have enough event cash for the *cash* part
         $currentCash = $this->getEventCash();
 
-        if ($currentCash < $bet->payout_amount) {
+        if ($currentCash < $cashPayout) {
             Toaster::error('Insufficient cash.');
             return;
         }
 
-        $this->updateEventCash(-$bet->payout_amount);
+        // ----- PUSH REMAINDER INTO SYSTEM_OVER -----
+        // We store the remainder on the row of this fight + side (winner side)
+        $systemOver = SystemOver::firstOrCreate(
+            [
+                'fight_id' => $bet->fight_id,
+                'side'     => $bet->side, // winner side of this ticket
+            ],
+            [
+                'overflow'          => 0,
+                'total_system_over' => 0,
+                'status'            => 'applied', // or 'pending', up to you
+            ]
+        );
+
+        if ($systemRemainder > 0) {
+            $systemOver->increment('total_system_over', $systemRemainder);
+        }
+
+        $this->updateEventCash(-$cashPayout);
 
         $bet->update([
             'is_claimed' => true,

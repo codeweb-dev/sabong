@@ -271,7 +271,7 @@
                                                 <span class="font-semibold">Payout:</span>
                                                 <span
                                                     class="font-extrabold text-lg sm:text-xl text-green-700 text-right">
-                                                    {{ number_format($previewBet->payout_amount, 2) }}
+                                                    {{ number_format($previewBet->payout_amount ?? 0, 0) }}
                                                 </span>
                                             </div>
                                         @endif
