@@ -18,6 +18,7 @@ class Bet extends Model
         'is_win',
         'is_lock',
         'payout_amount',
+        'short_amount',
         'is_claimed',
         'status',
         'claimed_at',

@@ -16,10 +16,14 @@
                         <span>total unpaid:</span>
                         <span>{{ $total_unpaid }}</span>
                     </p>
+                    <p class="flex justify-between">
+                        <span>total short:</span>
+                        <span>{{ $total_short }}</span>
+                    </p>
                 </div>
             </div>
             <div>
-                <div class="flex justify-between items-center gap-3 mt-6">
+                <div class="flex justify-between items-center gap-3 mt-9">
                     <div class="flex flex-col gap-1 flex-1">
                         <p class="text-center">TELLER NAME</p>
                         <flux:input wire:model.live.debounce.300ms="teller_name" />
@@ -60,6 +64,7 @@
                         <flux:select.option value="ongoing">Ongoing</flux:select.option>
                         <flux:select.option value="paid">Paid</flux:select.option>
                         <flux:select.option value="unpaid">Unpaid</flux:select.option>
+                        <flux:select.option value="short">Short</flux:select.option>
                     </flux:select>
                 </div>
 
@@ -89,6 +94,8 @@
                                 </th>
                                 <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">amount payout
                                 </th>
+                                <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">amount short
+                                </th>
                                 <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">status</th>
                                 <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">date</th>
                                 <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">action</th>
@@ -96,7 +103,7 @@
                         </thead>
                         <tbody>
                             @foreach ($bets as $bet)
-                                <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                                <tr class="{{ $bet->status === 'short' ? 'bg-red-500/20 hover:bg-red-500/30' : 'hover:bg-white/5 bg-black/5' }} transition-all">
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                                         {{ $bet->fight->fight_number }}</td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
@@ -115,6 +122,9 @@
                                         {{ $bet->claimedBy?->username ?? 0 }}</td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                                         {{ $bet->is_win ? number_format($bet->payout_amount ?? 0, 0) : 0 }}
+                                    </td>
+                                    <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
+                                        {{ number_format($bet->short_amount ?? 0, 0) }}
                                     </td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center ">
                                         {{ $bet->status }}

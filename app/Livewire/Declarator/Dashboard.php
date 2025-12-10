@@ -256,13 +256,17 @@ class Dashboard extends Component
             return;
         }
 
+        // 👇 remember old winner before changing
+        $previousWinner = $this->activeFight->winner;
+
         $this->activeFight->update(['winner' => $winner]);
 
         if (in_array($winner, ['draw', 'cancel'])) {
             RefundService::refundFight($this->activeFight);
             Toaster::info('All bets refunded.');
         } else {
-            PayoutService::processWinner($this->activeFight, $winner);
+            // 👇 pass previous winner
+            PayoutService::processWinner($this->activeFight->fresh(), $winner, $previousWinner);
             Toaster::success(strtoupper($winner) . ' wins! Payouts ready.');
         }
 

@@ -9,8 +9,36 @@ use App\Models\SystemOver;
 
 class PayoutService
 {
-    public static function processWinner(Fight $fight, $winner)
+    public static function processWinner(Fight $fight, $winner, $previousWinner = null)
     {
+        // -------------------------------------------------
+        // 1) If winner changed, convert already-paid bets on
+        //    old winner side into "short"
+        // -------------------------------------------------
+        if (
+            $previousWinner &&
+            $previousWinner !== $winner &&
+            in_array($previousWinner, ['meron', 'wala'])
+        ) {
+            $paidWrongBets = Bet::where('fight_id', $fight->id)
+                ->where('side', $previousWinner)
+                ->where('is_claimed', true)
+                ->where('status', 'paid')
+                ->get();
+
+            foreach ($paidWrongBets as $wrongBet) {
+                $wrongBet->short_amount  = ($wrongBet->short_amount ?? 0) + ($wrongBet->payout_amount ?? 0);
+                $wrongBet->payout_amount = 0;
+                $wrongBet->status        = 'short'; // <-- important
+                $wrongBet->is_win        = false;
+                $wrongBet->is_claimed    = true;  // <-- keep claimed
+                $wrongBet->save();
+            }
+        }
+
+        // -------------------------------------------------
+        // 2) reload all bets AFTER the short adjustments
+        // -------------------------------------------------
         $bets = Bet::where('fight_id', $fight->id)->get();
 
         $winnerSide = $winner;
@@ -27,11 +55,9 @@ class PayoutService
             ['income' => $pool * $commission]
         );
 
-        // Odds from your updated OddsService
         $meronOdds = OddsService::compute($net, $totalMeron);
         $walaOdds  = OddsService::compute($net, $totalWala);
 
-        // Compute total_system_over per side
         $meronTotalSystemOver = $totalMeron > 0
             ? $totalMeron * $meronOdds['overflow']
             : 0;
@@ -40,11 +66,9 @@ class PayoutService
             ? $totalWala * $walaOdds['overflow']
             : 0;
 
-        // Winner-only application
         $isMeronWinner = ($winnerSide === 'meron');
         $isWalaWinner  = ($winnerSide === 'wala');
 
-        // MERON row
         SystemOver::updateOrCreate(
             ['fight_id' => $fight->id, 'side' => 'meron'],
             [
@@ -54,7 +78,6 @@ class PayoutService
             ]
         );
 
-        // WALA row
         SystemOver::updateOrCreate(
             ['fight_id' => $fight->id, 'side' => 'wala'],
             [
@@ -64,26 +87,41 @@ class PayoutService
             ]
         );
 
-        // Save payouts to fight
         $fight->update([
             'meron_payout' => $meronOdds['payout'],
             'wala_payout'  => $walaOdds['payout'],
         ]);
 
-        // Bets updates
+        // -------------------------------------------------
+        // 3) Apply new winner to all bets, but DO NOT
+        //    overwrite "short" status
+        // -------------------------------------------------
         foreach ($bets as $bet) {
             $isWin = $bet->side === $winnerSide;
 
+            $newPayout = $isWin
+                ? ($bet->amount * ($winnerSide === 'meron'
+                    ? $fight->meron_payout
+                    : $fight->wala_payout))
+                : 0;
+
+            // keep existing short bets as "short"
+            if ($bet->status === 'short') {
+                $status = 'short';
+            } else {
+                $status = $isWin ? 'unpaid' : 'not win';
+            }
+
             $bet->update([
-                'is_win'        => $isWin,
-                'payout_amount' => $isWin
-                    ? ($bet->amount * ($winnerSide === 'meron'
-                        ? $fight->meron_payout
-                        : $fight->wala_payout))
-                    : 0,
-                'is_claimed'    => false,
-                'claimed_at'    => null,
-                'status'        => $isWin ? 'unpaid' : 'not win',
+                'is_win'        => $bet->status === 'short' ? false : $isWin,
+                'payout_amount' => $bet->status === 'short' ? 0 : $newPayout,
+                'is_claimed'    => $bet->status === 'short'
+                    ? true        // short bets stay claimed
+                    : ($isWin ? false : $bet->is_claimed),
+                'claimed_at'    => $bet->status === 'short'
+                    ? $bet->claimed_at // keep original claim time
+                    : ($isWin ? null : $bet->claimed_at),
+                'status'        => $status,
             ]);
         }
 
