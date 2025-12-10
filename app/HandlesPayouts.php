@@ -76,18 +76,18 @@ trait HandlesPayouts
     {
         if ($rawOdds <= 0) {
             return [
-                'display' => 0,
-                'system_over' => 0
+                'display'     => 0,
+                'system_over' => 0,
             ];
         }
 
-        $scaled = $rawOdds * 100;
-        $display = floor($scaled);
-        $systemOver = $scaled - $display;
+        $scaled  = $rawOdds * 100;      // 195.80525
+        $display = floor($scaled);      // 195
+        $systemOver = ($scaled - $display) / 100;   // 0.80525 / 100 = 0.0080525
 
         return [
-            'display' => $display,
-            'system_over' => $systemOver
+            'display'     => $display,    // 195
+            'system_over' => $systemOver, // 0.00805...
         ];
     }
 }
