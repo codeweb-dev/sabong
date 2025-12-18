@@ -91,6 +91,9 @@ class Transaction extends Component
      */
     public function createTransaction()
     {
+        $cleanAmount = str_replace([',', ' '], '', $this->amount ?? '');
+        $this->amount = $cleanAmount;
+
         $this->validate([
             'amount' => 'required|numeric|min:1',
             'note'   => 'required|string|max:255',

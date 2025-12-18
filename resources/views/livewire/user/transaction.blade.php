@@ -21,8 +21,8 @@
                     <flux:text class="mt-2">Send an amount to the admin.</flux:text>
                 </div>
 
-                <flux:input label="Amount - Current COH: {{ number_format($coh ?? 0, 0) }}" wire:model.defer="amount"
-                    placeholder="Enter amount" />
+                <flux:input label="Amount - Current COH: {{ number_format($coh ?? 0, 0) }}"
+                    mask:dynamic="$money($input)" placeholder="Enter amount" wire:model.defer="amount" />
 
                 <flux:field>
                     <flux:label>Receiver (Admin)</flux:label>
