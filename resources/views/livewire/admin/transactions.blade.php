@@ -78,7 +78,7 @@
                                 </thead>
                                 <tbody>
                                     @forelse ($userToAdminTransactions as $transaction)
-                                        <tr class="hover:bg-white/5 bg-black/5 transition-all">
+                                        <tr class="hover:bg-white/5 transition-all {{ $transaction->status === 'success' ? 'bg-green-400/20 hover:bg-green-500/30' : 'bg-black/5' }}">
                                             <td class="px-2 py-4 text-center">
                                                 {{ $transaction->sender->username }}
                                             </td>
