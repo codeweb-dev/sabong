@@ -13,15 +13,13 @@
             <flux:button wire:click="addAmount(10000)" icon="plus" class="text-sm sm:text-base">10,000</flux:button>
         </div>
 
-        <div>
-            <flux:input.group>
-                <flux:input id="amount-input" wire:model="amount" type="number" placeholder="Enter Here"
-                    class="text-sm sm:text-base" />
-                <flux:button id="clear-amount-btn" wire:click="clearAmount" icon="x-mark" class="text-sm sm:text-base">
-                    clear
-                </flux:button>
-            </flux:input.group>
-        </div>
+        <flux:input.group>
+            <flux:input id="amount-input" mask:dynamic="$money($input)" placeholder="Enter Here"
+                wire:model.defer="amount" class="text-sm sm:text-base" />
+            <flux:button id="clear-amount-btn" wire:click="clearAmount" icon="x-mark" class="text-sm sm:text-base">
+                clear
+            </flux:button>
+        </flux:input.group>
 
         <div class="grid grid-cols-2 gap-3">
             <flux:modal.trigger id="meron-btn" name="meron-confirmation-modal">
@@ -45,7 +43,8 @@
                     <flux:heading size="lg" class="text-sm sm:text-base">Confirm Bet</flux:heading>
                     <flux:text class="mt-2 ">
                         You are about to place a bet {{ $amount }} on <strong
-                            class=" text-red-400">Meron</strong>. Are you sure you want to continue?
+                            class=" text-red-400">Meron</strong>.
+                        Are you sure you want to continue?
                     </flux:text>
                 </div>
 

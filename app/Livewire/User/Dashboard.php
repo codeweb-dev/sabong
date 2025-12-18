@@ -20,7 +20,7 @@ class Dashboard extends Component
     use HandlesPayouts;
 
     public $cashOnHand;
-    public $amount = null;
+    public string $amount = '';
     public $activeFight;
     public $bets = [];
     public $fights = [];
@@ -38,14 +38,18 @@ class Dashboard extends Component
     public $scanMode = false;
     public $scannedBarcode = '';
 
+    private function cleanAmount(): float
+    {
+        $clean = str_replace([',', ' '], '', $this->amount ?? '0');
+        return is_numeric($clean) ? (float) $clean : 0;
+    }
+
     public function mount()
     {
         $this->cashOnHand = $this->getEventCash();
-
         $this->fights = Fight::whereHas('event', fn($q) => $q->where('status', 'ongoing'))
             ->orderBy('fight_number')
             ->get();
-
         $this->loadActiveFight();
         $this->loadUserBets();
     }
@@ -257,12 +261,14 @@ class Dashboard extends Component
 
     public function addAmount($value)
     {
-        $this->amount += (int) str_replace(',', '', $value);
+        $current = $this->cleanAmount();
+        $add     = (float) str_replace([',', ' '], '', (string) $value);
+        $this->amount = number_format($current + $add, 0, '.', ',');
     }
 
     public function clearAmount()
     {
-        $this->amount = 0;
+        $this->amount = '';
     }
 
     public function placeBet($side)
@@ -309,31 +315,29 @@ class Dashboard extends Component
             return;
         }
 
-        if ($this->amount <= 0) {
+        $betAmount = $this->cleanAmount();
+
+        if ($betAmount <= 0) {
             Toaster::error('Invalid amount.');
-            Flux::modal(
-                $side === 'meron'
-                    ? 'meron-confirmation-modal'
-                    : 'wala-confirmation-modal'
-            )->close();
+            Flux::modal($side === 'meron' ? 'meron-confirmation-modal' : 'wala-confirmation-modal')->close();
             return;
         }
 
-        $this->updateEventCash($this->amount);
-        $this->activeFight->increment($side . '_bet', $this->amount);
+        $this->updateEventCash($betAmount);
+        $this->activeFight->increment($side . '_bet', $betAmount);
         $payouts = $this->calculateAndSavePayout($this->activeFight->fresh());
 
         $bet = Bet::create([
             'user_id'  => $user->id,
             'fight_id' => $this->activeFight->id,
             'side'     => $side,
-            'amount'   => $this->amount,
+            'amount'   => $betAmount,
         ]);
 
         broadcast(new BetPlaced($this->activeFight->fresh()));
         broadcast(new BetsUpdated($this->activeFight->event_id));
 
-        $this->amount = null;
+        $this->amount = '';
         $this->cashOnHand = $this->getEventCash();
         $this->loadUserBets();
 
