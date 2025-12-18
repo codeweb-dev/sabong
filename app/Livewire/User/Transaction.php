@@ -5,6 +5,7 @@ namespace App\Livewire\User;
 use Livewire\Attributes\On;
 use App\Events\TransactionsUpdated;
 use App\Models\Event;
+use App\Models\Fight;
 use App\Models\Transaction as ModelTransaction;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,12 @@ class Transaction extends Component
     public $receiver_id;
     public $admin;
 
+    /**
+     * Use separate pagination names (important when you have 2 paginators)
+     */
+    public $receivedPage = 1;
+    public $sentPage = 1;
+
     public function mount()
     {
         $this->admin = User::role('admin')->first();
@@ -34,7 +41,9 @@ class Transaction extends Component
     #[On('echo:transactions,.transactions.updated')]
     public function handleTransactionsUpdated($data)
     {
-        $this->resetPage();
+        // refresh both paginators
+        $this->resetPage('receivedPage');
+        $this->resetPage('sentPage');
         $this->dispatch('$refresh');
     }
 
@@ -43,17 +52,11 @@ class Transaction extends Component
         return Auth::user();
     }
 
-    /**
-     * Get current ongoing event (if any)
-     */
     private function currentEvent(): ?Event
     {
         return Event::where('status', 'ongoing')->latest()->first();
     }
 
-    /**
-     * Get this user's cash for a specific event (from pivot)
-     */
     private function getUserEventCash(Event $event, int $userId): float
     {
         $eventUser = $event->users()
@@ -63,9 +66,6 @@ class Transaction extends Component
         return (float) ($eventUser?->pivot->cash ?? 0);
     }
 
-    /**
-     * Adjust this user's cash for a specific event (± delta)
-     */
     private function adjustUserEventCash(Event $event, int $userId, float $delta): void
     {
         $currentCash = $this->getUserEventCash($event, $userId);
@@ -76,6 +76,9 @@ class Transaction extends Component
         ]);
     }
 
+    /**
+     * Find transaction where current user is receiver
+     */
     private function findTransactionForReceiver($id)
     {
         return ModelTransaction::where('id', $id)
@@ -84,7 +87,7 @@ class Transaction extends Component
     }
 
     /**
-     * USER → ADMIN: send cash up to admin (event-based)
+     * USER → ADMIN (send money to admin)
      */
     public function createTransaction()
     {
@@ -101,7 +104,11 @@ class Transaction extends Component
             return;
         }
 
-        // ✅ Check event-based cash instead of users.cash
+        if (!$this->admin) {
+            $this->failAndClose('transfer', 'Admin not found.');
+            return;
+        }
+
         $currentCash = $this->getUserEventCash($event, $user->id);
 
         if ($currentCash < $this->amount) {
@@ -109,7 +116,7 @@ class Transaction extends Component
             return;
         }
 
-        // ✅ Deduct from user's event cash (pivot)
+        // deduct user cash (event pivot)
         $this->adjustUserEventCash($event, $user->id, -$this->amount);
 
         ModelTransaction::create([
@@ -128,8 +135,7 @@ class Transaction extends Component
     }
 
     /**
-     * ADMIN → USER: user receives money that admin sent
-     * (admin created it in admin panel; here user "claims" it)
+     * ADMIN → USER (user claims it)
      */
     public function receiveTransaction($id)
     {
@@ -151,17 +157,13 @@ class Transaction extends Component
         $this->adjustUserEventCash($event, $this->user()->id, $transaction->amount);
 
         broadcast(new TransactionsUpdated($transaction->event_id));
-
         Toaster::success('You received ' . number_format($transaction->amount, 2));
     }
 
-    /**
-     * Cancel a transaction where THIS user is the receiver
-     * (usually admin → user pending transfer)
-     */
     public function cancelTransaction($id)
     {
         $transaction = $this->findTransactionForReceiver($id);
+
         if (!$transaction || $transaction->status !== 'pending') {
             Toaster::error('Transaction cannot be cancelled.');
             return;
@@ -169,7 +171,6 @@ class Transaction extends Component
 
         $event = Event::find($transaction->event_id);
         if ($event) {
-            // Same logic as before: just fix the event side
             $event->increment('revolving', $transaction->amount);
             $event->decrement('total_transfer', $transaction->amount);
         }
@@ -177,9 +178,7 @@ class Transaction extends Component
         $transaction->update(['status' => 'cancelled']);
         broadcast(new TransactionsUpdated($transaction->event_id));
 
-        Toaster::success(
-            'Transaction of ' . number_format($transaction->amount, 2) . ' cancelled.'
-        );
+        Toaster::success('Transaction of ' . number_format($transaction->amount, 2) . ' cancelled.');
     }
 
     private function failAndClose($modal, $message)
@@ -188,13 +187,77 @@ class Transaction extends Component
         Flux::modal($modal)->close();
     }
 
+    private function getEventCash()
+    {
+        $event = Fight::whereHas('event', fn($q) => $q->where('status', 'ongoing'))
+            ->first()
+            ?->event;
+
+        if (!$event) {
+            return 0;
+        }
+
+        return $event->users()
+            ->where('user_id', Auth::id())
+            ->first()
+            ?->pivot->cash ?? 0;
+    }
+
+    private function findTransactionForSender($id)
+    {
+        return ModelTransaction::where('id', $id)
+            ->where('sender_id', $this->user()->id)
+            ->first();
+    }
+
+    public function cancelSentTransaction($id)
+    {
+        $transaction = $this->findTransactionForSender($id);
+
+        if (
+            !$transaction ||
+            $transaction->status !== 'pending' ||
+            ($this->admin && $transaction->receiver_id !== $this->admin->id)
+        ) {
+            Toaster::error('Transaction cannot be cancelled.');
+            return;
+        }
+
+        $event = Event::find($transaction->event_id);
+
+        if (!$event) {
+            Toaster::error('Related event not found.');
+            return;
+        }
+
+        $this->adjustUserEventCash($event, $this->user()->id, +$transaction->amount);
+        $transaction->update(['status' => 'cancelled']);
+        broadcast(new TransactionsUpdated($transaction->event_id));
+        Toaster::success('Cancelled and refunded ' . number_format($transaction->amount, 2));
+    }
+
     public function render()
     {
-        $transactions = ModelTransaction::with(['sender', 'receiver'])
+        $event   = $this->currentEvent();
+        $eventId = $event?->id;
+        $coh = $this->getEventCash();
+
+        $sentTransactions = ModelTransaction::with(['sender', 'receiver'])
+            ->when($eventId, fn($q) => $q->where('event_id', $eventId))
+            ->where('sender_id', $this->user()->id)
+            ->latest()
+            ->get();
+
+        $receivedTransactions = ModelTransaction::with(['sender', 'receiver'])
+            ->when($eventId, fn($q) => $q->where('event_id', $eventId))
             ->where('receiver_id', $this->user()->id)
             ->latest()
-            ->paginate(10);
+            ->get();
 
-        return view('livewire.user.transaction', compact('transactions'));
+        return view('livewire.user.transaction', compact(
+            'receivedTransactions',
+            'sentTransactions',
+            'coh',
+        ));
     }
 }
