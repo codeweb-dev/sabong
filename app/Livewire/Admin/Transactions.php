@@ -16,7 +16,7 @@ class Transactions extends Component
 {
     public ?Event $event = null;
     public $users = [];
-    public $amount;
+    public string $amount = '';
     public $receiver_id;
     public $note;
 
@@ -81,10 +81,9 @@ class Transactions extends Component
 
     public function createTransaction()
     {
-        if (!$this->event) {
-            $this->errorAndClose('You cannot transfer while there is no ongoing event.');
-            return;
-        }
+        $cleanAmount = str_replace([',', ' '], '', $this->amount);
+
+        $this->amount = $cleanAmount;
 
         $this->validate([
             'amount'       => 'required|numeric|min:1',
@@ -92,12 +91,15 @@ class Transactions extends Component
             'note'         => 'required|string|max:255',
         ]);
 
+        if (!$this->event) {
+            $this->errorAndClose('You cannot transfer while there is no ongoing event.');
+            return;
+        }
         if ($this->event->revolving < $this->amount) {
             Toaster::error('Insufficient revolving funds.');
             return;
         }
 
-        // Admin sending cash to user: event revolving goes down immediately
         $this->event->decrement('revolving', $this->amount);
 
         Transaction::create([
@@ -106,14 +108,10 @@ class Transactions extends Component
             'receiver_id' => $this->receiver_id,
             'amount'      => $this->amount,
             'note'        => $this->note,
-            // stays 'pending' until user claims it
         ]);
 
-        // Track total transfer on event
         $this->event->increment('total_transfer', $this->amount);
         $this->event->refresh();
-
-        // ❌ NO pivot update here – user cash will change ONLY when they receive it
 
         $this->reset(['amount', 'receiver_id', 'note']);
         $this->loadTransactions();
@@ -139,12 +137,8 @@ class Transactions extends Component
         $transaction->update(['status' => 'success']);
 
         if ($this->event) {
-            // User -> Admin direction:
-            // when admin receives cash from user, revolving goes up
             $this->event->increment('revolving', $transaction->amount);
             $this->event->refresh();
-
-            // Do NOT touch pivot here; user-side already deducted when sending.
         }
 
         $this->loadTransactions();

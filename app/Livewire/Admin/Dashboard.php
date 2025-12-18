@@ -95,7 +95,6 @@ class Dashboard extends Component
         Flux::modal('create-event')->close();
     }
 
-
     public function startEvent()
     {
         if (!$this->selectedEventId) {

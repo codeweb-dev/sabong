@@ -38,7 +38,8 @@
                                 </flux:text>
                             </div>
 
-                            <flux:input label="Amount" placeholder="Enter amount" wire:model.defer="amount" />
+                            <flux:input label="Amount" mask:dynamic="$money($input)" placeholder="Enter amount"
+                                wire:model.defer="amount" />
 
                             <flux:field>
                                 <flux:label>Receiver</flux:label>
@@ -173,8 +174,7 @@
             <div class="overflow-x-auto">
                 @if ($event && $userSummaries->isNotEmpty())
                     <x-table class="min-w-full">
-                        <thead
-                            class="border-b dark:border-white/10 hover:bg-white/5 bg-black/5 transition-all">
+                        <thead class="border-b dark:border-white/10 hover:bg-white/5 bg-black/5 transition-all">
                             <tr>
                                 <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">Teller Name</th>
                                 <th class="px-2 sm:px-3 py-3 text-center text-xs sm:text-sm">Coh</th>
