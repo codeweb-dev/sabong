@@ -63,6 +63,8 @@ class Transaction extends Component
             return;
         }
 
+        Toaster::info('Preparing your report...');
+
         return Excel::download(
             new TellerReportExport(Auth::id(), $event->id),
             'teller-report-' . $event->id . '-' . Auth::id() . '.xlsx'
