@@ -6,7 +6,7 @@
 @source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
 @source '../../vendor/livewire/flux/stubs/**/*.blade.php';
 
-@custom-variant dark (&);
+@custom-variant dark (&:where(.dark, .dark *));
 
 * {
     text-transform: uppercase;
@@ -35,7 +35,7 @@
 }
 
 @layer theme {
-    :root {
+    .dark {
         --color-accent: var(--color-white);
         --color-accent-content: var(--color-white);
         --color-accent-foreground: var(--color-neutral-800);
@@ -81,7 +81,7 @@ select:focus[data-flux-control] {
 }
 
 .barcode {
-    font-family: 'Libre Barcode 39 Text', cursive;
+    font-family: "Libre Barcode 39 Text", cursive;
     font-size: 36px;
     line-height: 1;
 }

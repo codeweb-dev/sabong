@@ -10,6 +10,8 @@
             <flux:modal.trigger name="received">
                 <flux:button>Received</flux:button>
             </flux:modal.trigger>
+
+            <flux:button wire:click="downloadReport">Print Report</flux:button>
         </div>
     </div>
 

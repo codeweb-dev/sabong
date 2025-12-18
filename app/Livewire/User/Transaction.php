@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Masmerise\Toaster\Toaster;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TellerReportExport;
 use Flux\Flux;
 
 class Transaction extends Component
@@ -50,6 +52,21 @@ class Transaction extends Component
     private function user()
     {
         return Auth::user();
+    }
+
+    public function downloadReport()
+    {
+        $event = $this->currentEvent();
+
+        if (!$event) {
+            Toaster::error('No ongoing event found.');
+            return;
+        }
+
+        return Excel::download(
+            new TellerReportExport(Auth::id(), $event->id),
+            'teller-report-' . $event->id . '-' . Auth::id() . '.xlsx'
+        );
     }
 
     private function currentEvent(): ?Event
