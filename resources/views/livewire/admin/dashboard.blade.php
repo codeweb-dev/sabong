@@ -151,6 +151,10 @@
             <flux:button wire:click="endEvent">End Event</flux:button>
         </div>
 
+        <div class="flex justify-center">
+            <flux:button wire:click="downloadReport">Download Report</flux:button>
+        </div>
+
         <div class="flex flex-col gap-3 py-3">
             <flux:heading size="lg" class="uppercase">
                 Total Meron Bet: {{ number_format($selectedEvent->total_bets_meron ?? 0, 2) }}

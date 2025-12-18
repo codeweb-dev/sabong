@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Admin;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\EventReportExport;
 use Masmerise\Toaster\Toaster;
 use App\Events\EventStarted;
 use App\Events\EventEnded;
@@ -24,6 +26,21 @@ class Dashboard extends Component
     public function mount()
     {
         $this->loadEvents();
+    }
+
+    public function downloadReport()
+    {
+        if (!$this->selectedEventId) {
+            Toaster::error("Please select an event first.");
+            return;
+        }
+
+        Toaster::info("Preparing download...");
+
+        return Excel::download(
+            new EventReportExport($this->selectedEventId),
+            'event-report-' . $this->selectedEventId . '.xlsx'
+        );
     }
 
     public function loadEvents()
