@@ -103,7 +103,8 @@
                         </thead>
                         <tbody>
                             @foreach ($bets as $bet)
-                                <tr class="{{ $bet->status === 'short' ? 'bg-red-500/20 hover:bg-red-500/30' : 'hover:bg-white/5 bg-black/5' }} transition-all">
+                                <tr
+                                    class="{{ $bet->status === 'short' ? 'bg-red-500/20 hover:bg-red-500/30' : 'hover:bg-white/5 bg-black/5' }} transition-all">
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                                         {{ $bet->fight->fight_number }}</td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
@@ -154,4 +155,10 @@
             </div>
         @endif
     </div>
+
+    @if ($bets && $bets->isNotEmpty())
+        <div class="mt-3">
+            {{ $bets->links() }}
+        </div>
+    @endif
 </div>

@@ -6,12 +6,14 @@ use Masmerise\Toaster\Toaster;
 use Livewire\Attributes\On;
 use App\Events\BetsUpdated;
 use Livewire\Component;
+use Livewire\WithPagination;
 use App\Models\Event;
 
 class Betting extends Component
 {
+    use WithPagination;
+
     public $event;
-    public $bets;
 
     public $total_bets = 0;
     public $total_payout = 0;
@@ -31,16 +33,8 @@ class Betting extends Component
             return;
         }
 
+        $this->resetPage(); // optional but nice
         $this->dispatch('$refresh');
-    }
-
-    public function clearFilters()
-    {
-        $this->teller_name = '';
-        $this->ticket_number = '';
-        $this->fight = 'all';
-        $this->side = 'all';
-        $this->status = 'all';
     }
 
     public function allPropertiesEmpty()
@@ -52,9 +46,27 @@ class Betting extends Component
             $this->status === 'all';
     }
 
+    public function updated($property)
+    {
+        // whenever any filter changes, go back to page 1
+        $this->resetPage();
+    }
+
+    public function clearFilters()
+    {
+        $this->teller_name = '';
+        $this->ticket_number = '';
+        $this->fight = 'all';
+        $this->side = 'all';
+        $this->status = 'all';
+
+        $this->resetPage();
+    }
+
     public function lockBet($betId)
     {
         $bet = $this->event->bets()->find($betId);
+
         if (!$bet->is_win) {
             Toaster::error('Bet can only be locked if it is a winning bet.');
             return;
@@ -85,19 +97,21 @@ class Betting extends Component
 
     public function render()
     {
-        $this->event = Event::where('status', 'ongoing')
-            ->latest()
-            ->first();
+        $this->event = Event::where('status', 'ongoing')->latest()->first();
 
         if (!$this->event) {
             return view('livewire.admin.betting', [
                 'bets' => collect(),
                 'total_bets' => 0,
                 'total_payout' => 0,
+                'total_unpaid' => 0,
+                'total_short' => 0,
             ]);
         }
 
-        $query = $this->event->bets()->with(['fight', 'user', 'claimedBy'])->orderBy('fight_id')->orderBy('id', 'asc');
+        $query = $this->event->bets()
+            ->with(['fight', 'user', 'claimedBy'])
+            ->orderBy('created_at', 'desc');
 
         if ($this->teller_name) {
             $query->whereHas('user', function ($q) {
@@ -123,15 +137,19 @@ class Betting extends Component
             $query->where('bets.status', $this->status);
         }
 
-        $this->bets = $query->get();
+        // totals must be computed from the FULL filtered query (not just page 1)
+        $allBets = (clone $query)->get();
 
-        $this->total_bets = $this->bets->sum('amount');
-        $this->total_payout = $this->bets->where('is_win', true)->where('status', 'paid')->sum('payout_amount');
-        $this->total_unpaid = $this->bets->where('is_win', true)->where('status', 'unpaid')->sum('payout_amount');
-        $this->total_short = $this->bets->where('is_win', false)->where('status', 'short')->sum('short_amount');
+        $this->total_bets   = $allBets->sum('amount');
+        $this->total_payout = $allBets->where('is_win', true)->where('status', 'paid')->sum('payout_amount');
+        $this->total_unpaid = $allBets->where('is_win', true)->where('status', 'unpaid')->sum('payout_amount');
+        $this->total_short  = $allBets->where('is_win', false)->where('status', 'short')->sum('short_amount');
+
+        // paginate (DO NOT store in $this->bets)
+        $bets = $query->simplePaginate(5);
 
         return view('livewire.admin.betting', [
-            'bets' => $this->bets,
+            'bets' => $bets,
             'total_bets' => $this->total_bets,
             'total_payout' => $this->total_payout,
             'total_unpaid' => $this->total_unpaid,
