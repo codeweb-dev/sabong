@@ -153,17 +153,21 @@
 
         <div class="flex flex-col gap-3 py-3">
             <flux:heading size="lg" class="uppercase">
-                Total Meron Bet: {{ $selectedEvent->total_bets_meron ?? 0 }}
+                Total Meron Bet: {{ number_format($selectedEvent->total_bets_meron ?? 0, 2) }}
             </flux:heading>
+
             <flux:heading size="lg" class="uppercase">
-                Total Wala Bet: {{ $selectedEvent->total_bets_wala ?? 0 }}
+                Total Wala Bet: {{ number_format($selectedEvent->total_bets_wala ?? 0, 2) }}
             </flux:heading>
+
             <flux:heading size="lg" class="uppercase">
-                Total Bet: {{ $selectedEvent->total_bets ?? 0 }}
+                Total Bet: {{ number_format($selectedEvent->total_bets ?? 0, 2) }}
             </flux:heading>
+
             <flux:heading size="lg" class="uppercase">
-                Gross Income: {{ $selectedEvent->total_gross_income ?? 0 }}
+                Gross Income: {{ number_format($selectedEvent->total_gross_income ?? 0, 2) }}
             </flux:heading>
+
             <flux:heading size="lg" class="uppercase">
                 System Over: {{ number_format($selectedEvent->total_system_over_applied ?? 0, 2) }}
             </flux:heading>
