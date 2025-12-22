@@ -258,28 +258,63 @@ class Transaction extends Component
         Toaster::success('Cancelled and refunded ' . number_format($transaction->amount, 2));
     }
 
+    #[On('echo:events,.event.started')]
+    public function handleEventStarted($data)
+    {
+        $this->resetPage('receivedPage');
+        $this->resetPage('sentPage');
+
+        Flux::modal('transfer')->close();
+        Flux::modal('received')->close();
+
+        $this->dispatch('$refresh');
+    }
+
+    #[On('echo:events,.event.ended')]
+    public function handleEventEnded($data)
+    {
+        $this->resetPage('receivedPage');
+        $this->resetPage('sentPage');
+
+        Flux::modal('transfer')->close();
+        Flux::modal('received')->close();
+
+        $this->dispatch('$refresh');
+    }
+
     public function render()
     {
         $event   = $this->currentEvent();
         $eventId = $event?->id;
+
+        if (!$eventId) {
+            return view('livewire.user.transaction', [
+                'receivedTransactions' => collect(),
+                'sentTransactions'     => collect(),
+                'coh'                  => 0,
+                'hasOngoingEvent'      => false,
+            ]);
+        }
+
         $coh = $this->getEventCash();
 
         $sentTransactions = ModelTransaction::with(['sender', 'receiver'])
-            ->when($eventId, fn($q) => $q->where('event_id', $eventId))
+            ->where('event_id', $eventId)
             ->where('sender_id', $this->user()->id)
             ->latest()
             ->get();
 
         $receivedTransactions = ModelTransaction::with(['sender', 'receiver'])
-            ->when($eventId, fn($q) => $q->where('event_id', $eventId))
+            ->where('event_id', $eventId)
             ->where('receiver_id', $this->user()->id)
             ->latest()
             ->get();
 
-        return view('livewire.user.transaction', compact(
-            'receivedTransactions',
-            'sentTransactions',
-            'coh',
-        ));
+        return view('livewire.user.transaction', [
+            'receivedTransactions' => $receivedTransactions,
+            'sentTransactions'     => $sentTransactions,
+            'coh'                  => $coh,
+            'hasOngoingEvent'      => true,
+        ]);
     }
 }

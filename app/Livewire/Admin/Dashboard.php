@@ -8,6 +8,7 @@ use Masmerise\Toaster\Toaster;
 use App\Events\EventStarted;
 use Livewire\Attributes\On;
 use App\Events\EventEnded;
+use App\Events\TransactionsUpdated;
 use Livewire\Component;
 use App\Models\Event;
 use App\Models\Fight;
@@ -142,6 +143,7 @@ class Dashboard extends Component
 
         $event->update(['status' => 'ongoing']);
         broadcast(new EventStarted($event));
+        broadcast(new TransactionsUpdated($event->id));
         Toaster::success("Event '{$event->event_name}' started.");
         $this->loadEvents();
     }
@@ -162,6 +164,7 @@ class Dashboard extends Component
 
         $event->update(['status' => 'finished']);
         broadcast(new EventEnded($event));
+        broadcast(new TransactionsUpdated($event->id));
         Toaster::success("Event '{$event->event_name}' ended.");
         $this->loadEvents();
     }

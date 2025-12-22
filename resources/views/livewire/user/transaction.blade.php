@@ -76,10 +76,10 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6">
-                            <div class="flex flex-col items-center justify-center gap-4 py-6">
-                                <flux:icon.archive-box class="size-12" />
-                                <flux:heading class="">No sent transactions found.</flux:heading>
+                        <td colspan="7" class="px-3 py-12">
+                            <div class="flex flex-col items-center justify-center gap-4">
+                                <flux:icon.archive-box class="size-12 opacity-60" />
+                                <flux:heading>No received transactions found.</flux:heading>
                             </div>
                         </td>
                     </tr>
@@ -133,10 +133,10 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7">
-                                    <div class="flex flex-col items-center justify-center gap-4 py-6">
-                                        <flux:icon.archive-box class="size-12" />
-                                        <flux:heading class="">No received transactions found.</flux:heading>
+                                <td colspan="7" class="px-3 py-12">
+                                    <div class="flex flex-col items-center justify-center gap-4">
+                                        <flux:icon.archive-box class="size-12 opacity-60" />
+                                        <flux:heading>No received transactions found.</flux:heading>
                                     </div>
                                 </td>
                             </tr>
