@@ -21,6 +21,9 @@ class Dashboard extends Component
     public $fighterAName = '';
     public $fighterBName = '';
 
+    public ?string $pendingWinner = null;
+    public ?string $previousWinnerForConfirm = null;
+
     public function mount()
     {
         $this->loadOngoingEvent();
@@ -112,6 +115,61 @@ class Dashboard extends Component
         $this->refreshFights();
         $this->loadFighterNames();
         $this->dispatch('$refresh');
+    }
+
+    public function confirmWinner(string $winner)
+    {
+        if (!$this->ensureActiveFight()) return;
+
+        if ($this->activeFight->status !== 'close') {
+            Toaster::error('You can only declare a result when betting is closed.');
+            return;
+        }
+
+        if (!in_array($winner, ['meron', 'wala', 'draw', 'cancel'])) {
+            Toaster::error('Invalid winner.');
+            return;
+        }
+
+        $this->pendingWinner = $winner;
+        $this->previousWinnerForConfirm = $this->activeFight->winner;
+
+        Flux::modal('confirm-winner')->show();
+    }
+
+    public function getPendingWinnerLabelProperty(): string
+    {
+        return match ($this->pendingWinner) {
+            'meron' => 'Meron wins',
+            'wala' => 'Wala wins',
+            'draw' => 'Draw',
+            'cancel' => 'Cancelled',
+            default => '-',
+        };
+    }
+
+    public function applyWinner()
+    {
+        if (!$this->ensureActiveFight()) return;
+
+        if (!$this->pendingWinner) {
+            Toaster::error('No result selected.');
+            return;
+        }
+
+        $this->setWinner($this->pendingWinner);
+        $this->pendingWinner = null;
+        $this->previousWinnerForConfirm = null;
+
+        Flux::modal('confirm-winner')->close();
+    }
+
+    public function cancelWinnerConfirm()
+    {
+        $this->pendingWinner = null;
+        $this->previousWinnerForConfirm = null;
+
+        Flux::modal('confirm-winner')->close();
     }
 
     public function startFight()

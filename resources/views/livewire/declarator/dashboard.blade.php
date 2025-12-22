@@ -186,20 +186,66 @@
         </div>
 
         <div class="flex items-center justify-between">
-            <flux:button class="uppercase" wire:click="setWinner('meron')"
-                :disabled="$activeFight?->status !== 'close'">meron wins</flux:button>
-
-            <flux:button class="uppercase" wire:click="setWinner('wala')"
+            <flux:button class="uppercase" wire:click="confirmWinner('meron')"
+                :disabled="$activeFight?->status !== 'close'">
+                meron wins
+            </flux:button>
+            <flux:button class="uppercase" wire:click="confirmWinner('wala')"
                 :disabled="$activeFight?->status !== 'close'">wala wins</flux:button>
         </div>
 
         <div class="flex items-center justify-between">
-            <flux:button class="uppercase" wire:click="setWinner('draw')"
+            <flux:button class="uppercase" wire:click="confirmWinner('draw')"
                 :disabled="$activeFight?->status !== 'close'">draw</flux:button>
-
-            <flux:button class="uppercase" wire:click="setWinner('cancel')"
+            <flux:button class="uppercase" wire:click="confirmWinner('cancel')"
                 :disabled="$activeFight?->status !== 'close'">cancel</flux:button>
         </div>
+
+        <flux:modal name="confirm-winner" class="min-w-[24rem]">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">Confirm fight result</flux:heading>
+
+                    <flux:text class="mt-2">
+                        You’re about to declare the result for
+                        <strong>Fight #{{ $activeFight?->fight_number }}</strong>
+                        in <strong>{{ $currentEvent?->event_name }}</strong>.
+                    </flux:text>
+
+                    <div class="mt-4 rounded-lg border border-zinc-200 dark:border-zinc-700 p-3 space-y-2">
+                        <p class="text-sm">
+                            Selected result:
+                            <strong class="uppercase">{{ $this->pendingWinnerLabel }}</strong>
+                        </p>
+
+                        @if ($previousWinnerForConfirm)
+                            <p class="text-sm text-amber-600 dark:text-amber-400">
+                                Note: This will replace the previous result
+                                (<strong class="uppercase">{{ $previousWinnerForConfirm }}</strong>).
+                            </p>
+                        @endif
+
+                        <ul class="text-sm list-disc pl-5 space-y-1 text-zinc-600 dark:text-zinc-300">
+                            <li>If <strong>Meron/Wala</strong>: payouts will be processed for winners.</li>
+                            <li>If <strong>Draw/Cancelled</strong>: all bets will be refunded.</li>
+                            <li>Changing the result later may re-calculate totals and payouts.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <flux:spacer />
+
+                    <flux:button variant="ghost" wire:click="cancelWinnerConfirm">
+                        Cancel
+                    </flux:button>
+
+                    <flux:button class="uppercase" wire:click="applyWinner">
+                        Confirm & Declare
+                    </flux:button>
+                </div>
+            </div>
+        </flux:modal>
 
         <div class="flex flex-col items-center justify-center gap-3">
             <flux:button class="uppercase" wire:click="endFight" :disabled="$activeFight?->status !== 'close'">end
