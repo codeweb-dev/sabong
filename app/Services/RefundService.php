@@ -20,7 +20,7 @@ class RefundService
             ->update([
                 'is_win' => true,
                 'payout_amount' => DB::raw('amount'),
-                'status' => 'unpaid',
+                'status' => 'refund',
             ]);
 
         GrossIncome::where('fight_id', $fight->id)->delete();
