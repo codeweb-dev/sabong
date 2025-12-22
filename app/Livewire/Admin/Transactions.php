@@ -11,6 +11,7 @@ use Livewire\Component;
 use App\Models\Event;
 use App\Models\User;
 use Flux\Flux;
+use Illuminate\Support\Facades\DB;
 
 class Transactions extends Component
 {
@@ -68,6 +69,41 @@ class Transactions extends Component
             ->where('sender_id', $adminId)
             ->latest()
             ->get();
+    }
+
+    public function cancelAdminToUserTransaction($id)
+    {
+        if (!$this->event) {
+            return Toaster::error('No ongoing event.');
+        }
+
+        DB::transaction(function () use ($id) {
+            $adminId = Auth::id();
+
+            $transaction = Transaction::where('id', $id)
+                ->where('event_id', $this->event->id)
+                ->where('sender_id', $adminId)
+                ->where('status', 'pending')
+                ->lockForUpdate()
+                ->first();
+
+            if (!$transaction) {
+                Toaster::error('Transaction cannot be cancelled.');
+                return;
+            }
+
+            $this->event->increment('revolving', $transaction->amount);
+            $this->event->decrement('total_transfer', $transaction->amount);
+
+            $transaction->update(['status' => 'cancelled']);
+        });
+
+        $this->event->refresh();
+        $this->loadTransactions();
+        $this->updateTotals();
+        broadcast(new TransactionsUpdated($this->event->id));
+
+        Toaster::success('Transaction cancelled. Amount returned to revolving.');
     }
 
     private function updateTotals()

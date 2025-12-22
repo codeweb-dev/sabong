@@ -78,7 +78,8 @@
                                 </thead>
                                 <tbody>
                                     @forelse ($userToAdminTransactions as $transaction)
-                                        <tr class="hover:bg-white/5 transition-all {{ $transaction->status === 'success' ? 'bg-green-400/20 hover:bg-green-500/30' : 'bg-black/5' }}">
+                                        <tr
+                                            class="hover:bg-white/5 transition-all {{ $transaction->status === 'success' ? 'bg-green-400/20 hover:bg-green-500/30' : 'bg-black/5' }}">
                                             <td class="px-2 py-4 text-center">
                                                 {{ $transaction->sender->username }}
                                             </td>
@@ -137,6 +138,7 @@
                                     <th class="px-2 py-3 text-center text-xs sm:text-sm">Note</th>
                                     <th class="px-2 py-3 text-center text-xs sm:text-sm">Status</th>
                                     <th class="px-2 py-3 text-center text-xs sm:text-sm">Date</th>
+                                    <th class="px-2 py-3 text-center text-xs sm:text-sm">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -150,6 +152,18 @@
                                         <td class="px-2 py-4 text-center">{{ ucfirst($transaction->status) }}</td>
                                         <td class="px-2 py-4 text-center">
                                             {{ $transaction->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
+                                        </td>
+                                        <td class="px-3 py-4 text-center">
+                                            @if ($transaction->status === 'pending')
+                                                <flux:button size="sm" variant="danger"
+                                                    wire:click="cancelAdminToUserTransaction({{ $transaction->id }})">
+                                                    Cancel
+                                                </flux:button>
+                                            @else
+                                                <flux:button size="sm" variant="danger" disabled>
+                                                    Cancel
+                                                </flux:button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
