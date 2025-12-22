@@ -19,6 +19,7 @@ class Fight extends Model
         'fighter_b',
         'status',
         'winner',
+        'redeclared_at',
         'is_refunded',
     ];
 

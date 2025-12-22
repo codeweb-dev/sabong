@@ -314,16 +314,28 @@ class Dashboard extends Component
             return;
         }
 
-        // 👇 remember old winner before changing
+        if ($this->activeFight->winner && $this->activeFight->redeclared_at) {
+            Toaster::info('Result is already final and cannot be changed.');
+            return;
+        }
+
+        // ✅ save previous winner BEFORE updating
         $previousWinner = $this->activeFight->winner;
 
-        $this->activeFight->update(['winner' => $winner]);
+        $isRedeclare = !empty($previousWinner);
 
+        $this->activeFight->update([
+            'winner' => $winner,
+            'redeclared_at' => $isRedeclare ? now() : null,
+        ]);
+
+        // ✅ IMPORTANT:
+        // If changed to draw/cancel, still convert already-paid bets to SHORT
         if (in_array($winner, ['draw', 'cancel'])) {
-            RefundService::refundFight($this->activeFight);
-            Toaster::info('All bets refunded.');
+            RefundService::refundFight($this->activeFight->fresh(), $winner, $previousWinner);
+            Toaster::info('Result updated. Unpaid bets were refunded.');
         } else {
-            // 👇 pass previous winner
+            // ✅ normal payout recomputation, with previous winner passed
             PayoutService::processWinner($this->activeFight->fresh(), $winner, $previousWinner);
             Toaster::success(strtoupper($winner) . ' wins! Payouts ready.');
         }

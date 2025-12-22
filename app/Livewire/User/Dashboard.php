@@ -8,6 +8,7 @@ use Masmerise\Toaster\Toaster;
 use App\Events\BetsUpdated;
 use Livewire\Attributes\On;
 use App\Events\BetPlaced;
+use App\Events\TransactionsUpdated;
 use Livewire\Component;
 use App\HandlesPayouts;
 use App\Models\Fight;
@@ -477,6 +478,7 @@ class Dashboard extends Component
 
         Toaster::success('Payout successful!');
         Flux::modal('preview-modal')->close();
+        broadcast(new TransactionsUpdated($this->currentEventId()));
     }
 
     public function render()

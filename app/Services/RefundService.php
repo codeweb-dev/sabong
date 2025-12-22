@@ -10,11 +10,32 @@ use Illuminate\Support\Facades\DB;
 
 class RefundService
 {
-    public static function refundFight(Fight $fight)
+    public static function refundFight(Fight $fight, $winner = null, $previousWinner = null)
     {
         $fight->update([
             'is_refunded' => true,
         ]);
+
+        if (
+            $previousWinner &&
+            $previousWinner !== $winner &&
+            in_array($previousWinner, ['meron', 'wala'])
+        ) {
+            $paidWrongBets = Bet::where('fight_id', $fight->id)
+                ->where('side', $previousWinner)
+                ->where('is_claimed', true)
+                ->where('status', 'paid')
+                ->get();
+
+            foreach ($paidWrongBets as $wrongBet) {
+                $wrongBet->short_amount  = ($wrongBet->short_amount ?? 0) + ($wrongBet->payout_amount ?? 0);
+                $wrongBet->payout_amount = $wrongBet->amount;
+                $wrongBet->status        = 'unpaid';
+                $wrongBet->is_win        = true;
+                $wrongBet->is_claimed    = false;
+                $wrongBet->save();
+            }
+        }
 
         Bet::where('fight_id', $fight->id)
             ->update([
