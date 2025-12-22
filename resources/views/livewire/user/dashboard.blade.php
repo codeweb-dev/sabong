@@ -170,7 +170,7 @@
     </div>
 
     <div class="flex flex-col gap-4 lg:gap-6 w-full lg:w-1/2">
-        <div class="w-full h-91 overflow-hidden border border-zinc-700 rounded-lg bg-zinc-900">
+        <div class="w-full h-91 overflow-hidden border border-zinc-500 dark:border-zinc-700 rounded-lg">
             <livewire:welcome :small-screen="true" />
         </div>
 

@@ -44,9 +44,9 @@
     @endif
 
     @if ($currentEvent)
-        <div class="flex flex-col md:flex-row h-screen {{ $isSmallScreen ? 'bg-zinc-900' : '' }}">
+        <div class="flex flex-col md:flex-row h-screen {{ $isSmallScreen ? 'bg-zinc-200 dark:bg-zinc-900' : '' }}">
             <aside
-                class="w-full md:w-78 flex flex-row md:flex-col gap-3 px-4 md:px-6 py-4 md:py-8 border-b md:border-b-0 md:border-e border-zinc-200 dark:border-zinc-700 overflow-y-auto scrollbar-hide">
+                class="w-full md:w-78 flex flex-row md:flex-col gap-3 px-4 md:px-6 py-4 md:py-8 border-b md:border-b-0 md:border-e border-zinc-500 dark:border-zinc-700 overflow-y-auto scrollbar-hide">
 
                 @php
                     $activeStatuses = ['start', 'open', 'close'];
@@ -65,7 +65,7 @@
                             'wala' => 'bg-blue-400 text-white',
                             'draw' => 'bg-green-400 text-black',
                             'cancel' => 'bg-gray-400 text-black',
-                            default => 'bg-white text-black',
+                            default => ' bg-black dark:bg-white text-white dark:text-black',
                         };
                     }
                 @endphp
@@ -99,17 +99,17 @@
 
             <div class="flex-1 flex flex-col overflow-auto">
                 <div class="flex items-center">
-                    <div class="flex flex-col flex-1 border border-zinc-200 dark:border-zinc-700">
+                    <div class="flex flex-col flex-1 border-b border-zinc-500 dark:border-zinc-700">
                         <p
-                            class="text-2xl md:text-5xl text-center font-bold py-5 border-b border-zinc-200 dark:border-zinc-700">
+                            class="text-2xl md:text-5xl text-center font-bold py-5 border-b border-zinc-500 dark:border-zinc-700">
                             FIGHT#</p>
                         <p class="text-2xl md:text-5xl text-center font-bold py-5">
                             {{ $activeFight?->fight_number ?? '-' }}</p>
                     </div>
 
-                    <div class="flex flex-col flex-1 border border-zinc-200 dark:border-zinc-700">
+                    <div class="flex flex-col flex-1 border-b border-l border-zinc-500 dark:border-zinc-700">
                         <p
-                            class="text-2xl md:text-5xl text-center font-bold py-5 border-b border-zinc-200 dark:border-zinc-700">
+                            class="text-2xl md:text-5xl text-center font-bold py-5 border-b border-zinc-500 dark:border-zinc-700">
                             BETTING IS
                         </p>
                         <p class="text-2xl md:text-5xl text-center font-bold py-5 uppercase">
