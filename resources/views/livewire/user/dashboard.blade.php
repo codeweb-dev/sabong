@@ -15,7 +15,7 @@
 
         <flux:input.group>
             <flux:input id="amount-input" mask:dynamic="$money($input)" placeholder="Enter Here"
-                wire:model.live.debounce.500ms="amount" class="text-sm sm:text-base" />
+                wire:model.live="amount" class="text-sm sm:text-base" />
 
             <flux:button id="clear-amount-btn" wire:click="clearAmount" icon="x-mark" class="text-sm sm:text-base">
                 clear

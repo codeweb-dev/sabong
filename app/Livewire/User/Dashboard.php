@@ -346,10 +346,12 @@ class Dashboard extends Component
             'amount'   => $betAmount,
         ]);
 
+        $this->reset('amount');
+        sleep(1);
+
         broadcast(new BetPlaced($this->activeFight->fresh()));
         broadcast(new BetsUpdated($this->activeFight->event_id));
 
-        $this->reset('amount');
         $this->cashOnHand = $this->getEventCash();
         $this->loadUserBets();
 
