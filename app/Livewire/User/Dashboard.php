@@ -369,28 +369,63 @@ class Dashboard extends Component
         )->close();
     }
 
+    private function currentEventId(): ?int
+    {
+        return Fight::whereHas('event', fn($q) => $q->where('status', 'ongoing'))
+            ->first()
+            ?->event_id;
+    }
+
     public function payout()
     {
         if (!$this->previewBet) {
             Toaster::error('No bet loaded.');
+            Flux::modal('preview-modal')->close();
+            return;
+        }
+
+        $currentEventId = $this->currentEventId();
+
+        if (!$currentEventId) {
+            Toaster::error('No ongoing event right now. Please ask the admin to start an event.');
+            Flux::modal('preview-modal')->close();
             return;
         }
 
         $bet  = $this->previewBet;
         $user = $this->user();
 
+        $betEventId = $bet->fight?->event_id;
+
+        if (!$betEventId) {
+            Toaster::error('This ticket has no event info. Please contact admin.');
+            Flux::modal('preview-modal')->close();
+            return;
+        }
+
+        if ($betEventId !== $currentEventId) {
+            Toaster::error(
+                "Cannot process payout. This ticket is from a previous event. Please ask the admin for assistance."
+            );
+            Flux::modal('preview-modal')->close();
+            return;
+        }
+
         if ($bet->is_claimed) {
             Toaster::error('Already claimed.');
+            Flux::modal('preview-modal')->close();
             return;
         }
 
         if ($bet->is_lock) {
             Toaster::error('Bet is locked. Please contact the admin for assistance.');
+            Flux::modal('preview-modal')->close();
             return;
         }
 
         if (!$bet->is_win) {
             Toaster::error('Not a winning ticket.');
+            Flux::modal('preview-modal')->close();
             return;
         }
 
@@ -404,6 +439,7 @@ class Dashboard extends Component
 
         if ($currentCash < $cashPayout) {
             Toaster::error('Insufficient cash.');
+            Flux::modal('preview-modal')->close();
             return;
         }
 
