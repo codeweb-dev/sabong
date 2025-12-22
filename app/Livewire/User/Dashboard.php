@@ -268,7 +268,7 @@ class Dashboard extends Component
 
     public function clearAmount()
     {
-        $this->amount = '';
+        $this->reset('amount');
     }
 
     public function placeBet($side)
@@ -337,7 +337,7 @@ class Dashboard extends Component
         broadcast(new BetPlaced($this->activeFight->fresh()));
         broadcast(new BetsUpdated($this->activeFight->event_id));
 
-        $this->amount = '';
+        $this->reset('amount');
         $this->cashOnHand = $this->getEventCash();
         $this->loadUserBets();
 
