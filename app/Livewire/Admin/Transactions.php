@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use Livewire\Attributes\On;
 use App\Events\TransactionsUpdated;
+use App\Models\Bet;
 use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
 use App\Models\Transaction;
@@ -222,11 +223,12 @@ class Transactions extends Component
                 ->where('sender_id', $user->id)
                 ->sum('amount');
 
-            $totalPayout = $user->bets()
-                ->whereHas('fight', function ($q) use ($eventId) {
-                    $q->where('event_id', $eventId);
-                })
+            $totalPayout = Bet::whereHas('fight', function ($q) use ($eventId) {
+                $q->where('event_id', $eventId);
+            })
+                ->where('status', 'paid')
                 ->where('is_win', true)
+                ->where('claimed_by', $user->id)   // <- the one who PAID
                 ->sum('payout_amount');
 
             $totalBets = $user->bets()
