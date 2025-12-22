@@ -6,6 +6,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\EventReportExport;
 use Masmerise\Toaster\Toaster;
 use App\Events\EventStarted;
+use Livewire\Attributes\On;
 use App\Events\EventEnded;
 use Livewire\Component;
 use App\Models\Event;
@@ -41,6 +42,17 @@ class Dashboard extends Component
             new EventReportExport($this->selectedEventId),
             'event-report-' . $this->selectedEventId . '.xlsx'
         );
+    }
+
+    #[On('echo:events,.fight.started')]
+    public function handleFightUpdated($data)
+    {
+        if ($this->selectedEventId && (int) $data['eventId'] !== (int) $this->selectedEventId) {
+            return;
+        }
+
+        $this->loadEvents();
+        $this->dispatch('$refresh');
     }
 
     public function loadEvents()
