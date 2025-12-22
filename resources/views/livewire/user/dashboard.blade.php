@@ -15,7 +15,8 @@
 
         <flux:input.group>
             <flux:input id="amount-input" mask:dynamic="$money($input)" placeholder="Enter Here"
-                wire:model.defer="amount" class="text-sm sm:text-base" />
+                wire:model.live.debounce.500ms="amount" class="text-sm sm:text-base" />
+
             <flux:button id="clear-amount-btn" wire:click="clearAmount" icon="x-mark" class="text-sm sm:text-base">
                 clear
             </flux:button>
@@ -42,10 +43,15 @@
                 <div>
                     <flux:heading size="lg" class="text-sm sm:text-base">Confirm Bet</flux:heading>
                     <flux:text class="mt-2 ">
+                        You are about to place a bet on <strong class=" text-red-400">Meron</strong>.
+                        Are you sure you want to continue?
+                    </flux:text>
+
+                    {{-- <flux:text class="mt-2 ">
                         You are about to place a bet {{ $amount }} on <strong
                             class=" text-red-400">Meron</strong>.
                         Are you sure you want to continue?
-                    </flux:text>
+                    </flux:text> --}}
                 </div>
 
                 <div class="flex gap-2">
@@ -79,7 +85,7 @@
                         <flux:button variant="ghost" class="text-sm sm:text-base">Cancel</flux:button>
                     </flux:modal.close>
 
-                    <flux:button id="meron-confirm-btn" wire:click="placeBet('wala')" class="text-sm sm:text-base">
+                    <flux:button id="wala-confirm-btn" wire:click="placeBet('wala')" class="text-sm sm:text-base">
                         Confirm
                     </flux:button>
                 </div>
@@ -110,7 +116,7 @@
                     <flux:button wire:click="cancelBet" class="text-sm">cancel</flux:button>
 
                     <flux:input wire:model="reprintTicketNo" class="text-sm" placeholder="Ticket No" />
-                    <flux:input wire:model="cancelBetInput" class="text-sm" placeholder="Ticket ID" />
+                    <flux:input wire:model="cancelBetInput" class="text-sm" placeholder="Ticket No" />
                 </div>
             </div>
         </div>

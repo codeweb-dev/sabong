@@ -20,7 +20,7 @@ class Dashboard extends Component
     use HandlesPayouts;
 
     public $cashOnHand;
-    public string $amount = '';
+    public $amount = '';
     public $activeFight;
     public $bets = [];
     public $fights = [];
@@ -40,8 +40,16 @@ class Dashboard extends Component
 
     private function cleanAmount(): float
     {
-        $clean = str_replace([',', ' '], '', $this->amount ?? '0');
-        return is_numeric($clean) ? (float) $clean : 0;
+        $value = (string) ($this->amount ?? '0');
+
+        $clean = preg_replace('/[^0-9.]/', '', $value) ?? '0';
+
+        if (substr_count($clean, '.') > 1) {
+            $parts = explode('.', $clean);
+            $clean = array_shift($parts) . '.' . implode('', $parts);
+        }
+
+        return is_numeric($clean) ? (float) $clean : 0.0;
     }
 
     public function mount()
@@ -262,7 +270,11 @@ class Dashboard extends Component
     public function addAmount($value)
     {
         $current = $this->cleanAmount();
-        $add     = (float) str_replace([',', ' '], '', (string) $value);
+
+        $raw = (string) $value;
+        $raw = preg_replace('/[^0-9.]/', '', $raw) ?? '0';
+        $add = is_numeric($raw) ? (float) $raw : 0.0;
+
         $this->amount = number_format($current + $add, 0, '.', ',');
     }
 
