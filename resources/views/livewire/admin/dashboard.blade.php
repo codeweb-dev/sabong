@@ -2,48 +2,50 @@
     <div class="flex flex-col gap-6 w-full lg:w-1/2">
         <p class="text-lg sm:text-xl">events</p>
         <div class="overflow-x-auto">
-            <x-table class="min-w-full">
-                <thead>
-                    <tr>
-                        <th class="px-2 py-3 text-sm  text-center">date</th>
-                        <th class="px-2 py-3 text-sm  text-center">event name</th>
-                        <th class="px-2 py-3 text-sm  text-center">description</th>
-                        <th class="px-2 py-3 text-sm  text-center">status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($events as $event)
-                        <tr wire:click="selectEvent({{ $event->id }})"
-                            class="
+            <div class="max-h-[300px] overflow-y-auto">
+                <x-table class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th class="px-2 py-3 text-sm  text-center">date</th>
+                            <th class="px-2 py-3 text-sm  text-center">event name</th>
+                            <th class="px-2 py-3 text-sm  text-center">description</th>
+                            <th class="px-2 py-3 text-sm  text-center">status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($events as $event)
+                            <tr wire:click="selectEvent({{ $event->id }})"
+                                class="
                                 cursor-pointer transition-all
                                 hover:bg-white/10
                                 {{ $selectedEventId === $event->id ? 'bg-blue-600/30 border border-blue-500' : 'bg-black/5' }}
                             ">
-                            <td class="px-2 py-3 text-center text-sm">
-                                {{ $event->created_at->format('M d, Y') }}
-                            </td>
-                            <td class="px-2 py-3 text-center text-sm">
-                                {{ $event->event_name }}
-                            </td>
-                            <td class="px-2 py-3 text-center text-sm">
-                                {{ $event->description ?? '-' }}
-                            </td>
-                            <td class="px-2 py-3 text-center text-sm">
-                                {{ ucfirst($event->status) }}
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4">
-                                <div class="flex flex-col items-center justify-center gap-4 py-6">
-                                    <flux:icon.archive-box class="size-12" />
-                                    <flux:heading class="">No events found.</flux:heading>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </x-table>
+                                <td class="px-2 py-3 text-center text-sm">
+                                    {{ $event->created_at->format('M d, Y') }}
+                                </td>
+                                <td class="px-2 py-3 text-center text-sm">
+                                    {{ $event->event_name }}
+                                </td>
+                                <td class="px-2 py-3 text-center text-sm">
+                                    {{ $event->description ?? '-' }}
+                                </td>
+                                <td class="px-2 py-3 text-center text-sm">
+                                    {{ ucfirst($event->status) }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4">
+                                    <div class="flex flex-col items-center justify-center gap-4 py-6">
+                                        <flux:icon.archive-box class="size-12" />
+                                        <flux:heading class="">No events found.</flux:heading>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </x-table>
+            </div>
         </div>
 
         <p class="text-lg sm:text-xl ">fight history</p>
@@ -64,7 +66,8 @@
                     <tbody>
                         @if ($events && $fights->isNotEmpty())
                             @foreach ($fights as $fight)
-                                <tr wire:key="fight-{{ $fight->id }}" class="hover:bg-white/5 bg-black/5 transition-all">
+                                <tr wire:key="fight-{{ $fight->id }}"
+                                    class="hover:bg-white/5 bg-black/5 transition-all">
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                                         {{ $fight->fight_number }} </td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
