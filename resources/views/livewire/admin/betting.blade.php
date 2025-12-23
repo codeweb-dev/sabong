@@ -6,19 +6,23 @@
                 <div class="space-y-1">
                     <p class="flex justify-between">
                         <span>total bets:</span>
-                        <span>{{ $total_bets }}</span>
+                        <span>{{ number_format($total_bets ?? 0, 0) }}</span>
                     </p>
                     <p class="flex justify-between">
                         <span>total payout:</span>
-                        <span>{{ $total_payout }}</span>
+                        <span>{{ number_format($total_payout ?? 0, 0) }}</span>
+                    </p>
+                    <p class="flex justify-between">
+                        <span>total refund:</span>
+                        <span>{{ number_format($total_refund ?? 0, 0) }}</span>
                     </p>
                     <p class="flex justify-between">
                         <span>total unpaid:</span>
-                        <span>{{ $total_unpaid }}</span>
+                        <span>{{ number_format($total_unpaid ?? 0, 0) }}</span>
                     </p>
                     <p class="flex justify-between">
                         <span>total short:</span>
-                        <span>{{ $total_short }}</span>
+                        <span>{{ number_format($total_short ?? 0, 0) }}</span>
                     </p>
                 </div>
             </div>

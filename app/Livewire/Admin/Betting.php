@@ -17,6 +17,7 @@ class Betting extends Component
 
     public $total_bets = 0;
     public $total_payout = 0;
+    public $total_refund = 0;
     public $total_unpaid = 0;
     public $total_short = 0;
 
@@ -142,6 +143,7 @@ class Betting extends Component
 
         $this->total_bets   = $allBets->sum('amount');
         $this->total_payout = $allBets->where('is_win', true)->where('status', 'paid')->sum('payout_amount');
+        $this->total_refund = $allBets->where('is_win', false)->where('status', 'refund')->sum('short_amount');
         $this->total_unpaid = $allBets->where('is_win', true)->where('status', 'unpaid')->sum('payout_amount');
         $this->total_short  = $allBets->where('is_win', false)->where('status', 'short')->sum('short_amount');
 
@@ -152,6 +154,7 @@ class Betting extends Component
             'bets' => $bets,
             'total_bets' => $this->total_bets,
             'total_payout' => $this->total_payout,
+            'total_refund' => $this->total_refund,
             'total_unpaid' => $this->total_unpaid,
             'total_short' => $this->total_short,
         ]);

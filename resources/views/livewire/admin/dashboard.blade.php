@@ -165,7 +165,7 @@
             </flux:heading>
 
             <flux:heading size="lg" class="uppercase">
-                Total Bet: {{ number_format($selectedEvent->total_bets ?? 0, 2) }}
+                Total Bets: {{ number_format($selectedEvent->total_bets ?? 0, 2) }}
             </flux:heading>
 
             <flux:heading size="lg" class="uppercase">
