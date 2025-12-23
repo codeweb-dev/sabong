@@ -39,6 +39,9 @@ class Dashboard extends Component
     public $scanMode = false;
     public $scannedBarcode = '';
 
+    private const MIN_BET = 100;
+    private const MAX_BET = 50000;
+
     private function cleanAmount(): float
     {
         $value = (string) ($this->amount ?? '0');
@@ -275,11 +278,17 @@ class Dashboard extends Component
     {
         $current = $this->cleanAmount();
 
-        $raw = (string) $value;
-        $raw = preg_replace('/[^0-9.]/', '', $raw) ?? '0';
+        $raw = preg_replace('/[^0-9.]/', '', (string) $value) ?? '0';
         $add = is_numeric($raw) ? (float) $raw : 0.0;
 
-        $this->amount = number_format($current + $add, 0, '.', ',');
+        $newAmount = $current + $add;
+
+        if ($newAmount > self::MAX_BET) {
+            Toaster::error('Maximum bet amount is 50,000.');
+            return;
+        }
+
+        $this->amount = number_format($newAmount, 0, '.', ',');
     }
 
     public function clearAmount()
@@ -333,8 +342,14 @@ class Dashboard extends Component
 
         $betAmount = $this->cleanAmount();
 
-        if ($betAmount <= 0) {
-            Toaster::error('Invalid amount.');
+        if ($betAmount < self::MIN_BET) {
+            Toaster::error('Minimum bet amount is 100.');
+            Flux::modal($side === 'meron' ? 'meron-confirmation-modal' : 'wala-confirmation-modal')->close();
+            return;
+        }
+
+        if ($betAmount > self::MAX_BET) {
+            Toaster::error('Maximum bet amount is 50,000.');
             Flux::modal($side === 'meron' ? 'meron-confirmation-modal' : 'wala-confirmation-modal')->close();
             return;
         }
