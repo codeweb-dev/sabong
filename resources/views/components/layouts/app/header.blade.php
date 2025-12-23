@@ -26,6 +26,8 @@
 
         <flux:spacer />
 
+        <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle" aria-label="Toggle dark mode" />
+
         <!-- Desktop User Menu -->
         <flux:dropdown position="top" align="end">
             <flux:profile class="cursor-pointer" :initials="auth()->user()->initials()" :name="auth()->user()->username" />
