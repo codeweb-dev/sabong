@@ -325,6 +325,8 @@
             const amountInput = document.getElementById('amount-input');
             const isAmountField = target && target.id === 'amount-input';
 
+            let scanFocusLock = false;
+
             // Only block shortcuts when typing in OTHER inputs (ticket no, etc.)
             const blockShortcuts = isTypingEl && !isAmountField;
 
@@ -385,26 +387,55 @@
             }
         });
 
-        document.addEventListener('livewire:init', () => {
-            Livewire.on('focus-barcode', () => {
-                const input = document.getElementById('barcode-field');
-                if (input) {
-                    input.focus();
-                    if (input.select) input.select();
-                }
-            });
-        });
+        function focusBarcode() {
+            const input = document.getElementById('barcode-field');
+            if (!input) return;
 
-        document.addEventListener('focusout', (event) => {
-            if (event.target && event.target.id === 'barcode-field') {
-                setTimeout(() => {
-                    const input = document.getElementById('barcode-field');
-                    if (input) {
-                        input.focus();
-                        if (input.select) input.select();
-                    }
-                }, 0);
+            input.focus();
+            if (input.select) input.select();
+        }
+
+        function enableScanFocusLock() {
+            scanFocusLock = true;
+
+            // focus immediately
+            setTimeout(focusBarcode, 0);
+
+            // keep focus if user clicks somewhere else
+            document.addEventListener('focusin', onFocusInScanLock, true);
+
+            // also refocus if Livewire re-renders
+            document.addEventListener('livewire:navigated', focusBarcode);
+        }
+
+        function disableScanFocusLock() {
+            scanFocusLock = false;
+            document.removeEventListener('focusin', onFocusInScanLock, true);
+        }
+
+        function onFocusInScanLock(e) {
+            if (!scanFocusLock) return;
+
+            // if focus goes to something else, force it back
+            if (e.target && e.target.id !== 'barcode-field') {
+                setTimeout(focusBarcode, 0);
             }
+        }
+
+        document.addEventListener('livewire:init', () => {
+            // keep your old focus-barcode event
+            Livewire.on('focus-barcode', () => {
+                if (!scanFocusLock) return;
+                focusBarcode();
+            });
+
+            // NEW: scan mode on/off
+            Livewire.on('scan-mode-changed', ({
+                enabled
+            }) => {
+                if (enabled) enableScanFocusLock();
+                else disableScanFocusLock();
+            });
         });
     </script>
 </div>

@@ -130,6 +130,8 @@ class Dashboard extends Component
         $this->scanMode = !$this->scanMode;
         $this->scannedBarcode = '';
 
+        $this->dispatch('scan-mode-changed', enabled: $this->scanMode);
+
         if ($this->scanMode) {
             $this->dispatch('focus-barcode');
         }
