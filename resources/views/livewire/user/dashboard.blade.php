@@ -46,12 +46,6 @@
                         You are about to place a bet on <strong class=" text-red-400">Meron</strong>.
                         Are you sure you want to continue?
                     </flux:text>
-
-                    {{-- <flux:text class="mt-2 ">
-                        You are about to place a bet {{ $amount }} on <strong
-                            class=" text-red-400">Meron</strong>.
-                        Are you sure you want to continue?
-                    </flux:text> --}}
                 </div>
 
                 <div class="flex gap-2">
