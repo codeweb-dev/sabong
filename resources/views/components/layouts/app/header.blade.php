@@ -26,41 +26,46 @@
 
         <flux:spacer />
 
-        <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle" aria-label="Toggle dark mode" />
+        <div class="flex items-center gap-3">
+            <flux:switch x-data x-model="$flux.dark" label="Dark mode" />
 
-        <!-- Desktop User Menu -->
-        <flux:dropdown position="top" align="end">
-            <flux:profile class="cursor-pointer" :initials="auth()->user()->initials()" :name="auth()->user()->username" />
+            <!-- Desktop User Menu -->
+            <flux:dropdown position="top" align="end">
+                <flux:profile class="cursor-pointer" :initials="auth()->user()->initials()"
+                    :name="auth()->user()->username" />
 
-            <flux:menu>
-                <flux:menu.radio.group>
-                    <flux:menu.item :href="route('dashboard')" icon="home" wire:navigate>{{ __('HOME') }}
-                    </flux:menu.item>
-
-                    @if (auth()->user()->hasRole('admin'))
-                        {{-- <livewire:admin.dashboard /> --}}
-                    @elseif (auth()->user()->hasRole('user'))
-                        <flux:menu.item :href="route('user.transactions')" icon="newspaper" wire:navigate>
-                            {{ __('TRANSACTION') }}
+                <flux:menu>
+                    <flux:menu.radio.group>
+                        <flux:menu.item :href="route('dashboard')" icon="home" wire:navigate>{{ __('HOME') }}
                         </flux:menu.item>
-                    @elseif (auth()->user()->hasRole('declarator'))
-                        {{-- <livewire:declarator.dashboard /> --}}
-                    @endif
 
-                    <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('SETTINGS') }}
-                    </flux:menu.item>
-                </flux:menu.radio.group>
+                        @if (auth()->user()->hasRole('admin'))
+                            {{-- <livewire:admin.dashboard /> --}}
+                        @elseif (auth()->user()->hasRole('user'))
+                            <flux:menu.item :href="route('user.transactions')" icon="newspaper" wire:navigate>
+                                {{ __('TRANSACTION') }}
+                            </flux:menu.item>
+                        @elseif (auth()->user()->hasRole('declarator'))
+                            {{-- <livewire:declarator.dashboard /> --}}
+                        @endif
 
-                <flux:menu.separator />
+                        <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>
+                            {{ __('SETTINGS') }}
+                        </flux:menu.item>
+                    </flux:menu.radio.group>
 
-                <form method="POST" action="{{ route('logout') }}" class="w-full">
-                    @csrf
-                    <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
-                        {{ __('LOG OUT') }}
-                    </flux:menu.item>
-                </form>
-            </flux:menu>
-        </flux:dropdown>
+                    <flux:menu.separator />
+
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle"
+                            class="w-full">
+                            {{ __('LOG OUT') }}
+                        </flux:menu.item>
+                    </form>
+                </flux:menu>
+            </flux:dropdown>
+        </div>
     </flux:header>
 
     <!-- Mobile Menu -->

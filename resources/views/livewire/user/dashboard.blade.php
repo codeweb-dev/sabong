@@ -318,16 +318,22 @@
 
     <script>
         document.addEventListener('keydown', function(event) {
-            const tag = event.target.tagName;
-            const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag);
-            const amountInput = document.getElementById('amount-input');
+            const target = event.target;
+            const tag = target?.tagName || '';
+            const isTypingEl = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag);
 
-            const unfocus = () => {
+            const amountInput = document.getElementById('amount-input');
+            const isAmountField = target && target.id === 'amount-input';
+
+            // Only block shortcuts when typing in OTHER inputs (ticket no, etc.)
+            const blockShortcuts = isTypingEl && !isAmountField;
+
+            const unfocusAmount = () => {
                 if (amountInput) amountInput.blur();
             };
 
-            // SPACE → focus amount field
-            if (event.code === 'Space' && !isTyping) {
+            // SPACE → focus amount field (only if not typing anywhere)
+            if (event.code === 'Space' && !isTypingEl) {
                 event.preventDefault();
                 if (amountInput) {
                     amountInput.focus();
@@ -335,35 +341,35 @@
                 }
             }
 
-            // "-" → clear amount + unfocus
-            if (event.key === '-' && !isTyping) {
+            // "-" → clear amount + unfocus (allow even if amount field is focused)
+            if (event.key === '-' && !blockShortcuts) {
                 event.preventDefault();
-                unfocus();
+                unfocusAmount();
 
                 const clearBtn = document.getElementById('clear-amount-btn');
                 if (clearBtn) clearBtn.click();
             }
 
-            // "/" → open Meron modal + unfocus
-            if (event.key === '/' && !isTyping) {
+            // "/" → open Meron modal + unfocus (allow even if amount field is focused)
+            if (event.key === '/' && !blockShortcuts) {
                 event.preventDefault();
-                unfocus();
+                unfocusAmount();
 
                 const meronBtn = document.getElementById('meron-btn');
                 if (meronBtn && !meronBtn.disabled) meronBtn.click();
             }
 
-            // "*" → open Wala modal + unfocus
-            if ((event.key === '*' || (event.shiftKey && event.key === '8')) && !isTyping) {
+            // "*" → open Wala modal + unfocus (allow even if amount field is focused)
+            if ((event.key === '*' || (event.shiftKey && event.key === '8')) && !blockShortcuts) {
                 event.preventDefault();
-                unfocus();
+                unfocusAmount();
 
                 const walaBtn = document.getElementById('wala-btn');
                 if (walaBtn && !walaBtn.disabled) walaBtn.click();
             }
 
-            // ENTER → confirm modal
-            if (event.key === 'Enter' && !isTyping) {
+            // ENTER → confirm modal (allow even if amount field is focused)
+            if (event.key === 'Enter' && !blockShortcuts) {
                 const isVisible = (el) => el && el.offsetParent !== null;
 
                 const meronConfirm = document.getElementById('meron-confirm-btn');
