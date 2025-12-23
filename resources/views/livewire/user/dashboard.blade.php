@@ -227,18 +227,18 @@
                                     class="bg-zinc-100 text-zinc-900 p-6 sm:p-8 rounded-2xl shadow-lg border border-zinc-300 w-full max-w-2xl mx-auto">
 
                                     <div class="text-center mb-4 sm:mb-6">
-                                        <p class="text-2xl sm:text-3xl font-extrabold tracking-wide">
+                                        <p class="text-5xl sm:text-3xl font-extrabold tracking-wide">
                                             {{ strtoupper($previewBet->side) }}
                                         </p>
-                                        <p class="text-xs sm:text-sm text-zinc-500 mt-1 uppercase tracking-[0.15em]">
+                                        <p class="text-2xl text-zinc-500 mt-1 uppercase tracking-[0.15em]">
                                             bet receipt
                                         </p>
                                         <hr class="border-zinc-300 my-3 sm:my-4">
                                     </div>
 
-                                    <div class="space-y-3 sm:space-y-4 text-sm sm:text-base">
+                                    <div class="space-y-3 sm:space-y-4 text-2xl">
                                         <div class="flex items-center gap-4">
-                                            <span class="font-semibold">Inputed By:</span>
+                                            <span class="font-semibold">Inputted By:</span>
                                             <span class="font-medium text-right">
                                                 {{ $previewBet->user->username }}
                                             </span>
@@ -260,8 +260,8 @@
 
                                         <div class="flex items-center gap-4">
                                             <span class="font-semibold">Amount:</span>
-                                            <span class="font-bold text-lg sm:text-xl text-right">
-                                                {{ number_format($previewBet->amount, 2) }}
+                                            <span class="font-bold text-right">
+                                                {{ number_format($previewBet->amount ?? 0, 0) }}
                                             </span>
                                         </div>
 
@@ -269,7 +269,7 @@
                                             <div class="flex items-center gap-4">
                                                 <span class="font-semibold">Payout:</span>
                                                 <span
-                                                    class="font-extrabold text-lg sm:text-xl text-green-700 text-right">
+                                                    class="font-extrabold text-green-700 text-right">
                                                     {{ number_format($previewBet->payout_amount ?? 0, 0) }}
                                                 </span>
                                             </div>
@@ -278,24 +278,24 @@
 
                                     @if ($previewBet->is_claimed)
                                         <p
-                                            class="text-red-600 font-extrabold text-center mt-4 sm:mt-5 text-base sm:text-lg tracking-wide">
+                                            class="text-red-600 font-extrabold text-center mt-4 sm:mt-5 text-2xl tracking-wide">
                                             *** ALREADY CLAIMED ***
                                         </p>
                                     @endif
 
                                     <hr class="border-zinc-300 my-4 sm:my-5">
 
-                                    <p class="text-center text-xs sm:text-sm text-zinc-600">
+                                    <p class="text-center text-2xl text-zinc-600">
                                         {{ $previewBet->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
                                     </p>
 
                                     <div class="flex justify-center mt-4 sm:mt-5">
-                                        <p class="barcode font-mono text-lg sm:text-2xl tracking-[0.25em]">
+                                        <p class="barcode font-mono text-2xl sm:text-4xl tracking-[0.25em]">
                                             *{{ $previewBet->ticket_no }}*
                                         </p>
                                     </div>
 
-                                    <p class="text-center text-sm sm:text-base mt-5 font-semibold tracking-wide">
+                                    <p class="text-center text-2xl sm:text-2xl mt-5 font-semibold tracking-wide">
                                         Thank you for betting!
                                     </p>
                                 </div>

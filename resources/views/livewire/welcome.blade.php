@@ -27,7 +27,7 @@
             <div class="relative w-[90%] max-w-6xl rounded-3xl shadow-2xl overflow-hidden border border-white/10">
                 <div class="bg-gradient-to-br {{ $winnerGradient }} px-6 py-8 md:px-12 md:py-24 text-center text-white">
 
-                    <p class="text-xs md:text-base uppercase tracking-[0.35em] text-white/80 mb-3">
+                    <p class="text-3xl uppercase tracking-[0.35em] mb-3">
                         Official Result
                     </p>
 
@@ -35,7 +35,7 @@
                         {{ $winnerText }}
                     </p>
 
-                    <p class="text-sm md:text-2xl opacity-80 mb-4">
+                    <p class="text-4xl mb-4">
                         Fight #{{ $activeFight?->fight_number ?? '-' }}
                     </p>
                 </div>
