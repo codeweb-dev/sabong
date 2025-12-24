@@ -165,25 +165,29 @@
                 start fight
             </flux:button>
 
-            <flux:button class="uppercase" wire:click="openBet" :disabled="$activeFight?->status === 'close'">
+            <flux:button class="uppercase" wire:click="openBet"
+                :disabled="$activeFight?->status === 'close' && $activeFight?->winner !== null"
+                :variant="$activeFight?->status === 'open' ? 'danger' : null">
                 open bet
             </flux:button>
         </div>
 
         <div class="flex items-center justify-between">
             <flux:button :disabled="$activeFight?->status !== 'open'" wire:click="toggleSide('meron')"
-                class="uppercase" :variant="$activeFight?->meron ? 'primary' : 'danger'">
+                class="uppercase" :variant="$activeFight?->meron ? null : 'danger'">
                 {{ $activeFight?->meron ? 'Meron Lock' : 'Meron Open' }}
             </flux:button>
 
             <flux:button :disabled="$activeFight?->status !== 'open'" wire:click="toggleSide('wala')"
-                class="uppercase" :variant="$activeFight?->wala ? 'primary' : 'danger'">
+                class="uppercase" :variant="$activeFight?->wala ? null : 'danger'">
                 {{ $activeFight?->wala ? 'Wala Lock' : 'Wala Open' }}
             </flux:button>
         </div>
 
         <div class="flex flex-col items-center justify-center gap-3">
-            <flux:button class="uppercase" wire:click="closeBet" :disabled="$activeFight?->status === 'close'">
+            <flux:button class="uppercase" wire:click="closeBet"
+                :disabled="$activeFight?->status === 'close' && $activeFight?->winner !== null"
+                :variant="$activeFight?->status === 'close' ? 'danger' : null">
                 close bet
             </flux:button>
         </div>
@@ -251,8 +255,9 @@
         </flux:modal>
 
         <div class="flex flex-col items-center justify-center gap-3">
-            <flux:button class="uppercase" wire:click="endFight" :disabled="$activeFight?->status !== 'close'">end
-                fight</flux:button>
+            <flux:button class="uppercase" wire:click="endFight" :disabled="$activeFight?->status !== 'close'">
+                end fight
+            </flux:button>
         </div>
 
         <div class="flex flex-col md:flex-row py-5 md:py-0 gap-3 md:gap-0 items-center justify-between">
