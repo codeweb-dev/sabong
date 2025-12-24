@@ -126,7 +126,7 @@
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                                         {{ $bet->claimedBy?->username ?? 0 }}</td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
-                                        {{ $bet->is_win ? number_format($bet->payout_amount ?? 0, 0) : 0 }}
+                                        {{ $bet->is_win ? number_format(floor($bet->payout_amount ?? 0)) : 0 }}
                                     </td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm text-center">
                                         {{ number_format($bet->short_amount ?? 0, 0) }}
