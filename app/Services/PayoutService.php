@@ -15,6 +15,8 @@ class PayoutService
         // 1) If winner changed, convert already-paid bets on
         //    old winner side into "short"
         // -------------------------------------------------
+        // App\Services\PayoutService.php
+
         if (
             $previousWinner &&
             $previousWinner !== $winner &&
@@ -27,11 +29,20 @@ class PayoutService
                 ->get();
 
             foreach ($paidWrongBets as $wrongBet) {
+
+                // move what was paid into short_amount
                 $wrongBet->short_amount  = ($wrongBet->short_amount ?? 0) + ($wrongBet->payout_amount ?? 0);
+
+                // remove payout because it was wrong
                 $wrongBet->payout_amount = 0;
-                $wrongBet->status        = 'short'; // <-- important
-                $wrongBet->is_win        = false;
-                $wrongBet->is_claimed    = true;  // <-- keep claimed
+
+                // IMPORTANT: UI should show NOT WIN, not SHORT
+                $wrongBet->status     = 'not win';
+                $wrongBet->is_win     = false;
+
+                // keep claimed (already paid before), keep claimed time
+                $wrongBet->is_claimed = true;
+
                 $wrongBet->save();
             }
         }
@@ -97,6 +108,20 @@ class PayoutService
         //    overwrite "short" status
         // -------------------------------------------------
         foreach ($bets as $bet) {
+
+            // If it already has a short amount and is already claimed,
+            // leave it as NOT WIN with payout 0.
+            $isLockedShort = ($bet->is_claimed && ($bet->short_amount ?? 0) > 0);
+
+            if ($isLockedShort) {
+                $bet->update([
+                    'is_win'        => false,
+                    'payout_amount' => 0,
+                    'status'        => 'not win',
+                ]);
+                continue;
+            }
+
             $isWin = $bet->side === $winnerSide;
 
             $newPayout = $isWin
@@ -105,23 +130,12 @@ class PayoutService
                     : $fight->wala_payout))
                 : 0;
 
-            // keep existing short bets as "short"
-            if ($bet->status === 'short') {
-                $status = 'short';
-            } else {
-                $status = $isWin ? 'unpaid' : 'not win';
-            }
-
             $bet->update([
-                'is_win'        => $bet->status === 'short' ? false : $isWin,
-                'payout_amount' => $bet->status === 'short' ? 0 : $newPayout,
-                'is_claimed'    => $bet->status === 'short'
-                    ? true        // short bets stay claimed
-                    : ($isWin ? false : $bet->is_claimed),
-                'claimed_at'    => $bet->status === 'short'
-                    ? $bet->claimed_at // keep original claim time
-                    : ($isWin ? null : $bet->claimed_at),
-                'status'        => $status,
+                'is_win'        => $isWin,
+                'payout_amount' => $newPayout,
+                'is_claimed'    => $isWin ? false : $bet->is_claimed,
+                'claimed_at'    => $isWin ? null : $bet->claimed_at,
+                'status'        => $isWin ? 'unpaid' : 'not win',
             ]);
         }
 

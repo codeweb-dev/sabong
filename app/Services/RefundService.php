@@ -10,38 +10,54 @@ use Illuminate\Support\Facades\DB;
 
 class RefundService
 {
+    // App\Services\RefundService.php
+
     public static function refundFight(Fight $fight, $winner = null, $previousWinner = null)
     {
-        $fight->update([
-            'is_refunded' => true,
-        ]);
+        $fight->update(['is_refunded' => true]);
 
+        // If previously there was a real winner (meron/wala) and it was already PAID,
+        // convert those PAID tickets into refundable UNPAID tickets:
         if (
             $previousWinner &&
             $previousWinner !== $winner &&
             in_array($previousWinner, ['meron', 'wala'])
         ) {
-            $paidWrongBets = Bet::where('fight_id', $fight->id)
+            $paidOldWinnerBets = Bet::where('fight_id', $fight->id)
                 ->where('side', $previousWinner)
                 ->where('is_claimed', true)
                 ->where('status', 'paid')
                 ->get();
 
-            foreach ($paidWrongBets as $wrongBet) {
-                $wrongBet->short_amount  = ($wrongBet->short_amount ?? 0) + ($wrongBet->payout_amount ?? 0);
-                $wrongBet->payout_amount = $wrongBet->amount;
-                $wrongBet->status        = 'unpaid';
-                $wrongBet->is_win        = true;
-                $wrongBet->is_claimed    = false;
-                $wrongBet->save();
+            foreach ($paidOldWinnerBets as $bet) {
+
+                // Move wrong payout into short
+                $bet->short_amount  = ($bet->short_amount ?? 0) + ($bet->payout_amount ?? 0);
+
+                // Refund base becomes the bet amount
+                $bet->payout_amount = $bet->amount;
+
+                // Make it claimable again
+                $bet->is_win     = true;
+                $bet->is_claimed = false;
+                $bet->claimed_at = null;
+                $bet->claimed_by = null;
+
+                // show as UNPAID until teller claims (then we set REFUND on payout())
+                $bet->status = 'unpaid';
+                $bet->save();
             }
         }
 
+        // Now for DRAW/CANCEL: everyone is refundable at base amount
         Bet::where('fight_id', $fight->id)
             ->update([
-                'is_win' => true,
+                'is_win'        => true,
                 'payout_amount' => DB::raw('amount'),
-                'status' => 'refund',
+                'status'        => 'unpaid',
+                'is_claimed'    => false,
+                'claimed_at'    => null,
+                'claimed_by'    => null,
             ]);
 
         GrossIncome::where('fight_id', $fight->id)->delete();

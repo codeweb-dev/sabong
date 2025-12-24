@@ -479,11 +479,13 @@ class Dashboard extends Component
 
         $this->updateEventCash(-$cashPayout);
 
+        $isRefund = in_array($bet->fight?->winner, ['draw', 'cancel']);
+
         $bet->update([
             'is_claimed' => true,
             'claimed_at' => now(),
             'claimed_by' => $user->id,
-            'status'     => 'paid',
+            'status'     => $isRefund ? 'refund' : 'paid',
         ]);
 
         broadcast(new BetsUpdated($bet->fight->event_id));
