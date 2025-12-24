@@ -56,7 +56,7 @@
                         ->where('id', '!=', optional($currentFight)->id)
                         ->whereNotIn('status', ['pending', 'start', 'open', 'close'])
                         ->reverse()
-                        ->take(4);
+                        ->take(20);
 
                     function fightColor($fight)
                     {
