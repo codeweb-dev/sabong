@@ -45,15 +45,34 @@ class Dashboard extends Component
         );
     }
 
-    #[On('echo:events,.fight.started')]
-    public function handleFightUpdated($data)
+    // #[On('echo:events,.fight.started')]
+    // public function handleFightUpdated($data)
+    // {
+    //     if ($this->selectedEventId && (int) $data['eventId'] !== (int) $this->selectedEventId) {
+    //         return;
+    //     }
+
+    //     $this->loadEvents();
+    //     $this->dispatch('$refresh');
+    // }
+
+    #[On('echo:bets,.bets.updated')]
+    public function handleBetsUpdated($data)
     {
-        if ($this->selectedEventId && (int) $data['eventId'] !== (int) $this->selectedEventId) {
-            return;
+        if ($this->selectedEventId && isset($data['eventId'])) {
+            if ((int) $data['eventId'] !== (int) $this->selectedEventId) {
+                return;
+            }
         }
 
         $this->loadEvents();
         $this->dispatch('$refresh');
+    }
+
+    #[On('echo:events,.fight.started')]
+    public function handleFightUpdated($data)
+    {
+        $this->refreshDashboard($data['eventId'] ?? null);
     }
 
     public function loadEvents()
@@ -169,12 +188,47 @@ class Dashboard extends Component
         $this->loadEvents();
     }
 
+    // #[On('echo:events,.bet.placed')]
+    // public function handleBetPlaced($data)
+    // {
+    //     // refresh only if it matches selected event
+    //     if ($this->selectedEventId && isset($data['eventId'])) {
+    //         if ((int) $data['eventId'] !== (int) $this->selectedEventId) {
+    //             return;
+    //         }
+    //     }
+
+    //     // if you also want fights table updated (meron_bet/wala_bet per fight)
+    //     $this->loadEvents();
+
+    //     // forces render() -> your withSum() runs again
+    //     $this->dispatch('$refresh');
+    // }
+
+    #[On('echo:events,.bet.placed')]
+    public function handleBetPlaced($data)
+    {
+        $this->refreshDashboard($data['eventId'] ?? null);
+    }
+
+    private function refreshDashboard(?int $eventIdFromBroadcast = null): void
+    {
+        // If broadcast tells an eventId and it doesn't match, ignore
+        if ($this->selectedEventId && $eventIdFromBroadcast) {
+            if ((int) $eventIdFromBroadcast !== (int) $this->selectedEventId) {
+                return;
+            }
+        }
+
+        $this->loadEvents();
+        $this->dispatch('$refresh'); // re-runs render() => re-runs withSum query
+    }
+
     public function render()
     {
-        // Load all events for the table
-        $events = Event::with('fights')->latest()->get();
+        // Use already loaded list from loadEvents()
+        $events = $this->events;
 
-        // Load summary only for selected event
         $selectedEvent = null;
 
         if ($this->selectedEventId) {
@@ -184,16 +238,16 @@ class Dashboard extends Component
                         $q->where('system_overs.status', 'applied');
                     }
                 ], 'total_system_over')
-                ->withSum('bets as total_bets', 'amount')
-                ->withSum('meronBets as total_bets_meron', 'amount')
-                ->withSum('walaBets as total_bets_wala', 'amount')
+                ->withSum(['bets as total_bets' => fn($q) => $q->where('is_refunded', 0)], 'amount')
+                ->withSum(['meronBets as total_bets_meron' => fn($q) => $q->where('is_refunded', 0)], 'amount')
+                ->withSum(['walaBets as total_bets_wala' => fn($q) => $q->where('is_refunded', 0)], 'amount')
                 ->withSum('grossIncomes as total_gross_income', 'income')
                 ->first();
         }
 
         return view('livewire.admin.dashboard', [
-            'events'         => $events,
-            'selectedEvent'  => $selectedEvent,
+            'events'        => $events,
+            'selectedEvent' => $selectedEvent,
         ]);
     }
 }
