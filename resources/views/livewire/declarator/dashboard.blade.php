@@ -167,7 +167,7 @@
 
             <flux:button class="uppercase" wire:click="openBet"
                 :disabled="$activeFight?->status === 'close' && $activeFight?->winner !== null"
-                :variant="$activeFight?->status === 'open' ? 'danger' : null">
+                :variant="$activeFight?->status === 'open' ? 'primary' : null">
                 open bet
             </flux:button>
         </div>
@@ -187,7 +187,7 @@
         <div class="flex flex-col items-center justify-center gap-3">
             <flux:button class="uppercase" wire:click="closeBet"
                 :disabled="$activeFight?->status === 'close' && $activeFight?->winner !== null"
-                :variant="$activeFight?->status === 'close' ? 'danger' : null">
+                :variant="$activeFight?->status === 'close' ? 'primary' : null">
                 close bet
             </flux:button>
         </div>
