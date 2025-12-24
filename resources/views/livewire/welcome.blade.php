@@ -46,7 +46,7 @@
     @if ($currentEvent)
         <div class="flex flex-col md:flex-row h-screen {{ $isSmallScreen ? 'bg-zinc-200 dark:bg-zinc-900' : '' }}">
             <aside
-                class="w-full md:w-78 flex flex-row md:flex-col gap-3 px-4 md:px-6 py-4 md:py-8 border-b md:border-b-0 md:border-e border-zinc-500 dark:border-zinc-700 overflow-y-auto scrollbar-hide">
+                class="w-full md:w-48 flex flex-row md:flex-col gap-3 px-4 md:px-6 py-4 md:py-8 border-b md:border-b-0 md:border-e border-zinc-500 dark:border-zinc-700 overflow-y-auto scrollbar-hide">
 
                 @php
                     $activeStatuses = ['start', 'open', 'close'];
@@ -72,27 +72,15 @@
 
                 @if ($currentFight)
                     <div
-                        class="py-8 px-12 md:p-12 {{ fightColor($currentFight) }} flex flex-col items-center justify-center text-3xl md:text-4xl rounded-2xl relative transition-all duration-300">
+                        class="p-6 {{ fightColor($currentFight) }} flex flex-col items-center justify-center text-3xl md:text-4xl rounded-2xl relative transition-all duration-300 font-bold">
                         <p>{{ $currentFight->fight_number }}</p>
-
-                        @if ($currentFight->winner)
-                            <flux:badge class="mt-2" size="lg" variant="solid" color="black">
-                                {{ strtoupper($currentFight->winner) }}
-                            </flux:badge>
-                        @endif
                     </div>
                 @endif
 
                 @foreach ($completedFights as $fight)
                     <div
-                        class="py-8 px-12 md:p-12 {{ fightColor($fight) }} flex flex-col items-center justify-center text-3xl md:text-4xl rounded-2xl relative transition-all duration-300">
+                        class="p-6 {{ fightColor($fight) }} flex flex-col items-center justify-center text-3xl md:text-4xl rounded-2xl relative transition-all font-bold duration-300">
                         <p>{{ $fight->fight_number }}</p>
-
-                        @if ($fight->status === 'done' && $fight->winner)
-                            <flux:badge class="mt-2" size="lg" variant="solid" color="black">
-                                {{ strtoupper($fight->winner) }}
-                            </flux:badge>
-                        @endif
                     </div>
                 @endforeach
             </aside>
@@ -112,7 +100,7 @@
                             class="text-2xl md:text-5xl text-center font-bold py-5 border-b border-zinc-500 dark:border-zinc-700">
                             BETTING IS
                         </p>
-                        <p class="text-2xl md:text-5xl text-center font-bold py-5 uppercase">
+                        <p class="text-2xl md:text-5xl text-center font-bold py-5 uppercase {{ $activeFight?->status === 'open' ? 'text-green-400' : 'text-red-400' }}">
                             {{ $activeFight?->status === 'start' ? '-' : $activeFight?->status ?? '-' }}
                         </p>
                     </div>
@@ -121,14 +109,14 @@
                 <div class="flex flex-col md:flex-row w-full gap-4 md:gap-6 px-4 md:px-6 mb-6 mt-6">
                     <div class="flex-1">
                         <div
-                            class="p-6 md:p-10 flex-1 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl bg-red-400">
+                            class="p-6 md:p-10 flex-1 text-black flex items-center justify-center text-5xl rounded-2xl bg-red-400">
                             <p class="text-center font-bold">MERON</p>
                         </div>
                         <div class="p-4 md:p-6 flex-1">
-                            <p class="text-center text-5xl md:text-7xl font-bold">
+                            <p class="text-center text-5xl md:text-7xl text-yellow-400 font-bold">
                                 {{ number_format($totalMeronBet ?? 0, 0) }}
                             </p>
-                            <p class="text-center text-xl md:text-3xl mt-2">
+                            <p class="text-center text-xl md:text-4xl mt-2">
                                 PAYOUT : {{ $showPayout ? $meronPayoutDisplay : 0 }}
                             </p>
                         </div>
@@ -151,14 +139,14 @@
 
                     <div class="flex-1">
                         <div
-                            class="p-6 md:p-10 flex-1 text-black flex items-center justify-center text-3xl md:text-4xl rounded-2xl bg-blue-400">
+                            class="p-6 md:p-10 flex-1 text-black flex items-center justify-center text-5xl rounded-2xl bg-blue-400">
                             <p class="text-center font-bold">WALA</p>
                         </div>
                         <div class="p-4 md:p-6 flex-1">
-                            <p class="text-center text-5xl md:text-7xl font-bold">
+                            <p class="text-center text-5xl md:text-7xl text-yellow-400 font-bold">
                                 {{ number_format($totalWalaBet ?? 0, 0) }}
                             </p>
-                            <p class="text-center text-xl md:text-3xl mt-2">
+                            <p class="text-center text-xl md:text-4xl mt-2">
                                 PAYOUT : {{ $showPayout ? $walaPayoutDisplay : 0 }}
                             </p>
                         </div>

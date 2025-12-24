@@ -1,6 +1,6 @@
 <div class="flex flex-col md:flex-row h-screen {{ $isSmallScreen ? 'bg-zinc-200 dark:bg-zinc-900' : '' }}">
     <aside
-        class="w-full md:w-78 flex flex-row md:flex-col gap-3 px-4 md:px-6 py-4 md:py-8 border-b md:border-b-0 md:border-e border-zinc-500 dark:border-zinc-700 overflow-y-auto scrollbar-hide">
+        class="w-full md:w-48 flex flex-row md:flex-col gap-3 px-4 md:px-6 py-4 md:py-8 border-b md:border-b-0 md:border-e border-zinc-500 dark:border-zinc-700 overflow-y-auto scrollbar-hide">
     </aside>
 
     <div class="flex-1 flex flex-col overflow-auto">
