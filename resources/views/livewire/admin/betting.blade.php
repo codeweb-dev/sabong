@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div>
-                <div class="flex justify-between items-center gap-3 mt-9">
+                <div class="flex justify-between items-center gap-3 mt-13">
                     <div class="flex flex-col gap-1 flex-1">
                         <p class="text-center">TELLER NAME</p>
                         <flux:input wire:model.live.debounce.300ms="teller_name" />
