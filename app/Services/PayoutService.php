@@ -11,46 +11,88 @@ class PayoutService
 {
     public static function processWinner(Fight $fight, $winner, $previousWinner = null)
     {
-        // -------------------------------------------------
-        // 1) If winner changed, convert already-paid bets on
-        //    old winner side into "short"
-        // -------------------------------------------------
-        // App\Services\PayoutService.php
-
-        if (
-            $previousWinner &&
-            $previousWinner !== $winner &&
-            in_array($previousWinner, ['draw', 'cancel']) &&
-            in_array($winner, ['meron', 'wala'])
-        ) {
+        // If fight was previously refunded but now has a real winner
+        if (in_array($winner, ['meron', 'wala'])) {
             $fight->update(['is_refunded' => false]);
+        }
 
-            $paidWrongBets = Bet::where('fight_id', $fight->id)
-                ->where('side', $previousWinner)
-                ->where('is_claimed', true)
-                ->where('status', 'paid')
-                ->get();
+        if ($previousWinner && $previousWinner !== $winner) {
 
-            foreach ($paidWrongBets as $wrongBet) {
-                // move what was paid into short_amount
-                $wrongBet->short_amount  = ($wrongBet->short_amount ?? 0) + ($wrongBet->payout_amount ?? 0);
-                // remove payout because it was wrong
-                $wrongBet->payout_amount = 0;
-                // IMPORTANT: UI should show NOT WIN, not SHORT
-                $wrongBet->status     = 'not win';
-                $wrongBet->is_win     = false;
-                // keep claimed (already paid before), keep claimed time
-                $wrongBet->is_claimed = true;
-                $wrongBet->save();
+            // -----------------------------------------
+            // CASE 1: Previous was MERON/WALA
+            // and some winning tickets were already PAID
+            // -----------------------------------------
+            if (in_array($previousWinner, ['meron', 'wala'])) {
+
+                $paidOldWinnerBets = Bet::where('fight_id', $fight->id)
+                    ->where('side', $previousWinner)
+                    ->where('is_claimed', true)
+                    ->where('status', 'paid')
+                    ->get();
+
+                foreach ($paidOldWinnerBets as $bet) {
+
+                    // move what was already paid into short
+                    $bet->short_amount = ($bet->short_amount ?? 0) + ($bet->payout_amount ?? 0);
+
+                    if (in_array($winner, ['draw', 'cancel'])) {
+                        // now it becomes refundable (claim again)
+                        $bet->payout_amount = $bet->amount;
+                        $bet->is_win = true;
+                        $bet->is_claimed = false;
+                        $bet->claimed_at = null;
+                        $bet->claimed_by = null;
+                        $bet->status = 'unpaid'; // teller claims again => REFUND
+                    } else {
+                        // switched to the other side winner
+                        $bet->payout_amount = 0;
+                        $bet->is_win = false;
+                        // keep it claimed because it was already paid before
+                        $bet->status = 'not win'; // DO NOT show "short"
+                    }
+
+                    $bet->save();
+                }
+            }
+
+            // -----------------------------------------
+            // CASE 2: Previous was DRAW/CANCEL
+            // meaning refund mode was active and some may have claimed REFUND
+            // Now changing to real winner => convert claimed refunds into SHORT
+            // -----------------------------------------
+            if (in_array($previousWinner, ['draw', 'cancel']) && in_array($winner, ['meron', 'wala'])) {
+
+                $claimedRefunds = Bet::where('fight_id', $fight->id)
+                    ->where('is_claimed', true)
+                    ->whereIn('status', ['refund', 'paid']) // depends on your payout() implementation
+                    ->get();
+
+                foreach ($claimedRefunds as $bet) {
+                    // move the refunded amount into short
+                    $bet->short_amount = ($bet->short_amount ?? 0) + ($bet->payout_amount ?? 0);
+
+                    // if this bet is on new winning side, it must be claimable again
+                    if ($bet->side === $winner) {
+                        $bet->is_claimed = false;
+                        $bet->claimed_at = null;
+                        $bet->claimed_by = null;
+                        $bet->status = 'unpaid';
+                    } else {
+                        // losing side stays locked (already got refunded)
+                        $bet->status = 'not win';
+                        $bet->payout_amount = 0;
+                        $bet->is_win = false;
+                    }
+
+                    $bet->save();
+                }
             }
         }
 
         // -------------------------------------------------
-        // 2) reload all bets AFTER the short adjustments
+        // 2) recompute odds / fight payout multipliers
         // -------------------------------------------------
         $bets = Bet::where('fight_id', $fight->id)->get();
-
-        $winnerSide = $winner;
 
         $totalMeron = $bets->where('side', 'meron')->sum('amount');
         $totalWala  = $bets->where('side', 'wala')->sum('amount');
@@ -67,51 +109,22 @@ class PayoutService
         $meronOdds = OddsService::compute($net, $totalMeron);
         $walaOdds  = OddsService::compute($net, $totalWala);
 
-        $meronTotalSystemOver = $totalMeron > 0
-            ? $totalMeron * $meronOdds['overflow']
-            : 0;
-
-        $walaTotalSystemOver = $totalWala > 0
-            ? $totalWala * $walaOdds['overflow']
-            : 0;
-
-        $isMeronWinner = ($winnerSide === 'meron');
-        $isWalaWinner  = ($winnerSide === 'wala');
-
-        SystemOver::updateOrCreate(
-            ['fight_id' => $fight->id, 'side' => 'meron'],
-            [
-                'overflow'          => $meronOdds['overflow'],
-                'total_system_over' => $isMeronWinner ? $meronTotalSystemOver : 0,
-                'status'            => $isMeronWinner ? 'applied' : 'pending',
-            ]
-        );
-
-        SystemOver::updateOrCreate(
-            ['fight_id' => $fight->id, 'side' => 'wala'],
-            [
-                'overflow'          => $walaOdds['overflow'],
-                'total_system_over' => $isWalaWinner ? $walaTotalSystemOver : 0,
-                'status'            => $isWalaWinner ? 'applied' : 'pending',
-            ]
-        );
-
         $fight->update([
             'meron_payout' => $meronOdds['payout'],
             'wala_payout'  => $walaOdds['payout'],
         ]);
 
         // -------------------------------------------------
-        // 3) Apply new winner to all bets, but DO NOT
-        //    overwrite "short" status
+        // 3) apply winner payout to bets
+        // IMPORTANT: do NOT overwrite "locked not-win with short"
         // -------------------------------------------------
         foreach ($bets as $bet) {
 
-            // If it already has a short amount and is already claimed,
-            // leave it as NOT WIN with payout 0.
-            $isLockedShort = ($bet->is_claimed && ($bet->short_amount ?? 0) > 0);
+            $hasShort = ($bet->short_amount ?? 0) > 0;
 
-            if ($isLockedShort) {
+            // If it was already paid/refunded and now it's losing side,
+            // keep it NOT WIN and payout 0.
+            if ($bet->is_claimed && $hasShort && $bet->side !== $winner) {
                 $bet->update([
                     'is_win'        => false,
                     'payout_amount' => 0,
@@ -120,20 +133,19 @@ class PayoutService
                 continue;
             }
 
-            $isWin = $bet->side === $winnerSide;
+            $isWin = $bet->side === $winner;
 
             $newPayout = $isWin
-                ? ($bet->amount * ($winnerSide === 'meron'
-                    ? $fight->meron_payout
-                    : $fight->wala_payout))
+                ? ($bet->amount * ($winner === 'meron' ? $fight->meron_payout : $fight->wala_payout))
                 : 0;
 
             $bet->update([
                 'is_win'        => $isWin,
                 'payout_amount' => $newPayout,
+                'status'        => $isWin ? 'unpaid' : 'not win',
                 'is_claimed'    => $isWin ? false : $bet->is_claimed,
                 'claimed_at'    => $isWin ? null : $bet->claimed_at,
-                'status'        => $isWin ? 'unpaid' : 'not win',
+                'claimed_by'    => $isWin ? null : $bet->claimed_by,
             ]);
         }
 

@@ -143,9 +143,9 @@ class Betting extends Component
 
         $this->total_bets   = $allBets->sum('amount');
         $this->total_payout = $allBets->where('is_win', true)->where('status', 'paid')->sum('payout_amount');
-        $this->total_refund = $allBets->where('is_win', false)->where('status', 'refund')->sum('short_amount');
+        $this->total_refund = $allBets->where('status', 'refund')->sum('payout_amount');
         $this->total_unpaid = $allBets->where('is_win', true)->where('status', 'unpaid')->sum('payout_amount');
-        $this->total_short  = $allBets->where('is_win', false)->where('status', 'short')->sum('short_amount');
+        $this->total_short  = $allBets->sum('short_amount');
 
         // paginate (DO NOT store in $this->bets)
         $bets = $query->simplePaginate(5);
