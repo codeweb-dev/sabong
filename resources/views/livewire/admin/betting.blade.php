@@ -10,7 +10,7 @@
                     </p>
                     <p class="flex justify-between">
                         <span>total payout:</span>
-                        <span>{{ number_format($total_payout ?? 0, 0) }}</span>
+                        <span>{{ number_format(floor($total_payout ?? 0)) }}</span>
                     </p>
                     <p class="flex justify-between">
                         <span>total refund:</span>

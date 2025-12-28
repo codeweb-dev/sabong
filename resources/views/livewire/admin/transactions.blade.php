@@ -217,7 +217,7 @@
                                         {{ number_format($summary['total_bets'] ?? 0, 0) }}
                                     </td>
                                     <td class="px-2 sm:px-3 py-4 text-xs sm:text-sm">
-                                        {{ number_format($summary['total_payout'] ?? 0, 0) }}
+                                        {{ number_format(floor($summary['total_payout'] ?? 0)) }}
                                     </td>
                                 </tr>
                             @endforeach
