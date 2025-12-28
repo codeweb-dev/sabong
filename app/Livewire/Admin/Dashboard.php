@@ -37,11 +37,20 @@ class Dashboard extends Component
             return;
         }
 
+        $event = Event::find($this->selectedEventId);
+
+        if (!$event) {
+            Toaster::error("Event not found.");
+            return;
+        }
+
         Toaster::info("Preparing download...");
+
+        $fileName = $event->created_at->format('d-m-Y_H-i') . '.xlsx';
 
         return Excel::download(
             new EventReportExport($this->selectedEventId),
-            'event-report-' . $this->selectedEventId . '.xlsx'
+            $fileName
         );
     }
 

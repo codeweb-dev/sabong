@@ -29,7 +29,11 @@ class EventReportExport implements WithEvents, WithTitle
 
                 $ev = Event::query()
                     ->with(['fights' => fn($q) => $q->orderBy('fight_number')])
-                    ->withSum('bets as total_bets', 'amount')
+                    ->withSum(['bets as total_bets' => function ($q) {
+                        $q->whereHas('fight', function ($fq) {
+                            $fq->whereNotIn('winner', ['cancel', 'draw']);
+                        });
+                    }], 'amount')
                     ->withSum('grossIncomes as total_gross_income', 'income')
                     ->withSum([
                         'systemOvers as total_system_over_applied' => function ($q) {
@@ -39,8 +43,8 @@ class EventReportExport implements WithEvents, WithTitle
                     ->findOrFail($this->eventId);
 
                 // optional "short" sum (from bets.short_amount)
-                $shortTotal = (float) $ev->bets()
-                    ->sum('short_amount');
+                $shortTotal = (float) ($ev->bets()
+                    ->sum('short_amount') ?? 0);
 
                 // ---------- Layout (match your screenshot style) ----------
                 // Column widths
@@ -76,14 +80,21 @@ class EventReportExport implements WithEvents, WithTitle
                 $row = $startRow + 1;
 
                 foreach ($ev->fights as $fight) {
-                    $meron = (float) ($fight->meron_bet ?? 0);
-                    $wala  = (float) ($fight->wala_bet ?? 0);
-                    $total = $meron + $wala;
+                    $winner = strtolower((string) ($fight->winner ?? ''));
 
-                    // payout: show the winner payout (or 0)
+                    $isCancelOrDraw = in_array($winner, ['cancel', 'draw'], true);
+
+                    // If cancel/draw => zero out values
+                    $meron = $isCancelOrDraw ? 0 : (float) ($fight->meron_bet ?? 0);
+                    $wala  = $isCancelOrDraw ? 0 : (float) ($fight->wala_bet ?? 0);
+                    $total = $isCancelOrDraw ? 0 : ($meron + $wala);
+
+                    // payout: winner payout (or 0). If cancel/draw => 0.
                     $payout = 0;
-                    if ($fight->winner === 'meron') $payout = (float) ($fight->meron_payout ?? 0);
-                    if ($fight->winner === 'wala')  $payout = (float) ($fight->wala_payout ?? 0);
+                    if (!$isCancelOrDraw) {
+                        if ($winner === 'meron') $payout = (float) ($fight->meron_payout ?? 0);
+                        if ($winner === 'wala')  $payout = (float) ($fight->wala_payout ?? 0);
+                    }
 
                     $sheet->setCellValue("A{$row}", (int) $fight->fight_number);
                     $sheet->setCellValue("B{$row}", $meron);
@@ -92,7 +103,8 @@ class EventReportExport implements WithEvents, WithTitle
                     $sheet->setCellValue("E{$row}", $payout);
                     $sheet->setCellValue("F{$row}", $total);
 
-                    $sheet->getStyle("A{$row}:F{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle("A{$row}:F{$row}")
+                        ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                     $row++;
                 }
@@ -131,7 +143,7 @@ class EventReportExport implements WithEvents, WithTitle
                 $sheet->setCellValue("B" . ($sumRow + 2), $systemOver);
 
                 $sheet->setCellValue("A" . ($sumRow + 3), 'SHORT:');
-                $sheet->setCellValue("B" . ($sumRow + 3), $shortTotal ?: '-');
+                $sheet->setCellValue("B" . ($sumRow + 3), $shortTotal ?: '0.00');
 
                 $sheet->getStyle("A{$sumRow}:A" . ($sumRow + 3))->getFont()->setBold(true);
 
