@@ -195,14 +195,14 @@ class Dashboard extends Component
             return;
         }
 
-        $bet = $this->findBetByTicket($this->reprintTicketNo, true);
+        $bet = $this->findBetByTicket($this->reprintTicketNo);
 
         if (!$bet) {
             Toaster::error('No bet found with that ticket number.');
             return;
         }
 
-        if (app(PrinterService::class)->printTicket($bet, true)) {
+        if (app(PrinterService::class)->printTicket($bet)) {
             Toaster::success('Ticket reprinted!');
         } else {
             Toaster::error('Reprint failed.');

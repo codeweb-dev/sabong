@@ -11,35 +11,8 @@ class PrinterService
 {
     protected string $printerName = "POS-80";
 
-    /**
-     * Check printer connection BEFORE sending ESC/POS print jobs.
-     * Prevents Windows spooler from storing queued prints.
-     */
-    private function printerIsAvailable(): bool
+    public function printTicket(Bet $bet): bool
     {
-        // Try a non-spooling connection test
-        try {
-            // Attempt to open the printer port silently
-            $test = @fopen("smb://localhost/{$this->printerName}", "rb");
-
-            if (!$test) {
-                return false; // Printer unreachable
-            }
-
-            fclose($test);
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
-    public function printTicket(Bet $bet, bool $isReprint = false): bool
-    {
-        // 🔥 Solution A: Block print if printer is offline
-        if (!$this->printerIsAvailable()) {
-            return false; // No queue, no spooler job created!
-        }
-
         try {
             $connector = new WindowsPrintConnector($this->printerName);
             $printer = new Printer($connector);
@@ -69,11 +42,6 @@ class PrinterService
             $printer->text(Carbon::now()->timezone('Asia/Manila')->format('M d, Y h:i A') . "\n\n");
             $printer->barcode($bet->ticket_no, Printer::BARCODE_CODE39);
             $printer->text($bet->ticket_no . "\n\n");
-
-            // REPRINT NOTE
-            if ($isReprint) {
-                $printer->text("** REPRINTED COPY **\n");
-            }
 
             $printer->text("Thank you for betting!\n");
             $printer->feed(3);
