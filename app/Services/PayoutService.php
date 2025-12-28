@@ -20,8 +20,11 @@ class PayoutService
         if (
             $previousWinner &&
             $previousWinner !== $winner &&
-            in_array($previousWinner, ['meron', 'wala'])
+            in_array($previousWinner, ['draw', 'cancel']) &&
+            in_array($winner, ['meron', 'wala'])
         ) {
+            $fight->update(['is_refunded' => false]);
+
             $paidWrongBets = Bet::where('fight_id', $fight->id)
                 ->where('side', $previousWinner)
                 ->where('is_claimed', true)
@@ -29,20 +32,15 @@ class PayoutService
                 ->get();
 
             foreach ($paidWrongBets as $wrongBet) {
-
                 // move what was paid into short_amount
                 $wrongBet->short_amount  = ($wrongBet->short_amount ?? 0) + ($wrongBet->payout_amount ?? 0);
-
                 // remove payout because it was wrong
                 $wrongBet->payout_amount = 0;
-
                 // IMPORTANT: UI should show NOT WIN, not SHORT
                 $wrongBet->status     = 'not win';
                 $wrongBet->is_win     = false;
-
                 // keep claimed (already paid before), keep claimed time
                 $wrongBet->is_claimed = true;
-
                 $wrongBet->save();
             }
         }
