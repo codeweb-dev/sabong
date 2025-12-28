@@ -14,6 +14,7 @@ use Livewire\WithPagination;
 use Masmerise\Toaster\Toaster;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TellerReportExport;
+use App\Services\PrinterService;
 use Flux\Flux;
 
 class Transaction extends Component
@@ -54,7 +55,7 @@ class Transaction extends Component
         return Auth::user();
     }
 
-    public function downloadReport()
+    public function printReport(PrinterService $printerService)
     {
         $event = $this->currentEvent();
 
@@ -63,12 +64,15 @@ class Transaction extends Component
             return;
         }
 
-        Toaster::info('Preparing your report...');
+        Toaster::info('Printing teller report...');
 
-        return Excel::download(
-            new TellerReportExport(Auth::id(), $event->id),
-            'teller-report-' . $event->id . '-' . Auth::id() . '.xlsx'
-        );
+        $ok = $printerService->printTellerReport(Auth::id(), $event->id);
+
+        if ($ok) {
+            Toaster::success('Teller report printed.');
+        } else {
+            Toaster::error('Printing failed. Please check printer connection.');
+        }
     }
 
     private function currentEvent(): ?Event

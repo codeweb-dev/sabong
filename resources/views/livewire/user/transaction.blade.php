@@ -11,7 +11,9 @@
                 <flux:button>Received</flux:button>
             </flux:modal.trigger>
 
-            <flux:button wire:click="downloadReport">Print Report</flux:button>
+            <button wire:click="printReport" type="button">
+                Print Report
+            </button>
         </div>
     </div>
 
