@@ -268,8 +268,7 @@
                                         @if ($previewBet->is_win)
                                             <div class="flex items-center gap-4">
                                                 <span class="font-semibold">Payout:</span>
-                                                <span
-                                                    class="font-extrabold text-green-700 text-right">
+                                                <span class="font-extrabold text-green-700 text-right">
                                                     {{ number_format($previewBet->payout_amount ?? 0, 0) }}
                                                 </span>
                                             </div>
@@ -317,75 +316,77 @@
     </div>
 
     <script>
-        document.addEventListener('keydown', function(event) {
-            const target = event.target;
-            const tag = target?.tagName || '';
-            const isTypingEl = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag);
+        if (!window.__betShortcutsBound) {
+            window.__betShortcutsBound = true;
 
-            const amountInput = document.getElementById('amount-input');
-            const isAmountField = target && target.id === 'amount-input';
+            document.addEventListener('keydown', function(event) {
+                const target = event.target;
+                const tag = target?.tagName || '';
+                const isTypingEl = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag);
 
-            let scanFocusLock = false;
+                const amountInput = document.getElementById('amount-input');
+                const isAmountField = target && target.id === 'amount-input';
 
-            // Only block shortcuts when typing in OTHER inputs (ticket no, etc.)
-            const blockShortcuts = isTypingEl && !isAmountField;
+                // Only block shortcuts when typing in OTHER inputs
+                const blockShortcuts = isTypingEl && !isAmountField;
 
-            const unfocusAmount = () => {
-                if (amountInput) amountInput.blur();
-            };
+                const unfocusAmount = () => {
+                    if (amountInput) amountInput.blur();
+                };
 
-            // SPACE → focus amount field (only if not typing anywhere)
-            if (event.code === 'Space' && !isTypingEl) {
-                event.preventDefault();
-                if (amountInput) {
-                    amountInput.focus();
-                    amountInput.select();
-                }
-            }
-
-            // "-" → clear amount + unfocus (allow even if amount field is focused)
-            if (event.key === '-' && !blockShortcuts) {
-                event.preventDefault();
-                unfocusAmount();
-
-                const clearBtn = document.getElementById('clear-amount-btn');
-                if (clearBtn) clearBtn.click();
-            }
-
-            // "/" → open Meron modal + unfocus (allow even if amount field is focused)
-            if (event.key === '/' && !blockShortcuts) {
-                event.preventDefault();
-                unfocusAmount();
-
-                const meronBtn = document.getElementById('meron-btn');
-                if (meronBtn && !meronBtn.disabled) meronBtn.click();
-            }
-
-            // "*" → open Wala modal + unfocus (allow even if amount field is focused)
-            if ((event.key === '*' || (event.shiftKey && event.key === '8')) && !blockShortcuts) {
-                event.preventDefault();
-                unfocusAmount();
-
-                const walaBtn = document.getElementById('wala-btn');
-                if (walaBtn && !walaBtn.disabled) walaBtn.click();
-            }
-
-            // ENTER → confirm modal (allow even if amount field is focused)
-            if (event.key === 'Enter' && !blockShortcuts) {
-                const isVisible = (el) => el && el.offsetParent !== null;
-
-                const meronConfirm = document.getElementById('meron-confirm-btn');
-                const walaConfirm = document.getElementById('wala-confirm-btn');
-
-                if (isVisible(meronConfirm)) {
+                // SPACE → focus amount field
+                if (event.code === 'Space' && !isTypingEl) {
                     event.preventDefault();
-                    meronConfirm.click();
-                } else if (isVisible(walaConfirm)) {
-                    event.preventDefault();
-                    walaConfirm.click();
+                    if (amountInput) {
+                        amountInput.focus();
+                        amountInput.select();
+                    }
                 }
-            }
-        });
+
+                // "-" → clear amount
+                if (event.key === '-' && !blockShortcuts) {
+                    event.preventDefault();
+                    unfocusAmount();
+                    document.getElementById('clear-amount-btn')?.click();
+                }
+
+                // "/" → open Meron modal
+                if (event.key === '/' && !blockShortcuts) {
+                    event.preventDefault();
+                    unfocusAmount();
+                    const meronBtn = document.getElementById('meron-btn');
+                    if (meronBtn && !meronBtn.disabled) meronBtn.click();
+                }
+
+                // "*" → open Wala modal
+                if ((event.key === '*' || (event.shiftKey && event.key === '8')) && !blockShortcuts) {
+                    event.preventDefault();
+                    unfocusAmount();
+                    const walaBtn = document.getElementById('wala-btn');
+                    if (walaBtn && !walaBtn.disabled) walaBtn.click();
+                }
+
+                // ENTER → confirm modal
+                // IMPORTANT: don't double-trigger when a button is already focused (native click happens)
+                if (event.key === 'Enter' && !blockShortcuts) {
+                    const focusedTag = (document.activeElement?.tagName || '').toUpperCase();
+                    if (focusedTag === 'BUTTON') return; // let native button Enter click happen
+
+                    const isVisible = (el) => el && el.offsetParent !== null;
+
+                    const meronConfirm = document.getElementById('meron-confirm-btn');
+                    const walaConfirm = document.getElementById('wala-confirm-btn');
+
+                    if (isVisible(meronConfirm)) {
+                        event.preventDefault();
+                        meronConfirm.click();
+                    } else if (isVisible(walaConfirm)) {
+                        event.preventDefault();
+                        walaConfirm.click();
+                    }
+                }
+            });
+        }
 
         function focusBarcode() {
             const input = document.getElementById('barcode-field');
