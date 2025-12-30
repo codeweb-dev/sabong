@@ -175,8 +175,14 @@
                 Gross Income: {{ number_format($selectedEvent->total_gross_income ?? 0, 2) }}
             </flux:heading>
 
+            @php
+                $systemOverTotal =
+                    ($selectedEvent->sum_system_overflow_applied ?? 0) +
+                    ($selectedEvent->sum_total_system_over_applied ?? 0);
+            @endphp
+
             <flux:heading size="lg" class="uppercase">
-                System Over: {{ number_format($selectedEvent->total_system_over_applied ?? 0, 2) }}
+                System Over: {{ number_format($systemOverTotal ?? 0, 5) }}
             </flux:heading>
         </div>
     </div>

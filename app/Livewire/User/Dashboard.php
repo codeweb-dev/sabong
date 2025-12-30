@@ -461,15 +461,13 @@ class Dashboard extends Component
 
         // ----- PUSH REMAINDER INTO SYSTEM_OVER -----
         // We store the remainder on the row of this fight + side (winner side)
-        $systemOver = SystemOver::firstOrCreate(
+        $systemOver = SystemOver::updateOrCreate(
             [
                 'fight_id' => $bet->fight_id,
-                'side'     => $bet->side, // winner side of this ticket
+                'side'     => $bet->side,
             ],
             [
-                'overflow'          => 0,
-                'total_system_over' => 0,
-                'status'            => 'applied', // or 'pending', up to you
+                'status' => 'applied',
             ]
         );
 

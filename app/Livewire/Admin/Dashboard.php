@@ -242,11 +242,8 @@ class Dashboard extends Component
 
         if ($this->selectedEventId) {
             $selectedEvent = Event::where('id', $this->selectedEventId)
-                ->withSum([
-                    'systemOvers as total_system_over_applied' => function ($q) {
-                        $q->where('system_overs.status', 'applied');
-                    }
-                ], 'total_system_over')
+                ->withSum('systemOversApplied as sum_system_overflow_applied', 'overflow')
+                ->withSum('systemOversApplied as sum_total_system_over_applied', 'total_system_over')
                 ->withSum(['bets as total_bets' => fn($q) => $q->where('is_refunded', 0)], 'amount')
                 ->withSum(['meronBets as total_bets_meron' => fn($q) => $q->where('is_refunded', 0)], 'amount')
                 ->withSum(['walaBets as total_bets_wala' => fn($q) => $q->where('is_refunded', 0)], 'amount')
