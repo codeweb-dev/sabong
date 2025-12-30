@@ -493,6 +493,8 @@ class Dashboard extends Component
         $this->cashOnHand = $this->getEventCash();
         $this->previewBet = null;
 
+        app(PrinterService::class)->printPayoutTicket($bet->fresh());
+
         Toaster::success('Payout successful!');
         Flux::modal('preview-modal')->close();
         broadcast(new TransactionsUpdated($this->currentEventId()));

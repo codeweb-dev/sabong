@@ -133,4 +133,69 @@ class PrinterService
             return false;
         }
     }
+
+    public function printPayoutTicket(Bet $bet): bool
+    {
+        try {
+            // make sure relations exist (avoid null errors)
+            $bet->loadMissing(['fight.event', 'user']);
+
+            $connector = new WindowsPrintConnector($this->printerName);
+            $printer   = new Printer($connector);
+
+            $printer->setJustification(Printer::JUSTIFY_CENTER);
+
+            // HEADER
+            $printer->setTextSize(2, 2);
+            $printer->text("PAYOUT\n");
+            $printer->setTextSize(2, 1);
+            $printer->text(strtoupper($bet->side) . "\n\n");
+
+            $printer->text("-----------------------\n");
+
+            // INFO
+            $printer->setJustification(Printer::JUSTIFY_LEFT);
+            $printer->text("Event Name:   " . ($bet->fight?->event?->event_name ?? 'N/A') . "\n");
+            $printer->text("Description:  " . ($bet->fight?->event?->description ?? 'N/A') . "\n");
+            $printer->text("-----------------------\n");
+
+            $printer->text("Inputed By:   " . ($bet->user?->username ?? 'N/A') . "\n");
+            $printer->text("Ticket No:    " . ($bet->ticket_no ?? 'N/A') . "\n");
+            $printer->text("Fight No:     " . ($bet->fight?->fight_number ?? 'N/A') . "\n");
+            $printer->text("Bet Amount:   " . number_format((float) $bet->amount, 2) . "\n");
+            $printer->text("Payout Amt:   " . number_format((float) $bet->payout_amount, 2) . "\n");
+
+            $printer->text("-----------------------\n");
+
+            // status line
+            $status = strtoupper($bet->status ?? 'PAID'); // paid/refund
+            $printer->setJustification(Printer::JUSTIFY_CENTER);
+            $printer->setTextSize(2, 2);
+            $printer->text($status . "\n");
+            $printer->setTextSize(1, 1);
+
+            $printer->text("-----------------------\n");
+
+            // DATE + BARCODE
+            $printer->text(
+                Carbon::parse($bet->claimed_at ?? now())
+                    ->timezone('Asia/Manila')
+                    ->format('M d, Y h:i A')
+                    . "\n\n"
+            );
+
+            $printer->barcode($bet->ticket_no, Printer::BARCODE_CODE39);
+            $printer->text($bet->ticket_no . "\n\n");
+
+            $printer->text("Thank you!\n");
+            $printer->feed(3);
+            $printer->cut();
+            $printer->close();
+
+            return true;
+        } catch (\Exception $e) {
+            report($e);
+            return false;
+        }
+    }
 }
