@@ -36,7 +36,12 @@ class EventReportExport implements WithEvents, WithTitle
                     }], 'amount')
                     ->withSum('grossIncomes as total_gross_income', 'income')
                     ->withSum([
-                        'systemOvers as total_system_over_applied' => function ($q) {
+                        'systemOvers as total_system_overflow_applied' => function ($q) {
+                            $q->where('system_overs.status', 'applied');
+                        }
+                    ], 'overflow')
+                    ->withSum([
+                        'systemOvers as total_system_over_cash_applied' => function ($q) {
                             $q->where('system_overs.status', 'applied');
                         }
                     ], 'total_system_over')
@@ -131,7 +136,8 @@ class EventReportExport implements WithEvents, WithTitle
 
                 $totalBet = (float) ($ev->total_bets ?? 0);
                 $grossIncome = (float) ($ev->total_gross_income ?? ($totalBet * 0.06)); // fallback if you want
-                $systemOver = (float) ($ev->total_system_over_applied ?? 0);
+                $systemOver = (float) ($ev->total_system_overflow_applied ?? 0)
+                    + (float) ($ev->total_system_over_cash_applied ?? 0);
 
                 $sheet->setCellValue("A{$sumRow}", 'TOTAL BET:');
                 $sheet->setCellValue("B{$sumRow}", $totalBet);
