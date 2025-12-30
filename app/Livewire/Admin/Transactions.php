@@ -226,7 +226,7 @@ class Transactions extends Component
             $totalPayout = Bet::whereHas('fight', function ($q) use ($eventId) {
                 $q->where('event_id', $eventId);
             })
-                ->where('status', 'paid')
+                ->whereIn('status', ['paid', 'refund'])
                 ->where('is_win', true)
                 ->where('claimed_by', $user->id)   // <- the one who PAID
                 ->sum('payout_amount');
