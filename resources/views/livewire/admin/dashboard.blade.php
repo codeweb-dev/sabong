@@ -182,7 +182,7 @@
             @endphp
 
             <flux:heading size="lg" class="uppercase">
-                System Over: {{ number_format($systemOverTotal ?? 0, 5) }}
+                System Over: {{ number_format($computedSystemOver ?? 0, 5) }}
             </flux:heading>
         </div>
     </div>

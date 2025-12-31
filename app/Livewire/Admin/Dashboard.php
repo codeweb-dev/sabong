@@ -239,11 +239,43 @@ class Dashboard extends Component
         $events = $this->events;
 
         $selectedEvent = null;
+        $computedSystemOver = 0.0;
+
+        if ($this->selectedEventId) {
+
+            $fights = Fight::where('event_id', $this->selectedEventId)
+                ->whereNotNull('winner')
+                ->whereNotIn('winner', ['draw', 'cancel'])
+                ->with([
+                    'bets:id,fight_id,side,amount',
+                    'systemOvers:id,fight_id,side,overflow,total_system_over,status',
+                ])
+                ->get();
+
+            foreach ($fights as $fight) {
+                $winnerSide = $fight->winner;
+
+                $applied = $fight->systemOvers
+                    ->where('status', 'applied')
+                    ->where('side', $winnerSide)
+                    ->first();
+
+                if (!$applied) continue;
+
+                $multiplier = (float) ($applied->overflow ?? 0);
+                if ($multiplier <= 0) continue;
+
+                $winningSideTotalBet = (float) $fight->bets
+                    ->where('side', $winnerSide)
+                    ->sum('amount');
+
+                $computedSystemOver += ($winningSideTotalBet * $multiplier)
+                    + (float) ($applied->total_system_over ?? 0);
+            }
+        }
 
         if ($this->selectedEventId) {
             $selectedEvent = Event::where('id', $this->selectedEventId)
-                ->withSum('systemOversApplied as sum_system_overflow_applied', 'overflow')
-                ->withSum('systemOversApplied as sum_total_system_over_applied', 'total_system_over')
                 ->withSum(['bets as total_bets' => fn($q) => $q->where('is_refunded', 0)], 'amount')
                 ->withSum(['meronBets as total_bets_meron' => fn($q) => $q->where('is_refunded', 0)], 'amount')
                 ->withSum(['walaBets as total_bets_wala' => fn($q) => $q->where('is_refunded', 0)], 'amount')
@@ -254,6 +286,7 @@ class Dashboard extends Component
         return view('livewire.admin.dashboard', [
             'events'        => $events,
             'selectedEvent' => $selectedEvent,
+            'computedSystemOver' => $computedSystemOver,
         ]);
     }
 }
