@@ -109,6 +109,39 @@ class PayoutService
         $meronOdds = OddsService::compute($net, $totalMeron);
         $walaOdds  = OddsService::compute($net, $totalWala);
 
+        if ($previousWinner && $previousWinner !== $winner) {
+            if (in_array($previousWinner, ['meron', 'wala'])) {
+                SystemOver::where('fight_id', $fight->id)
+                    ->where('side', $previousWinner)
+                    ->where('status', 'applied')
+                    ->update(['status' => 'pending']);
+            }
+
+            if (in_array($winner, ['meron', 'wala'])) {
+                SystemOver::updateOrCreate(
+                    [
+                        'fight_id' => $fight->id,
+                        'side'     => $winner,
+                    ],
+                    [
+                        'status' => 'applied',
+                    ]
+                );
+            }
+        } else {
+            if (in_array($winner, ['meron', 'wala'])) {
+                SystemOver::updateOrCreate(
+                    [
+                        'fight_id' => $fight->id,
+                        'side'     => $winner,
+                    ],
+                    [
+                        'status' => 'applied',
+                    ]
+                );
+            }
+        }
+
         $fight->update([
             'meron_payout' => $meronOdds['payout'],
             'wala_payout'  => $walaOdds['payout'],
